@@ -216,3 +216,18 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# AI models
+*.pt
+*.bin
+
+# Audio
+*.wav
+*.mp3
+*.ogg
+
+# Local DataBase
+chroma_db/
+
+# Environment Variables
+.env
