@@ -11,6 +11,14 @@ function Import() {
       setAudioFile(file)
     }
   }
+  const sendRecording = () => {
+    if (audioFile) {
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(audioFile)
+        a.download = 'audio/enregistrement.wav'  // name file
+        a.click()
+    }
+  }
 
   return (
     <div id="Importation_div">
@@ -36,6 +44,9 @@ function Import() {
             onClick={() => setAudioFile(null)}
           >
             Changer de fichier
+          </button>
+          <button className="send-import" onClick={sendRecording}>
+            Envoyer l'enregistrement
           </button>
         </div>
       )}
