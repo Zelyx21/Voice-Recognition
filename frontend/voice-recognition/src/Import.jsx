@@ -9,18 +9,16 @@ function Import() {
     const file = event.target.files[0]
     if (file) {
       setAudioFile(file)
-      console.log("Fichier prêt :", file.name)
     }
   }
 
   return (
-    <main id="center">
-      <h1>Voice Recognition</h1>
+    <div id="Importation_div">
       
       {!audioFile ? (
-        <>
-          {/* Label stylisé qui sert de bouton */}
-          <label htmlFor="audio-upload" className="custom-button">
+        //If audioFile is empty
+        <> 
+          <label htmlFor="audio-upload" className="button-import">
             Importer un fichier audio
           </label>
           <input
@@ -28,21 +26,20 @@ function Import() {
             type="file"
             accept="audio/*"
             onChange={handleFileChange}
-            style={{ display: 'none' }}
           />
         </>
       ) : (
         <div className="file-info">
           <p>Fichier sélectionné : <strong>{audioFile.name}</strong></p>
           <button 
-            className="custom-button secondary" 
+            className="remove-import" 
             onClick={() => setAudioFile(null)}
           >
             Changer de fichier
           </button>
         </div>
       )}
-    </main>
+    </div>
   )
 }
 
