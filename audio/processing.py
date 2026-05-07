@@ -58,9 +58,7 @@ else:  # open space, outside, ...
 # ------------------------Denoise the file----------------------------------------------
 
 audio_denoised = nr.reduce_noise(y=audio, sr=sr, stationary=True, prop_decrease=stat)
-audio_denoised = nr.reduce_noise(
-    y=audio_denoised, sr=sr, stationary=False, prop_decrease=nonstat
-)
+audio_denoised = nr.reduce_noise(y=audio_denoised, sr=sr, stationary=False, prop_decrease=nonstat)
 
 # ------------------------Cut the gaps------------------------------------------------
 
