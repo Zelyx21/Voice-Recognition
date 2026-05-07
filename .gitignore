@@ -220,6 +220,7 @@ __marimo__/
 # AI models
 *.pt
 *.bin
+*.ckpt
 
 # Audio
 *.wav
