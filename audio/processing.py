@@ -1,5 +1,5 @@
 """
-Python file that take a wav file and :
+Python file that takes a wav file and :
     - resample it
     - denoise it
     - cut the gaps
@@ -8,7 +8,7 @@ Python file that take a wav file and :
 import librosa
 import soundfile as sf
 import noisereduce as nr
-from silero_vad import load_silero_vad, read_audio, get_speech_timestamps
+from silero_vad import load_silero_vad, get_speech_timestamps
 import numpy as np
 import torch
 
@@ -29,7 +29,7 @@ wav_raw = torch.FloatTensor(audio)
 
 timestamps_raw = get_speech_timestamps(wav_raw, model_vad, return_seconds=True)
 
-# get the times when the audio has no voice
+# get the times where the audio has no voice
 silence_mask = np.ones(len(audio), dtype=bool)
 for segment in timestamps_raw:
     start = int(segment["start"] * sr)
@@ -39,7 +39,7 @@ for segment in timestamps_raw:
 silence_audio = audio[silence_mask]
 
 # default if not enough "silence" (no voice)
-if len(silence_audio) < sr * 0.3:  # if there is less than 3ms of silence
+if len(silence_audio) < sr * 0.3:  # if there is less than 300ms of silence
     silence_audio = audio[: int(sr * 0.3)]
 
 # levels of denoise based on the silence audios
