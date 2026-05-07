@@ -43,7 +43,7 @@ print(embedding)
 
 # ------------------send the vector-----------------------
 
-#send to FastAPI
+# send to FastAPI
 
 # ------------------references-----------------------
 """
