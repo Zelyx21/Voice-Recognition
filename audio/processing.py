@@ -22,10 +22,14 @@ output_path = "audio\\audio_output_processing\\" + str(name_file)
 
 audio, sr = librosa.load(input_path, sr=16000)
 
+# ------------------------Get an audio extract to adapt the denoise---------------------
+
+
+
 # ------------------------Denoise the file----------------------------------------------
 
-audio_denoised = nr.reduce_noise(y=audio, sr=sr, stationary=True,prop_decrease=0.8)
-audio_denoised = nr.reduce_noise(y=audio, sr=sr, stationary=False,prop_decrease=0.8)
+audio_denoised = nr.reduce_noise(y=audio, sr=sr, stationary=True,prop_decrease=0.75)
+audio_denoised = nr.reduce_noise(y=audio_denoised, sr=sr, stationary=False,prop_decrease=0.65)
 
 # ------------------------Cut the gaps------------------------------------------------
 
