@@ -5,6 +5,7 @@ Python file which takes an audio wav and returns a vector
 from speechbrain.inference.classifiers import EncoderClassifier as sb
 import soundfile as sf
 import torch
+import numpy
 
 # ------------------charge the model-----------------------
 
@@ -17,7 +18,7 @@ speechbrain_model = sb.from_hparams(
 # modify for FastAPI
 file = "test.wav"
 input_file = "audio\\audio_output_processing\\" + str(file)
-output_file = "ai\\vecteur\\"
+output_file = "ai\\vector\\"+str(file).rsplit(".", 1)[0]
 
 # change the type of the audio to be compatible with speechbrain
 audio, sr = sf.read(input_file)
@@ -39,11 +40,10 @@ embedding = embedding.squeeze().cpu().numpy()
 # cpu deactivate the usage of gpu if it was used
 # numpy converts it to a numpy to give it to Qdrant
 
-print(embedding)
-
 # ------------------send the vector-----------------------
 
 # send to FastAPI
+numpy.save(output_file, embedding)
 
 # ------------------references-----------------------
 """
