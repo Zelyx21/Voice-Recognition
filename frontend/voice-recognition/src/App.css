@@ -1,30 +1,27 @@
-.audio-upload {
-  font-family: var(--mono);
+.button-import {
   font-size: 16px;
   padding: 12px 24px;
   border-radius: 8px;
   color: white;
-  background: var(--accent);
   border: none;
   cursor: pointer;
-  transition: transform 0.2s, opacity 0.2s;
   display: inline-block;
 }
 
-.custom-button:hover {
+.button-import:hover {
   opacity: 0.9;
   transform: translateY(-2px);
 }
 
-.custom-button.secondary {
-  background: var(--text);
+.remove-import {
   font-size: 14px;
   margin-top: 15px;
 }
 
 .file-info {
-  background: var(--code-bg);
   padding: 20px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+  border: 1px solid;
 }
+
+
