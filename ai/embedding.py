@@ -30,7 +30,7 @@ if audio.ndim == 1:
 
 # ------------------get the vector-----------------------
 
-with torch.no_grad():  # deactivate gradients to save memory and accelerate
+with torch.no_grad():  # deactivate gradients to save memory and accelerate because we don't train the model
     embedding = speechbrain_model.encode_batch(audio)
 
 # ------------------clean the vector-----------------------
