@@ -40,7 +40,9 @@ silence_audio = audio[silence_mask]
 
 # default if not enough "silence" (no voice)
 if len(silence_audio) < sr * 0.3:  # if there is less than 300ms of silence
-    silence_audio = audio[: int(sr * 0.3)]
+    start_sample = audio[:int(sr * 0.15)]
+    end_sample = audio[-int(sr * 0.15):]
+    silence_audio = np.concatenate([start_sample, end_sample])
 
 # levels of denoise based on the silence audios
 noise_level = np.sqrt(
