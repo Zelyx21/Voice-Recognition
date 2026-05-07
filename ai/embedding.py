@@ -41,6 +41,10 @@ embedding = embedding.squeeze().cpu().numpy()
 
 print(embedding)
 
+# ------------------send the vector-----------------------
+
+#send to FastAPI
+
 # ------------------references-----------------------
 """
 @inproceedings{DBLP:conf/interspeech/DesplanquesTD20,
