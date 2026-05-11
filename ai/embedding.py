@@ -5,7 +5,7 @@ Python file which takes an audio wav and returns a vector
 from speechbrain.inference.classifiers import EncoderClassifier as sb
 import soundfile as sf
 import torch
-import numpy
+import numpy as np
 
 # ------------------charge the model-----------------------
 
@@ -14,36 +14,30 @@ speechbrain_model = sb.from_hparams(
     source="ai\\model\\spkrec-ecapa-voxceleb", run_opts={"device": device}
 )
 
-# ------------------charge the audio-----------------------
-# modify for FastAPI
-file = "sid..2.wav"
-input_file = "audio\\audio_output_processing\\" + str(file)
-output_file = "ai\\vector\\"+str(file).rsplit(".", 1)[0]
+def embedding(audio: np.ndarray):
+    """
+    Takes an audio bytes and returns a numpy embedding
+    """
+    # ------------------charge the audio-----------------------
 
-# change the type of the audio to be compatible with speechbrain
-audio, sr = sf.read(input_file)
-audio = torch.tensor(audio).float()  # need float32 and not 64 for speechbrain/torch
-if audio.ndim == 1:
-    audio = audio.unsqueeze(
-        0
-    )  # add a dimension for speechbrain (piepline ECAPA-TDNN) (1, samples)
+    # change the type of the audio to be compatible with speechbrain
+    audio = torch.tensor(audio).float()  # need float32 and not 64 for speechbrain/torch
+    if audio.ndim == 1:
+        audio = audio.unsqueeze(
+            0
+        )  # add a dimension for speechbrain (piepline ECAPA-TDNN) (1, samples)
 
-# ------------------get the vector-----------------------
+    # ------------------get the vector-----------------------
 
-with torch.no_grad():  # deactivate gradients to save memory and accelerate because we don't train the model
-    embedding = speechbrain_model.encode_batch(audio)
+    with torch.no_grad():  # deactivate gradients to save memory and accelerate because we don't train the model
+        embedding = speechbrain_model.encode_batch(audio)
 
-# ------------------clean the vector-----------------------
+    # ------------------clean the vector-----------------------
 
-embedding = embedding.squeeze().cpu().numpy()
-# squeeze comes back to dimension 1
-# cpu deactivate the usage of gpu if it was used
-# numpy converts it to a numpy to give it to Qdrant
-
-# ------------------send the vector-----------------------
-
-# send to FastAPI
-numpy.save(output_file, embedding)
+    return embedding.squeeze().cpu().numpy()
+    # squeeze comes back to dimension 1
+    # cpu deactivate the usage of gpu if it was used
+    # numpy converts it to a numpy to give it to Qdrant
 
 # ------------------references-----------------------
 """

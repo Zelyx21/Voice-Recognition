@@ -32,7 +32,9 @@ def search_similarity(client, base, query_vector, top_k=1):
             exact=False # Set to True for exact search, False for approximate search 
         )
     )
-    return search_result
+    print(type(search_result))
+    print(search_result)
+    return search_result.points
 
 def search_similarity_attributes(client, base, query_vector, top_k=1): # Get attribute of the search result
     response = search_similarity(client, base, query_vector, top_k)
