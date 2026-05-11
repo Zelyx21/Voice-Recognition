@@ -16,7 +16,7 @@ speechbrain_model = sb.from_hparams(
 
 # ------------------charge the audio-----------------------
 # modify for FastAPI
-file = "test.wav"
+file = "sid..2.wav"
 input_file = "audio\\audio_output_processing\\" + str(file)
 output_file = "ai\\vector\\"+str(file).rsplit(".", 1)[0]
 
