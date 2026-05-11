@@ -4,20 +4,32 @@ import './App.css'
 
 function Import() {
   const [audioFile, setAudioFile] = useState(null)
+  const[result, setResult] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   const handleFileChange = (event) => {
     const file = event.target.files[0]
     if (file) {
       setAudioFile(file)
+      setResult(null)
     }
   }
-  const sendRecording = () => {
-    if (audioFile) {
-        const a = document.createElement('a')
-        a.href = URL.createObjectURL(audioFile)
-        a.download = 'audio/enregistrement.wav'  // name file
-        a.click()
-    }
+
+  const sendRecording = async () => {
+    if (!audioFile) return
+
+    setLoading(true)
+    const formData = new FormData()
+    formData.append("file",audioFile)
+
+    const response = await fetch("http://localhost:8000/identify", {
+      method: "POST",
+      body: formData,
+    })
+
+    const data = await response.json()
+    setResult(data)
+    setLoading(false)
   }
 
   return (
@@ -45,9 +57,16 @@ function Import() {
           >
             Changer de fichier
           </button>
-          <button className="send-import" onClick={sendRecording}>
-            Envoyer l'enregistrement
+          <button className="send-import" onClick={sendRecording} disabled={loading}>
+            {loading ? "Analyse en cours...":"Envoyer l'enregistrement"}
           </button>
+
+          {result && (
+            <div className = "result">
+              <p>Locuteur : {result.name}</p>
+              <p>Score : {result.score}</p>
+            </div>
+          )}
         </div>
       )}
     </div>
