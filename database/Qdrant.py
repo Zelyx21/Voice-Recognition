@@ -39,11 +39,11 @@ def search_similarity(client, base, query_vector, top_k=1):
 def search_similarity_attributes(client, base, query_vector, top_k=1): # Get attribute of the search result
     response = search_similarity(client, base, query_vector, top_k)
     list_clients = []
-    for client in response.points:
-        list_clients.append({"id":client.id, 
-                             "score":client.score, 
-                             "name":client.payload.get("name"), 
-                             "email":client.payload.get("email")
+    for point in response:
+        list_clients.append({"id":point.id, 
+                             "score":point.score, 
+                             "name":point.payload.get("name"), 
+                             "email":point.payload.get("email")
                              })
     return list_clients
 
