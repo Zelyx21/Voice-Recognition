@@ -2,41 +2,20 @@
 from qdrant_client import QdrantClient, models
 from qdrant_client.models import Distance, HnswConfigDiff, VectorParams, PointStruct
 import numpy as np
+import uuid
 
 client = QdrantClient(url="http://localhost:6333")
 
 #print(client.get_collections()) #Show the collections in the database
 
 
-if "voice_data_base" not in [collection.name for collection in client.get_collections().collections]:
-
-    client.create_collection(
-        collection_name="voice_data_base",
-        vectors_config=VectorParams(size=192,     #Change the size parameter to match the dimensionality, here 192
-                                    distance=Distance.COSINE, 
-                                    on_disk=False, #False, on memory storage, switch to True for disk storage
-                                    datatype="float32"
-                                    ),
-        quantization_config =None, #Vector compression: None for no compression and faster search, switch to ScalarQuantizationConfig for compression and smaller RAM usage
-        hnsw_config=HnswConfigDiff(
-            m=16,           # linked number of vectors, recall/RAM
-            ef_construct=200, # Exploration queue size, Accuracy/speed
-            on_disk=False, #False, on memory storage, switch to True for disk storage
-            inline_storage=False #Turn True if on_disk is True and quantization_config is not None.
-        ),
-        optimizers_config=models.OptimizersConfigDiff(default_segment_number=2, max_segment_size=5000000), #number of cores use for a single request, speed/RAM and segment size, speed/RAM
-
-    )
-
-
 def insert_points(client, base, names, emails, vectors):
-    i=1
     for name, email, vector in zip(names, emails, vectors):
         operation_info = client.upsert(
             collection_name=base,
             wait=True,
             points=[
-                PointStruct(id=i,
+                PointStruct(str(uuid.uuid4()), #generates a random unique ID 
                             vector=vector,
                             payload={"name": name, 
                                      "email": email}),
@@ -50,11 +29,12 @@ def insert_points(client, base, names, emails, vectors):
 
 clem_vec = np.load('Voice-Recognition/database/clem.npy', allow_pickle=True)
 sid_vec = np.load('Voice-Recognition/database/sidney.npy', allow_pickle=True)
+sid_vec2 = np.load('Voice-Recognition/database/sid..2.npy', allow_pickle=True)
 
-insert_points(client, "voice_data_base", ["clem", "sid"], ["clem@example.com", "sid@example.com"], [clem_vec, sid_vec])
+#insert_points(client, "voice_data_base", ["clem", "sid"], ["clem@example.com", "sid@example.com"], [clem_vec, sid_vec])
 
 
-def search_points(client, base, query_vector, top_k=1):
+def search_similarity(client, base, query_vector, top_k=1):
     search_result = client.query_points(
         collection_name=base,
         query_vector=query_vector,
@@ -66,7 +46,32 @@ def search_points(client, base, query_vector, top_k=1):
     )
     return search_result
 
+def search_similarity_attributes(client, base, query_vector, top_k=1): # Get attribute of the search result
+    clients = search_similarity(client, base, query_vector, top_k)
+    list_clients = []
+    for client in clients:
+        list_clients.append([client.id, client.score, client.payload.get("name"), client.payload.get("email")])
+    return list_clients
 
+def delete_points(client, base, point_ids): #delete points by their IDs
+    client.delete(
+        collection_name=base,
+        points_selector=models.PointsSelector(points=point_ids)
+    )
 
+def delete_by_filter(client, base, email): #delete points by a filter, here we delete all the points with the email in the payload that match the email given in parameter
+    client.delete(
+        collection_name=base,
+        points_selector=models.FilterSelector(
+            filter=models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="email",
+                        match=models.MatchValue(value=email),
+                    ),
+                ]
+            )
+        ),
+    )
 
 
