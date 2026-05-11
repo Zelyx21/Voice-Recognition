@@ -20,4 +20,4 @@ def voice_similarity(audio_bytes:bytes):
     results = search_similarity_attributes(client=client, base="voice_data_base", query_vector=emb.tolist(), top_k=1)
 
     #change later when it'll be a dictionnary
-    return {"speaker_id":results[0][0], "score":results[0][1], "name":results[0][2], "email":results[0][3]}
+    return results[0]
