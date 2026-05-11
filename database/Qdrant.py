@@ -27,9 +27,8 @@ def insert_points(client, base, names, emails, vectors):
 
 #insert_points(client, "voice_db", ["Alice", "Boba"], ["alice@example.com", "bob@example.com"], [[0.9, 0.9, 0.9, 0.8], [0.1, 0.2, 0.7, 0.3]])
 
-clem_vec = np.load('Voice-Recognition/database/clem.npy', allow_pickle=True)
-sid_vec = np.load('Voice-Recognition/database/sidney.npy', allow_pickle=True)
-sid_vec2 = np.load('Voice-Recognition/database/sid..2.npy', allow_pickle=True)
+clem_vec = np.load('database/clem.npy', allow_pickle=True)
+sid_vec = np.load('database/sidney.npy', allow_pickle=True)
 
 #insert_points(client, "voice_data_base", ["clem", "sid"], ["clem@example.com", "sid@example.com"], [clem_vec, sid_vec])
 
@@ -37,20 +36,22 @@ sid_vec2 = np.load('Voice-Recognition/database/sid..2.npy', allow_pickle=True)
 def search_similarity(client, base, query_vector, top_k=1):
     search_result = client.query_points(
         collection_name=base,
-        query_vector=query_vector,
+        query=query_vector,
         limit=top_k,
         search_params=models.SearchParams(
             hnsw_ef=200, # Number of neighbors to visit during search, Accuracy/speed
             exact=False # Set to True for exact search, False for approximate search 
         )
     )
-    return search_result
+    print(type(search_result))
+    print(search_result)
+    return search_result.points
 
 def search_similarity_attributes(client, base, query_vector, top_k=1): # Get attribute of the search result
-    clients = search_similarity(client, base, query_vector, top_k)
+    points = search_similarity(client, base, query_vector, top_k)
     list_clients = []
-    for client in clients:
-        list_clients.append([client.id, client.score, client.payload.get("name"), client.payload.get("email")])
+    for point in points:
+        list_clients.append([point.id, point.score, point.payload.get("name"), point.payload.get("email")])
     return list_clients
 
 def delete_points(client, base, point_ids): #delete points by their IDs
