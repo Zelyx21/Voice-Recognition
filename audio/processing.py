@@ -2,7 +2,8 @@
 Python file with functions to clean an audio file
 """
 
-import librosa
+import soundfile as sf
+from scipy import signal
 import noisereduce as nr
 from silero_vad import load_silero_vad, get_speech_timestamps
 import numpy as np
@@ -15,7 +16,15 @@ def resample(audio_bytes:bytes):
     """
     Takes raw audio bytes and resamples it at 16kHz
     """
-    return librosa.load(io.BytesIO(audio_bytes), sr=16000)
+    audio, sr = sf.read(io.BytesIO(audio_bytes))
+
+    if audio.ndim==2:
+        audio = audio.mean(axis=1)
+        
+    if sr!=16000:
+        samples = int(len(audio)*16000/sr)
+        audio = signal.resample(audio,samples)
+    return audio, 16000
 
 # ------------------------Get an audio extract to adapt the denoise---------------------
 

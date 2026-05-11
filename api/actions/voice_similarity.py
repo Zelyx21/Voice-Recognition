@@ -17,7 +17,7 @@ def voice_similarity(audio_bytes:bytes):
     emb = embedding(audio)
 
     #change later to have more similar speakers ? 
-    results = search_similarity_attributes(client=client, base="speakers", query_vector=emb.tolist(), top_k=1)
+    results = search_similarity_attributes(client=client, base="voice_data_base", query_vector=emb.tolist(), top_k=1)
 
     #change later when it'll be a dictionnary
     return {"speaker_id":results[0][0], "score":results[0][1], "name":results[0][2], "email":results[0][3]}
