@@ -1,13 +1,18 @@
 """
-Python file that converts an audio file to a .wav file
+Python file which contains a function that converts an audio file to a wav
 """
 
 import subprocess
 
-# Will modify later so it works with FastAPI
-# catch "name_file"
-name_file = "test.m4a"
-input_path = "audio\\audio_input\\" + str(name_file)
-output_path = "audio\\audio_output_conversion\\" + name_file.rsplit(".", 1)[0] + ".wav"
+def conversion(audio:bytes):
+    """
+    Takes raw audio bytes and returns wav bytes
+    """
+    commande = ["ffmpeg","-i","pipe:0","-f","wav","pipe:1"]
 
-subprocess.run(["ffmpeg", "-i", input_path, output_path])
+    result = subprocess.run(commande, input=audio, capture_output=True)
+
+    if result.returncode != 0:
+        raise ValueError(f"ffmpeg error : {result.stderr.decode()}")
+    
+    return result.stdout
