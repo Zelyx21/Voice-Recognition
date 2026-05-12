@@ -43,7 +43,8 @@ def search_similarity_attributes(client, base, query_vector, top_k=1): # Get att
         list_clients.append({"id":point.id, 
                              "score":point.score, 
                              "name":point.payload.get("name"), 
-                             "email":point.payload.get("email")
+                             "email":point.payload.get("email"),
+                             "issue":""
                              })
     return list_clients
 
