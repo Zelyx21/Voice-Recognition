@@ -52,6 +52,7 @@ function Import() {
       ) : (
         <div className="file-info">
           <p>Selected file : <strong>{audioFile.name}</strong></p>
+          <audio controls src={URL.createObjectURL(audioFile)} />
           <button 
             className="remove-import" 
             onClick={() => setAudioFile(null)}
