@@ -27,12 +27,3 @@ if "voice_data_base" not in [collection.name for collection in client.get_collec
         optimizers_config=models.OptimizersConfigDiff(default_segment_number=2, max_segment_size=5000000), #number of cores use for a single request, speed/RAM and segment size, speed/RAM
 
     )
-
-
-
-
-
-
-
-
-
