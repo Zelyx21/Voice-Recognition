@@ -81,27 +81,27 @@ function Recorder() {
       {/* Recorder not started */}
       {!audioURL && !isRecording && (
         <button className="button-import" onClick={startRecording}>
-          Démarrer l'enregistrement
+          Begin recording
         </button>
       )}
 
       {/* Recording in progress */}
       {isRecording && (
         <button className="remove-import" onClick={stopRecording}>
-          Arrêter l'enregistrement
+          Stop recording
         </button>
       )}
 
       {/* Recording completed */}
       {audioURL && (
         <div className="file-info">
-          <p>Enregistrement terminé</p>
+          <p>Finished recording</p>
           <audio controls src={audioURL} />
           <button className="remove-import" onClick={resetRecording}>
-            Recommencer l'enregistrement
+            Record again
           </button>
           <button className="send-import" onClick={sendRecording} disabled={loading}>
-            {loading ? "Analyse en cours..." : "Envoyer l'enregistrement"}
+            {loading ? "Analysis in progress..." : "Send recording"}
           </button>
  
           {result && (
