@@ -5,6 +5,8 @@ A python file in which is built our API fastAPI
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from api.actions.voice_similarity import voice_similarity
+from api.actions.voice_similarity import insert_secure
+
 
 #Command to run univcorn
 # uvicorn api.api:app --reload
