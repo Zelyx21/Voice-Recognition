@@ -77,19 +77,18 @@ function Recorder() {
 
 
   return (
-    <div id="center_recorder">
+    <div className="box">
 
       {/* Recorder not started */}
       {!audioURL && !isRecording && (
-        <button className="button-import" onClick={startRecording}>
-          Begin recording
+        <button className="button" onClick={startRecording}>
           Start recording
         </button>
       )}
 
       {/* Recording in progress */}
       {isRecording && (
-        <button className="remove-import" onClick={stopRecording}>
+        <button className="remove" onClick={stopRecording}>
           Stop recording
         </button>
       )}
@@ -99,10 +98,10 @@ function Recorder() {
         <div className="file-info">
           <p>Finished recording</p>
           <audio controls src={audioURL} />
-          <button className="remove-import" onClick={resetRecording}>
+          <button className="remove" onClick={resetRecording}>
             Record again
           </button>
-          <button className="send-import" onClick={sendRecording} disabled={loading}>
+          <button className="button" onClick={sendRecording} disabled={loading}>
             {loading ? "Analysis in progress..." : "Send recording"}
           </button>
  
