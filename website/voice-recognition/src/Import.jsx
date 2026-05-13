@@ -15,6 +15,7 @@ function Import() {
     }
   }
 
+
   const sendRecording = async () => {
     if (!audioFile) return
 
@@ -50,7 +51,7 @@ function Import() {
         </>
       ) : (
         <div className="file-info">
-          <p>File selected : <strong>{audioFile.name}</strong></p>
+          <p>Selected file : <strong>{audioFile.name}</strong></p>
           <button 
             className="remove-import" 
             onClick={() => setAudioFile(null)}
@@ -58,10 +59,7 @@ function Import() {
             Change file
           </button>
           <button className="send-import" onClick={sendRecording} disabled={loading}>
-            {loading ? "Analysis in progress..." : "Voice recognition"}
-          </button>
-          <button className="Recording_data" onClick={sendRecording}>
-            Recording
+            {loading ? "Analysis in progress...":"Send recording"}
           </button>
 
           {result && !result.issue && (
