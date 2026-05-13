@@ -80,7 +80,7 @@ function RegisterDB(){
   }
 
   return (
-    <div id="center">
+    <div id="center_recorder">
 
       {/* Recorder not started */}
       {!audioURL && !isRecording && (
@@ -104,7 +104,7 @@ function RegisterDB(){
           />
 
           <button onClick={startRecording}>
-            Begin recording
+            Start recording
           </button>
 
         </div>
