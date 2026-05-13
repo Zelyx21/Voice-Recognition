@@ -76,12 +76,12 @@ function Recorder() {
 
 
   return (
-    <div id="center">
+    <div id="center_recorder">
 
       {/* Recorder not started */}
       {!audioURL && !isRecording && (
         <button className="button-import" onClick={startRecording}>
-          Start the recording
+          Start recording
         </button>
       )}
 
