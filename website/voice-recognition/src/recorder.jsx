@@ -8,6 +8,8 @@ function Recorder() {
   const [isRecording, setIsRecording] = useState(false)
   const [audioURL, setAudioURL] = useState(null)
   const [audioBlob, setAudioBlob] = useState(null)
+  const [result, setResult] = useState(null)
+  const [loading, setLoading] = useState(false)
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])
 
@@ -51,16 +53,27 @@ function Recorder() {
   const resetRecording = () => {
     setAudioURL(null)
     setAudioBlob(null)
+    setResult(null)
   }
 
-  const sendRecording = () => {
-    if (audioBlob) {
-        const a = document.createElement('a')
-        a.href = audioURL
-        a.download = 'audio/enregistrement.wav'  // name file
-        a.click()
-    }
+  const sendRecording = async () => {
+    if (!audioBlob) return
+
+    setLoading(true)
+    const formData = new FormData()
+    formData.append("file",new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
+
+    const response = await fetch("http://localhost:8000/identify", {
+      method: "POST",
+      body: formData,
+    })
+
+    const data = await response.json()
+    setResult(data)
+    setLoading(false)
   }
+
+
 
   return (
     <div id="center">
@@ -68,28 +81,40 @@ function Recorder() {
       {/* Recorder not started */}
       {!audioURL && !isRecording && (
         <button className="button-import" onClick={startRecording}>
-          Démarrer l'enregistrement
+          Begin recording
         </button>
       )}
 
       {/* Recording in progress */}
       {isRecording && (
         <button className="remove-import" onClick={stopRecording}>
-          Arrêter l'enregistrement
+          Stop recording
         </button>
       )}
 
       {/* Recording completed */}
       {audioURL && (
         <div className="file-info">
-          <p>Enregistrement terminé</p>
+          <p>Finished recording</p>
           <audio controls src={audioURL} />
           <button className="remove-import" onClick={resetRecording}>
-            Recommencer l'enregistrement
+            Record again
           </button>
-          <button className="send-import" onClick={sendRecording}>
-            Envoyer l'enregistrement
+          <button className="send-import" onClick={sendRecording} disabled={loading}>
+            {loading ? "Analysis in progress..." : "Send recording"}
           </button>
+ 
+          {result && (
+            <div className="result">
+              <p>Locuteur : {result.name}</p>
+              <p>Score : {result.score}</p>
+              {result.issue && (
+                <div className="issue">
+                  <p>Issues : {result.issue}</p>
+                </div>
+            )}
+            </div>
+          )}
         </div>
       )}
 

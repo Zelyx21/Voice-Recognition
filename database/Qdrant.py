@@ -43,7 +43,8 @@ def search_similarity_attributes(client, base, query_vector, top_k=1): # Get att
         list_clients.append({"id":point.id, 
                              "score":point.score, 
                              "name":point.payload.get("name"), 
-                             "email":point.payload.get("email")
+                             "email":point.payload.get("email"),
+                             "issue":""
                              })
     return list_clients
 
@@ -127,11 +128,3 @@ delete_points(client, "voice_data_base", [id_del])
 """
 
 #delete_by_filter(client, "voice_data_base", "sidney2@example.com") # delete all the points with the email 
-
-
-
-
-
-
-
-
