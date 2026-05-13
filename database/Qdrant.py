@@ -111,10 +111,6 @@ def replace_point(client, base, point_id, name, email, vector): #replace a point
         ],
     )
 
-clem_vec = np.load('database/clem.npy', allow_pickle=True)
-sid_vec = np.load('database/sidney.npy', allow_pickle=True)
-sid_vec2 = np.load('database/sid..2.npy', allow_pickle=True)
-
 
 #Here you can see how use the functions.
 #insert_secure(client, "voice_data_base", ["clem", "sid", "sidney2"], ["clem@example.com", "sid@example.com", "sidney2@example.com"], [clem_vec, sid_vec, sid_vec2])
