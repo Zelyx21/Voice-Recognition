@@ -1,20 +1,21 @@
-import {useState, useRef} from 'react'
+import { useState, useRef } from 'react'
 
-function RegisterDB(){
-    const [name, setName] = useState("")
-    const [email, setEmail] = useState("")
-    const [isRecording, setIsRecording] = useState(false)
-    const [audioURL, setAudioURL] = useState(null)
-    const [audioBlob, setAudioBlob] = useState(null)
-    const [loading,setLoading] = useState(false)
-    const [result, setResult] = useState(null)
+function RegisterDB() {
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [isRecording, setIsRecording] = useState(false)
+  const [audioURL, setAudioURL] = useState(null)
+  const [audioBlob, setAudioBlob] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState(null)
 
-    const mediaRecorderRef = useRef(null)
-    const chunksRef = useRef([])
+  const mediaRecorderRef = useRef(null)
+  const chunksRef = useRef([])
 
-    const startRecording = async () => {
+  const startRecording = async () => {
     try {
-    //Ask access to the microphone
+      //Ask access to the microphone
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       const mediaRecorder = new MediaRecorder(stream)
       mediaRecorderRef.current = mediaRecorder
@@ -59,11 +60,11 @@ function RegisterDB(){
     if (!audioBlob) return
 
     setLoading(true)
-    try{
+    try {
       const formData = new FormData()
-      formData.append("file",new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
+      formData.append("file", new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
       formData.append("name", name)
-      formData.append("email",email)
+      formData.append("email", email)
 
       const response = await fetch("http://localhost:8000/registerdb", {
         method: "POST",
@@ -72,9 +73,9 @@ function RegisterDB(){
 
       const data = await response.json()
       setResult(data)
-    }catch(err){
-      alert("Error : "+err.message)
-    }finally{
+    } catch (err) {
+      alert("Error : " + err.message)
+    } finally {
       setLoading(false)
     }
   }
@@ -85,15 +86,15 @@ function RegisterDB(){
       {/* Recorder not started */}
       {!audioURL && !isRecording && (
         <div>
-          <p>Register in our database</p>
+          <p>Register</p>
 
           <label htmlFor="name">Your name</label>
           <input
-          type="text"
-          id="name"
-          name="name"
-          minLength="2"
-          onChange={(e) => setName(e.target.value)}
+            type="text"
+            id="name"
+            name="name"
+            minLength="2"
+            onChange={(e) => setName(e.target.value)}
           />
 
           <label htmlFor="email">Your email</label>
@@ -101,6 +102,13 @@ function RegisterDB(){
             type="email"
             id="email"
             onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <label htmlFor="password">Your password</label>
+          <input
+            type="password"
+            id="password"
+            onChange={(e) => setPassword(e.target.value)}
           />
 
           <button onClick={startRecording}>
@@ -132,7 +140,7 @@ function RegisterDB(){
           {result && (
             <p>{result.status === "success" ? "Registration done !" : "Something happened"}</p>
           )}
- 
+
         </div>
       )}
 
