@@ -87,7 +87,6 @@ def vad(audio_denoised:np.ndarray, sr=16000):
     # get the timestamps
     timestamps = get_speech_timestamps(wav, model_vad, return_seconds=True)
 
-    print(f"timestamps : {timestamps}")
     issue = [False, ""]
     if len(timestamps) == 0: # if there is no voice detected, we raise an issue
         issue = [True, "No voice detected in the audio file. Please provide a clearer audio file."]
