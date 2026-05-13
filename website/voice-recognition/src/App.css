@@ -129,7 +129,7 @@ input[type="file"] {
   transform: translateY(-1px);
 }
 
-#center_recorder .send-import, #center_recorder .Recording_data {
+.send-import, .Recording_data {
   display: inline-flex;
   align-items: center;
   font-family: 'DM Sans', sans-serif;
@@ -162,5 +162,12 @@ input[type="file"] {
   outline: none;
   transition: border-color 0.15s;
 }
- 
+
 #center_recorder input:focus { border-color: var(--accent); }
+
+
+
+
+
+
+
