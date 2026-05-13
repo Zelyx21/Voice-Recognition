@@ -54,6 +54,7 @@ function Recorder() {
     setAudioURL(null)
     setAudioBlob(null)
     setResult(null)
+    startRecording()
   }
 
   const sendRecording = async () => {
