@@ -11,6 +11,7 @@ function RegisterDB() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [mode, setMode] = useState(null)
+  const [error, setError] = useState(null)
 
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])
@@ -59,8 +60,21 @@ function RegisterDB() {
     startRecording()
   }
 
+  const validate = () => {
+    if (!name) return "Please enter a name"
+    if (!email) return "Please enter an email"
+    if (!password) return "Please enter a password"
+    if (!audioBlob && !audioFile) return "Please register or import an audio file of your voice"
+    return null
+  }
+
   const register = async () => {
-    if (!audioBlob) return
+    const err = validate()
+    if (err) {
+      setError(err)
+      return
+    }
+    setError(null)
 
     setLoading(true)
     try {
@@ -90,8 +104,9 @@ function RegisterDB() {
     }
   }
 
+
   return (
-    <div>
+    <div className="box">
       <p>Register here</p>
       <label htmlFor="name">Name</label>
       <input
@@ -147,7 +162,7 @@ function RegisterDB() {
             <div className="file-info">
               <p>Finished recording</p>
               <audio controls src={audioURL} />
-              <button className="remove-import" onClick={resetRecording}>
+              <button className="remove" onClick={resetRecording}>
                 Record again
               </button>
             </div>
@@ -173,20 +188,28 @@ function RegisterDB() {
                 onChange={handleFileChange}
               />
             </>
-          ):(
-          <div className="file-info">
-            <p>Selected file : <strong>{audioFile.name}</strong></p>
-            <audio controls src={URL.createObjectURL(audioFile)} />
-            <button
-              className="remove-import"
-              onClick={() => setAudioFile(null)}
-            >
-              Change file
-            </button>
-          </div>
+          ) : (
+            <div className="file-info">
+              <p>Selected file : <strong>{audioFile.name}</strong></p>
+              <audio controls src={URL.createObjectURL(audioFile)} />
+              <button
+                className="remove"
+                onClick={() => setAudioFile(null)}
+              >
+                Change file
+              </button>
+            </div>
           )}
         </div>
       )}
+
+      <button
+        disabled={!name || !email || !password || (!audioBlob && !audioFile)}
+        onClick={register}
+      >
+        Register
+      </button>
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
     </div>
   )
