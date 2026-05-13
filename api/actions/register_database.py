@@ -19,4 +19,5 @@ def register_database(audio_bytes:bytes, email, name):
         return {"name": None, "score": 0, "issue": issue[1]}
     
     emb = embedding(audio)
-    insert_secure(client=client, base="voice_data_base", names=name, emails=email, vectors=emb)
+    insert_secure(client=client, base="voice_data_base", names=[name], emails=[email], vectors=[emb.tolist()])
+    return {"status": "success"}

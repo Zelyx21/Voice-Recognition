@@ -59,19 +59,86 @@ function RegisterDB(){
     if (!audioBlob) return
 
     setLoading(true)
-    const formData = new FormData()
-    formData.append("file",new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
-    formData.append("name", name)
-    formData.append("email",email)
+    try{
+      const formData = new FormData()
+      formData.append("file",new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
+      formData.append("name", name)
+      formData.append("email",email)
 
-    const response = await fetch("http://localhost:8000/registerdb", {
-      method: "POST",
-      body: formData,
-    })
+      const response = await fetch("http://localhost:8000/registerdb", {
+        method: "POST",
+        body: formData,
+      })
 
-    const data = await response.json()
-    setResult(data)
-    setLoading(false)
+      const data = await response.json()
+      setResult(data)
+    }catch(err){
+      alert("Error : "+err.message)
+    }finally{
+      setLoading(false)
+    }
   }
 
+  return (
+    <div id="center">
+
+      {/* Recorder not started */}
+      {!audioURL && !isRecording && (
+        <div>
+          <p>Register in our database</p>
+
+          <label htmlFor="name">Your name</label>
+          <input
+          type="text"
+          id="name"
+          name="name"
+          minLength="2"
+          onChange={(e) => setName(e.target.value)}
+          />
+
+          <label htmlFor="email">Your email</label>
+          <input
+            type="email"
+            id="email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <button onClick={startRecording}>
+            Begin recording
+          </button>
+
+        </div>
+      )}
+
+      {/* Recording in progress */}
+      {isRecording && (
+        <button className="remove-import" onClick={stopRecording}>
+          Stop recording
+        </button>
+      )}
+
+      {/* Recording completed */}
+      {audioURL && (
+        <div className="file-info">
+          <p>Finished recording</p>
+          <audio controls src={audioURL} />
+          <button className="remove-import" onClick={resetRecording}>
+            Record again
+          </button>
+          <button className="send-import" onClick={sendRecording} disabled={loading}>
+            {loading ? "Registering in database..." : "Send recording"}
+          </button>
+
+          {result && (
+            <p>{result.status === "success" ? "Registration done !" : "Something happened"}</p>
+          )}
+ 
+        </div>
+      )}
+
+    </div>
+  )
+
 }
+
+export default RegisterDB
