@@ -34,12 +34,12 @@ function Import() {
   }
 
   return (
-    <div id="Importation_div">
+    <div className="box">
       
       {!audioFile ? (
         //If audioFile is empty
         <> 
-          <label htmlFor="audio-upload" className="button-import">
+          <label htmlFor="audio-upload" className="button">
             Import an audio file
           </label>
           <input
@@ -54,12 +54,12 @@ function Import() {
           <p>Selected file : <strong>{audioFile.name}</strong></p>
           <audio controls src={URL.createObjectURL(audioFile)} />
           <button 
-            className="remove-import" 
+            className="remove" 
             onClick={() => setAudioFile(null)}
           >
             Change file
           </button>
-          <button className="send-import" onClick={sendRecording} disabled={loading}>
+          <button className="button" onClick={sendRecording} disabled={loading}>
             {loading ? "Analysis in progress...":"Send recording"}
           </button>
 
