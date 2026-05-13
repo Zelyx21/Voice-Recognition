@@ -1,7 +1,27 @@
-*{
-  margin:0;
-  padding:0;
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+:root {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --border: #e2e0d8;
+  --text-primary: #1a1916;
+  --text-secondary: #7a7870;
+  --accent: #2d6a4f;
+  --accent-light: #e8f4ef;
+  --danger: #c94a3a;
+  --danger-light: #fdf0ee;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+}
 
-
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+}

@@ -1,27 +1,202 @@
+/* ─── Layout ─────────────────────────────────────────────── */
+
+#root {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+#center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+
+#center h1 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+}
+/* ─── Sections ───────────────────────────────────────────── */
+
+#Importation_div {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* ─── File info card ─────────────────────────────────────── */
+
+.file-info {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow);
+}
+
+.file-info p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.file-info p strong {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+}
+
+.file-info audio {
+  width: 100%;
+  height: 36px;
+  border-radius: 6px;
+  outline: none;
+}
+
+.file-info p + button,
+.file-info audio + button {
+  margin-top: 4px;
+}
+
+/* ─── Buttons ─────────────────────────────────────────────── */
+
+/* Hidden file input */
+input[type="file"] {
+  display: none;
+}
+
+/* Primary — import / send */
 .button-import {
-  font-size: 16px;
-  padding: 12px 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 20px;
   border-radius: 8px;
-  color: white;
   border: none;
   cursor: pointer;
-  display: inline-block;
+  background-color: var(--accent);
+  color: #ffffff;
+  transition: background 0.18s, transform 0.12s;
+  letter-spacing: 0.01em;
 }
 
 .button-import:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
+  background-color: #255c43;
+  transform: translateY(-1px);
 }
 
+.button-import:active {
+  transform: translateY(0);
+}
+
+/* Secondary — reset / change */
 .remove-import {
-  font-size: 14px;
-  margin-top: 15px;
+  display: inline-flex;
+  align-items: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background-color: var(--surface);
+  color: var(--text-secondary);
+  transition: border-color 0.15s, color 0.15s, transform 0.12s;
+  margin-top: 0;
 }
 
-.file-info {
-  padding: 20px;
-  border-radius: 10px;
-  border: 1px solid;
+.remove-import:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  transform: translateY(-1px);
+}
+
+/* Send button */
+.send-import, .Recording_data {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: var(--accent);
+  color: #ffffff;
+  transition: background 0.18s, transform 0.12s;
+}
+
+.send-import:hover, .Recording_data:hover {
+  background-color: #255c43;
+  transform: translateY(-1px);
+}
+
+/* ─── Section label ───────────────────────────────────────── */
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+/* ─── Divider ────────────────────────────────────────────── */
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--border);
+  margin: 4px 0;
+}
+
+/* ─── Recording pulse indicator ─────────────────────────── */
+
+.recording-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.recording-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--danger);
+  animation: pulse 1.2s ease-in-out infinite;
 }
 
 
