@@ -15,6 +15,7 @@ function Import() {
     }
   }
 
+
   const sendRecording = async () => {
     if (!audioFile) return
 
@@ -39,7 +40,7 @@ function Import() {
         //If audioFile is empty
         <> 
           <label htmlFor="audio-upload" className="button-import">
-            Importer un fichier audio
+            Import an audio file
           </label>
           <input
             id="audio-upload"
@@ -50,23 +51,28 @@ function Import() {
         </>
       ) : (
         <div className="file-info">
-          <p>Fichier sélectionné : <strong>{audioFile.name}</strong></p>
+          <p>Selected file : <strong>{audioFile.name}</strong></p>
           <button 
             className="remove-import" 
             onClick={() => setAudioFile(null)}
           >
-            Changer de fichier
+            Change file
           </button>
           <button className="send-import" onClick={sendRecording} disabled={loading}>
-            {loading ? "Analyse en cours...":"Envoyer l'enregistrement"}
+            {loading ? "Analysis in progress...":"Send recording"}
           </button>
 
-          {result && (
-            <div className = "result">
-              <p>Locuteur : {result.name}</p>
+          {result && !result.issue && (
+            <div className="result">
+              <p>Speaker : {result.name}</p>
               <p>Score : {result.score}</p>
             </div>
-          )}
+            )}
+          {result && result.issue &&  (
+            <div className="issue">
+              <p>Issues : {result.issue}</p>
+            </div>
+            )}
         </div>
       )}
     </div>
