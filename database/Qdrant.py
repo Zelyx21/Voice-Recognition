@@ -128,11 +128,3 @@ delete_points(client, "voice_data_base", [id_del])
 """
 
 #delete_by_filter(client, "voice_data_base", "sidney2@example.com") # delete all the points with the email 
-
-
-
-
-
-
-
-
