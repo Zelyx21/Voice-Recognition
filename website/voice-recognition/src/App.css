@@ -129,7 +129,7 @@ input[type="file"] {
   transform: translateY(-1px);
 }
 
-.send-import, .Recording_data {
+#center_recorder .send-import, #center_recorder .Recording_data {
   display: inline-flex;
   align-items: center;
   font-family: 'DM Sans', sans-serif;
@@ -148,3 +148,19 @@ input[type="file"] {
   background-color: #255c43;
   transform: translateY(-1px);
 }
+
+#center_recorder label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-top: 4px; }
+ 
+#center_recorder input[type="text"],
+#center_recorder input[type="email"] {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+ 
+#center_recorder input:focus { border-color: var(--accent); }

@@ -81,7 +81,6 @@ function Recorder() {
       {/* Recorder not started */}
       {!audioURL && !isRecording && (
         <button className="button-import" onClick={startRecording}>
-          Begin recording
           Start recording
         </button>
       )}
