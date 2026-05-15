@@ -22,18 +22,18 @@ def openvoice_clonage(audio:bytes, language_text={"EN_NEWEST": "Did you ever hea
     ckpt_converter = 'OpenVoice/checkpoints_v2/converter'
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     
-
+    # Load the tone color converter model (accent, etc.)
     tone_color_converter = ToneColorConverter(f'{ckpt_converter}/config.json', device=device)
     tone_color_converter.load_ckpt(f'{ckpt_converter}/checkpoint.pth')
 
+    #Write the audio bytes to a temporary file to process it (mandatory for the se_extractor to work)
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         tmp.write(audio)
         tmp_path = tmp.name
 
-    try:
-        target_se, audio_name = se_extractor.get_se(tmp_path, tone_color_converter, vad=True)
-    finally:
-        os.remove(tmp_path)  
+    # Extract the speaker embedding from the input audio (voice stamp, etc..)
+    target_se, audio_name = se_extractor.get_se(tmp_path, tone_color_converter, vad=True)
+    os.remove(tmp_path)  
 
     results = {}
 

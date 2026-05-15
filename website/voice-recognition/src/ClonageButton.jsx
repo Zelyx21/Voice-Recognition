@@ -3,6 +3,7 @@ import { useState } from 'react'
 function ClonageButton({ audioBlob }) {
   const [clones, setClones] = useState({})
   const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState(null)
 
   const sendClonage = async () => {
     if (!audioBlob) return
@@ -17,8 +18,8 @@ function ClonageButton({ audioBlob }) {
     })
 
     const data = await response.json()
+    setResult(data)
 
-    // Convertir chaque base64 en URL audio jouable
     const audioURLs = {}
     for (const [speaker, info] of Object.entries(data.clones)) {
       const binary = atob(info.audio_b64)
@@ -56,3 +57,4 @@ function ClonageButton({ audioBlob }) {
 }
 
 export default ClonageButton
+
