@@ -83,6 +83,12 @@ input[type="file"] {
   display: none;
 }
 
+.button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .button, button {
   display: inline-flex;
   align-items: center;
