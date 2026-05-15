@@ -1,6 +1,7 @@
 
 import { useState } from 'react'
 import { useRef } from 'react'
+import ClonageButton from './ClonageButton.jsx'
 
 import './App.css'
 
@@ -12,6 +13,7 @@ function Recorder() {
   const [loading, setLoading] = useState(false)
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])
+
 
   const startRecording = async () => {
     try {
@@ -74,7 +76,6 @@ function Recorder() {
   }
 
 
-
   return (
     <div id="center_recorder">
 
@@ -103,6 +104,8 @@ function Recorder() {
           <button className="send-import" onClick={sendRecording} disabled={loading}>
             {loading ? "Analysis in progress..." : "Send recording"}
           </button>
+
+          <ClonageButton audioBlob={audioBlob} />
  
           {result && !result.issue && (
             <div className="result">

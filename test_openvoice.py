@@ -28,7 +28,7 @@ tone_color_converter.load_ckpt(f'{ckpt_converter}/checkpoint.pth')
 os.makedirs(output_dir, exist_ok=True)
 
 
-reference_speaker = 'OpenVoice/resources/example_reference.mp3' # This is the voice you want to clone
+reference_speaker = 'OpenVoice/resources/mavoixjoyeux.mp3' # This is the voice you want to clone
 target_se, audio_name = se_extractor.get_se(reference_speaker, tone_color_converter, vad=True)
 
 
@@ -61,7 +61,7 @@ for language, text in texts.items():
         if torch.backends.mps.is_available() and device == 'cpu':
             torch.backends.mps.is_available = lambda: False
         model.tts_to_file(text, speaker_id, src_path, speed=speed)
-        save_path = f'{output_dir}/output_v2_{speaker_key}.wav'
+        save_path = f'{output_dir}/output_v2_sid_joyeux_{speaker_key}.wav'
 
         # Run the tone color converter
         encode_message = "@MyShell"

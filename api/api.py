@@ -6,6 +6,8 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database
+from api.actions.clonage_voice import voice_clonage
+
 
 #Command to run univcorn
 # uvicorn api.api:app --reload
@@ -32,3 +34,8 @@ async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str
     audio_bytes = await file.read()
     register_database(audio_bytes,email,name)
     return {"status":"success"}
+
+@app.post("/clonage")
+async def clonage(file: UploadFile = File(...)):
+    audio_bytes = await file.read()
+    return voice_clonage(audio_bytes)
