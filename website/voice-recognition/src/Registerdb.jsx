@@ -126,7 +126,7 @@ function RegisterDB() {
 
   return (
     <div className="box">
-      <p>Register here</p>
+      <p>Create an account</p>
       <label htmlFor="name">Name</label>
       <input
         type="text"
