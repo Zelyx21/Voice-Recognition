@@ -149,7 +149,7 @@ function RegisterDB() {
       />
 
       <label>Voice</label>
-      <div>
+      <div className="button-group">
         <button onClick={() => {
           setMode("record")
           stopRecording()
