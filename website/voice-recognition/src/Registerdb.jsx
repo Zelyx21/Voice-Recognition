@@ -12,6 +12,7 @@ function RegisterDB() {
   const [result, setResult] = useState(null)
   const [mode, setMode] = useState(null)
   const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(null)
 
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])
@@ -80,17 +81,34 @@ function RegisterDB() {
     setLoading(true)
     try {
       const formData = new FormData()
-      formData.append("file", new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
+      
+      if (audioBlob){
+        formData.append("file", new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
+      }else if (audioFile){
+        formData.append("file", audioFile)
+      }
+  
       formData.append("name", name)
       formData.append("email", email)
+      formData.append("password",password)
 
       const response = await fetch("http://localhost:8000/registerdb", {
         method: "POST",
         body: formData,
       })
 
+      if (!response.ok){
+        throw new Error("Erreur serveur")
+      }
+
       const data = await response.json()
+      console.log(data)
       setResult(data)
+
+      setSuccess("Registration successful !")
+
+      setTimeout(()=>{setSuccess(null)},3000)
+
     } catch (err) {
       alert("Error : " + err.message)
     } finally {
@@ -211,6 +229,9 @@ function RegisterDB() {
         Register
       </button>
       {error && <p style={{ color: "red" }}>{error}</p>}
+      {success && (
+        <p style={{color:"green"}}>{success}</p>
+      )}
 
     </div>
   )
