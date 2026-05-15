@@ -15,6 +15,7 @@ function RegisterDB() {
 
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])
+  const fileInputRef = useRef(null)
 
   const startRecording = async () => {
     try {
@@ -64,7 +65,7 @@ function RegisterDB() {
     if (!name) return "Please enter a name"
     if (!email) return "Please enter an email"
     if (!password) return "Please enter a password"
-    if (!audioBlob && !audioFile) return "Please register or import an audio file of your voice"
+    if (!audioBlob && !audioFile) return "Please record or import an audio file of your voice"
     return null
   }
 
@@ -135,6 +136,7 @@ function RegisterDB() {
           setMode("record")
           stopRecording()
           setAudioURL(null)
+          setAudioFile(null)
         }}>Record your voice</button>
         <button onClick={() => {
           setMode("import")
@@ -176,25 +178,25 @@ function RegisterDB() {
 
       {mode == "import" && (
         <div>
+          <input
+            ref={fileInputRef}
+            id="audio-upload-register"
+            type="file"
+            accept="audio/*"
+            onChange={handleFileChange}
+          />
+
           {!audioFile ? (
-            <>
-              <label htmlFor="audio-upload-register" className="button-import">
-                Import an audio file
-              </label>
-              <input
-                id="audio-upload-register"
-                type="file"
-                accept="audio/*"
-                onChange={handleFileChange}
-              />
-            </>
+            <label htmlFor="audio-upload-register" className="button">
+              Import an audio file
+            </label>
           ) : (
             <div className="file-info">
               <p>Selected file : <strong>{audioFile.name}</strong></p>
               <audio controls src={URL.createObjectURL(audioFile)} />
               <button
                 className="remove"
-                onClick={() => setAudioFile(null)}
+                onClick={() => fileInputRef.current.click()}
               >
                 Change file
               </button>
@@ -204,7 +206,6 @@ function RegisterDB() {
       )}
 
       <button
-        disabled={!name || !email || !password || (!audioBlob && !audioFile)}
         onClick={register}
       >
         Register
