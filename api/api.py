@@ -36,6 +36,10 @@ async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str
     return {"status":"success"}
 
 @app.post("/clonage")
-async def clonage(file: UploadFile = File(...)):
-    audio_bytes = await file.read()
-    return voice_clonage(audio_bytes)
+async def clonage(file: UploadFile = File(...), model_name: str = Form(...)):
+    print(f"Received clonage request for model: {model_name}")
+    if model_name == "OpenVoice":
+        audio_bytes = await file.read()
+        return voice_clonage(audio_bytes)
+    else:
+        return {"error": "Invalid model name"}
