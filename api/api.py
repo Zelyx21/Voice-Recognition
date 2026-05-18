@@ -6,7 +6,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database
-from api.actions.clonage_voice import voice_clonage
+from api.actions.clonage_voice import clonage_voice_voxCPM
 
 
 #Command to run univcorn
@@ -38,4 +38,4 @@ async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str
 @app.post("/clonage")
 async def clonage(file: UploadFile = File(...)):
     audio_bytes = await file.read()
-    return voice_clonage(audio_bytes)
+    return clonage_voice_voxCPM(audio_bytes)
