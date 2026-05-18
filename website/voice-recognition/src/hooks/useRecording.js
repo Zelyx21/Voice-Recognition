@@ -11,8 +11,11 @@ export function useRecording() {
   const chunksRef = useRef([])
   const timerRef = useRef(null)
   const fileInputRef = useRef(null)
+  const recordingTimeRef = useRef(0)
+  const tooShortRef = useRef(false)
 
   const startRecording = async () => {
+    tooShortRef.current = false
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       const mediaRecorder = new MediaRecorder(stream)
@@ -25,23 +28,26 @@ export function useRecording() {
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/wav' })
+        stream.getTracks().forEach(track => track.stop())
+
+        if (tooShortRef.current) return  // trop court → on ignore
+
         setAudioBlob(blob)
         setAudioURL(URL.createObjectURL(blob))
-        stream.getTracks().forEach(track => track.stop())
       }
 
       mediaRecorder.start()
       setIsRecording(true)
       setRecordingTime(0)
+      recordingTimeRef.current = 0
 
       timerRef.current = setInterval(() => {
-        setRecordingTime(prev => {
-          if (prev >= 600) {
-            stopRecording()
-            return 0
-          }
-          return prev + 1
-        })
+        recordingTimeRef.current += 1
+        setRecordingTime(recordingTimeRef.current)
+
+        if (recordingTimeRef.current >= 600) {
+          stopRecording()
+        }
       }, 1000)
 
     } catch (err) {
@@ -49,17 +55,25 @@ export function useRecording() {
     }
   }
 
-  const stopRecording = () => {
+  const stopRecording = (setError) => {
+    tooShortRef.current = recordingTimeRef.current < 5
+
     mediaRecorderRef.current?.stop()
     setIsRecording(false)
     clearInterval(timerRef.current)
+    recordingTimeRef.current = 0
     setRecordingTime(0)
+
+    if (tooShortRef.current && setError) {
+      setError("Recording must be at least 5 seconds")
+    }
   }
 
   const resetRecording = () => {
     setAudioURL(null)
     setAudioBlob(null)
     setAudioFile(null)
+    tooShortRef.current = false
     stopRecording()
   }
 
@@ -69,6 +83,11 @@ export function useRecording() {
 
     const audio = new Audio(URL.createObjectURL(file))
     audio.onloadedmetadata = () => {
+      if (audio.duration < 5) {
+        setError("Audio file must be at least 5 seconds")
+        event.target.value = ""
+        return
+      }
       if (audio.duration > 10 * 60) {
         setError("Audio file must be under 10 minutes")
         event.target.value = ""
