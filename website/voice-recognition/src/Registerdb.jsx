@@ -86,14 +86,14 @@ function RegisterDB() {
         <div>
           {!isRecording && !audioURL && (
             <div>
-              <button onClick={startRecording}>Start recording</button>
+              <button onClick={()=>{setError(null); startRecording()}}>Start recording</button>
             </div>
           )}
 
           {isRecording && (
             <div>
               <p>{Math.floor(recordingTime / 60)}m {recordingTime % 60}s / 10m</p>
-              <button onClick={stopRecording}>Stop recording</button>
+              <button onClick={()=>stopRecording(setError)}>Stop recording</button>
             </div>
           )
           }
