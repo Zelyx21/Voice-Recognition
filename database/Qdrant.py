@@ -116,6 +116,27 @@ def replace_point(client, base, point_id, name, email, password, vector): #repla
         ],
     )
 
+def get_email_password(client, email, base="voice_data_base"):
+    result, _ = client.scroll(
+        collection_name = base,
+        scroll_filter = models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="email",
+                    match=models.MatchValue(value=email),
+                ),
+            ]
+        ),
+        limit=1,
+        with_payload=True,
+        with_vectors=False,
+    )
+
+    if len(result) == 0:
+        return None
+    
+    return {"id": result[0].id, "name":result[0].payload.get("name"), "email":result[0].payload.get("email"), "password": result[0].payload.get("password")}
+
 
 #Here you can see how use the functions.
 #insert_secure(client, "voice_data_base", ["clem", "sid", "sidney2"], ["clem@example.com", "sid@example.com", "sidney2@example.com"], [clem_vec, sid_vec, sid_vec2])
