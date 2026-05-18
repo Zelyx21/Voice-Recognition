@@ -30,8 +30,9 @@ async def identify(file: UploadFile = File(...)):
     return voice_similarity(audio_bytes)
 
 @app.post("/registerdb")
-async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str=Form(...)):
+async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str=Form(...), password:str=Form(...)):
     audio_bytes = await file.read()
+<<<<<<< HEAD
     register_database(audio_bytes,email,name)
     return {"status":"success"}
 
@@ -43,3 +44,7 @@ async def clonage(file: UploadFile = File(...), model_name: str = Form(...)):
         return voice_clonage(audio_bytes)
     else:
         return {"error": "Invalid model name"}
+=======
+    register_database(audio_bytes,email,name,password)
+    return {"status":"success"}
+>>>>>>> main
