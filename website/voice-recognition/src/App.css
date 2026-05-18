@@ -89,7 +89,8 @@ input[type="file"] {
   flex-wrap: wrap;
 }
 
-.button, button {
+.button,
+button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -98,7 +99,7 @@ input[type="file"] {
   font-weight: 500;
   padding: 10px 20px;
   border-radius: 8px;
-  align-self:flex-start;
+  align-self: flex-start;
   border: none;
   cursor: pointer;
   background-color: var(--accent);
