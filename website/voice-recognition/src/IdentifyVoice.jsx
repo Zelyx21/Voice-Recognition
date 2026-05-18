@@ -63,7 +63,7 @@ function IdentifyVoice() {
                     {!isRecording && !audioURL && (
                         <button
                             className="button"
-                            onClick={startRecording}
+                            onClick={()=>{setError(null); startRecording()}}
                         >
                             Start recording
                         </button>
@@ -74,7 +74,7 @@ function IdentifyVoice() {
                             <p>{Math.floor(recordingTime / 60)}m {recordingTime % 60}s / 10m</p>
                             <button
                                 className="remove"
-                                onClick={stopRecording}
+                                onClick={()=>stopRecording(setError)}
                             >
                                 Stop recording
                             </button>
