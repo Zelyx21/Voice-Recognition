@@ -12,7 +12,7 @@ function IdentifyVoice() {
     const [audioFile, setAudioFile] = useState(null)
 
     const [result, setResult] = useState(null)
-    const { call, loading, error } = useApi()
+    const { call, loading, error, setError } = useApi()
 
     const mediaRecorderRef = useRef(null)
     const chunksRef = useRef([])
@@ -22,11 +22,9 @@ function IdentifyVoice() {
 
     const startRecording = async () => {
         try {
-
+            //Ask access to the microphone
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-
             const mediaRecorder = new MediaRecorder(stream)
-
             mediaRecorderRef.current = mediaRecorder
             chunksRef.current = []
 
@@ -37,21 +35,23 @@ function IdentifyVoice() {
             }
 
             mediaRecorder.onstop = () => {
-
-                const blob = new Blob(chunksRef.current, {
-                    type: 'audio/wav'
-                })
-
+                const blob = new Blob(chunksRef.current, { type: 'audio/wav' })
                 const url = URL.createObjectURL(blob)
-
                 setAudioBlob(blob)
                 setAudioURL(url)
 
+                // Stop all microphone tracks
                 stream.getTracks().forEach(track => track.stop())
             }
 
             mediaRecorder.start()
             setIsRecording(true)
+
+            setTimeout(() => {
+                if (mediaRecorderRef.current?.state === "recording") {
+                    stopRecording()
+                }
+            }, 10 * 60 * 1000)
 
         } catch (err) {
             alert("Microphone inaccessible : " + err.message)
@@ -68,15 +68,24 @@ function IdentifyVoice() {
         setAudioBlob(null)
         setAudioFile(null)
         setResult(null)
+        setError(null)
     }
 
     // ---------------- IMPORT ----------------
 
     const handleFileChange = (event) => {
-
         const file = event.target.files[0]
+        if (!file) return
 
-        if (file) {
+        const audio = new Audio(URL.createObjectURL(file))
+
+        audio.onloadedmetadata = () => {
+            if (audio.duration > 10 * 60) {
+                setError("Audio file must be under 10 minutes")
+                event.target.value = ""
+                return
+            }
+            setError(null)
             setAudioFile(file)
             setAudioURL(URL.createObjectURL(file))
             setResult(null)
@@ -179,6 +188,10 @@ function IdentifyVoice() {
                 </div>
             )}
 
+            {error && (
+                <p style={{ color: "red" }}>{error}</p>
+            )}
+
             {/* AUDIO PREVIEW */}
 
             {audioURL && (
@@ -238,12 +251,6 @@ function IdentifyVoice() {
 
                         </div>
 
-                    )}
-
-                    {error && (
-                        <p style={{ color: "red" }}>
-                            {error}
-                        </p>
                     )}
 
                 </div>
