@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useApi } from './hooks/useAPI'
 
 function RegisterDB() {
   const [name, setName] = useState("")
@@ -8,11 +9,11 @@ function RegisterDB() {
   const [audioURL, setAudioURL] = useState(null)
   const [audioBlob, setAudioBlob] = useState(null)
   const [audioFile, setAudioFile] = useState(null)
-  const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [mode, setMode] = useState(null)
-  const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
+
+  const { call, loading, error } = useApi()
 
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])
@@ -76,44 +77,23 @@ function RegisterDB() {
       setError(err)
       return
     }
-    setError(null)
-
-    setLoading(true)
-    try {
-      const formData = new FormData()
-      
-      if (audioBlob){
-        formData.append("file", new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
-      }else if (audioFile){
-        formData.append("file", audioFile)
-      }
-  
-      formData.append("name", name)
-      formData.append("email", email)
-      formData.append("password",password)
-
-      const response = await fetch("http://localhost:8000/registerdb", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (!response.ok){
-        throw new Error("Erreur serveur")
-      }
-
-      const data = await response.json()
-      console.log(data)
-      setResult(data)
-
-      setSuccess("Registration successful !")
-
-      setTimeout(()=>{setSuccess(null)},3000)
-
-    } catch (err) {
-      alert("Error : " + err.message)
-    } finally {
-      setLoading(false)
+    const formData = new FormData()
+    if (audioBlob) {
+      formData.append("file", new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
+    } else if (audioFile) {
+      formData.append("file", audioFile)
     }
+    formData.append("name", name)
+    formData.append("email", email)
+    formData.append("password", password)
+
+    const data = await call("/registerdb", { method: "POST", body: formData })
+    if (data) {
+      setResult(data)
+      setSuccess("Registration successful !")
+      setTimeout(() => setSuccess(null), 3000)
+    }
+
   }
 
   const handleFileChange = (event) => {
@@ -230,7 +210,7 @@ function RegisterDB() {
       </button>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {success && (
-        <p style={{color:"green"}}>{success}</p>
+        <p style={{ color: "green" }}>{success}</p>
       )}
 
     </div>

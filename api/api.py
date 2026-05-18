@@ -30,5 +30,5 @@ async def identify(file: UploadFile = File(...)):
 @app.post("/registerdb")
 async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str=Form(...), password:str=Form(...)):
     audio_bytes = await file.read()
-    register_database(audio_bytes,email,name)
+    register_database(audio_bytes,email,name,password)
     return {"status":"success"}
