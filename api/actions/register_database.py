@@ -21,5 +21,5 @@ def register_database(audio_bytes:bytes, email, name, password):
     
     emb = embedding(audio)
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-    insert_secure(client=client, base="voice_data_base", names=[name], emails=[email], vectors=[emb.tolist()], password=[hashed])
+    insert_secure(client=client, base="voice_data_base", names=[name], emails=[email], vectors=[emb.tolist()], passwords=[hashed])
     return {"status": "success"}
