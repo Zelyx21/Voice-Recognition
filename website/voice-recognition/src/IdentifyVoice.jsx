@@ -1,96 +1,15 @@
 import { useState, useRef } from 'react'
 import './App.css'
 import { useApi } from './hooks/useAPI'
+import { useRecording } from './hooks/useRecording'
 
 function IdentifyVoice() {
 
     const [mode, setMode] = useState(null)
 
-    const [isRecording, setIsRecording] = useState(false)
-    const [audioURL, setAudioURL] = useState(null)
-    const [audioBlob, setAudioBlob] = useState(null)
-    const [audioFile, setAudioFile] = useState(null)
-
     const [result, setResult] = useState(null)
     const { call, loading, error, setError } = useApi()
-
-    const mediaRecorderRef = useRef(null)
-    const chunksRef = useRef([])
-    const fileInputRef = useRef(null)
-
-    // ---------------- RECORDING ----------------
-
-    const startRecording = async () => {
-        try {
-            //Ask access to the microphone
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-            const mediaRecorder = new MediaRecorder(stream)
-            mediaRecorderRef.current = mediaRecorder
-            chunksRef.current = []
-
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    chunksRef.current.push(event.data)
-                }
-            }
-
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(chunksRef.current, { type: 'audio/wav' })
-                const url = URL.createObjectURL(blob)
-                setAudioBlob(blob)
-                setAudioURL(url)
-
-                // Stop all microphone tracks
-                stream.getTracks().forEach(track => track.stop())
-            }
-
-            mediaRecorder.start()
-            setIsRecording(true)
-
-            setTimeout(() => {
-                if (mediaRecorderRef.current?.state === "recording") {
-                    stopRecording()
-                }
-            }, 10 * 60 * 1000)
-
-        } catch (err) {
-            alert("Microphone inaccessible : " + err.message)
-        }
-    }
-
-    const stopRecording = () => {
-        mediaRecorderRef.current?.stop()
-        setIsRecording(false)
-    }
-
-    const resetRecording = () => {
-        setAudioURL(null)
-        setAudioBlob(null)
-        setAudioFile(null)
-        setResult(null)
-        setError(null)
-    }
-
-    // ---------------- IMPORT ----------------
-
-    const handleFileChange = (event) => {
-        const file = event.target.files[0]
-        if (!file) return
-
-        const audio = new Audio(URL.createObjectURL(file))
-
-        audio.onloadedmetadata = () => {
-            if (audio.duration > 10 * 60) {
-                setError("Audio file must be under 10 minutes")
-                event.target.value = ""
-                return
-            }
-            setError(null)
-            setAudioFile(file)
-            setAudioURL(URL.createObjectURL(file))
-            setResult(null)
-        }
-    }
+    const { isRecording, audioURL, audioBlob, audioFile, recordingTime, fileInputRef, startRecording, stopRecording, resetRecording, handleFileChange } = useRecording()
 
     // ---------------- SEND ----------------
 
@@ -151,12 +70,15 @@ function IdentifyVoice() {
                     )}
 
                     {isRecording && (
-                        <button
-                            className="remove"
-                            onClick={stopRecording}
-                        >
-                            Stop recording
-                        </button>
+                        <div>
+                            <p>{Math.floor(recordingTime / 60)}m {recordingTime % 60}s / 10m</p>
+                            <button
+                                className="remove"
+                                onClick={stopRecording}
+                            >
+                                Stop recording
+                            </button>
+                        </div>
                     )}
 
                 </div>
@@ -173,7 +95,7 @@ function IdentifyVoice() {
                         id="audio-upload-identify"
                         type="file"
                         accept="audio/*"
-                        onChange={handleFileChange}
+                        onChange={(e) => handleFileChange(e,setError)}
                     />
 
                     {!audioFile && (
