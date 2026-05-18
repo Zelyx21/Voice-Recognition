@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import './App.css'
+import { useApi } from './hooks/useAPI'
 
 function IdentifyVoice() {
 
@@ -11,8 +12,7 @@ function IdentifyVoice() {
     const [audioFile, setAudioFile] = useState(null)
 
     const [result, setResult] = useState(null)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(null)
+    const { call, loading, error } = useApi()
 
     const mediaRecorderRef = useRef(null)
     const chunksRef = useRef([])
@@ -86,56 +86,17 @@ function IdentifyVoice() {
     // ---------------- SEND ----------------
 
     const sendRecording = async () => {
+        if (!audioBlob && !audioFile) return
 
-        if (!audioBlob && !audioFile) {
-            setError("Please provide an audio file")
-            return
+        const formData = new FormData()
+        if (audioBlob) {
+            formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
+        } else {
+            formData.append("file", audioFile)
         }
 
-        setError(null)
-        setLoading(true)
-
-        try {
-
-            const formData = new FormData()
-
-            if (audioBlob) {
-
-                formData.append(
-                    "file",
-                    new File(
-                        [audioBlob],
-                        "recording.wav",
-                        { type: "audio/wav" }
-                    )
-                )
-
-            } else if (audioFile) {
-
-                formData.append("file", audioFile)
-            }
-
-            const response = await fetch("http://localhost:8000/identify", {
-                method: "POST",
-                body: formData,
-            })
-
-            if (!response.ok) {
-                throw new Error("Server error")
-            }
-
-            const data = await response.json()
-
-            setResult(data)
-
-        } catch (err) {
-
-            setError(err.message)
-
-        } finally {
-
-            setLoading(false)
-        }
+        const data = await call("/identify", { method: "POST", body: formData })
+        if (data) setResult(data)
     }
 
     return (

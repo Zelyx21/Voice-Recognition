@@ -103,7 +103,7 @@ def insert_secure(client, base, names, emails, vectors, passwords): #insert poin
     insert_points(client, base, names_secures, emails_secures, vectors_secures, passwords_secures)
     print(f"Valid insertion : {len(emails_secures)}, invalid insertion : {len(emails)-len(emails_secures)}")
 
-def replace_point(client, base, point_id, name, email, vector): #replace a point by its ID
+def replace_point(client, base, point_id, name, email, password, vector): #replace a point by its ID
     client.upsert(
         collection_name=base,
         wait=True,
@@ -111,7 +111,8 @@ def replace_point(client, base, point_id, name, email, vector): #replace a point
             PointStruct(id=point_id, 
                         vector=vector,
                         payload={"name": name, 
-                                 "email": email}),
+                                 "email": email,
+                                 "password":password}),
         ],
     )
 
