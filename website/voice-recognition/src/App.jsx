@@ -1,19 +1,24 @@
 
 import { useState } from 'react'
 import './App.css'
-import Import from './Import.jsx'
+import IdentifyVoice from './IdentifyVoice.jsx'
 import Header from './header.jsx'
-import Recorder from './recorder.jsx'
 import RegisterDB from './Registerdb.jsx'
+import Login from './Login.jsx'
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [user, setUser] = useState(null)
 
-  return(
+  return (
     <>
-      <Header/>
-      <Import/>
-      <Recorder/>
-      <RegisterDB/>
+      <Header />
+      <IdentifyVoice />
+      <RegisterDB />
+      <Login
+        setIsAuthenticated={setIsAuthenticated}
+        setUser={setUser}
+      />
     </>
   )
 }
