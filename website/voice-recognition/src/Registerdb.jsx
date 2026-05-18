@@ -13,7 +13,7 @@ function RegisterDB() {
   const [mode, setMode] = useState(null)
   const [success, setSuccess] = useState(null)
 
-  const { call, loading, error } = useApi()
+  const { call, loading, error, setError} = useApi()
 
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])
@@ -45,6 +45,12 @@ function RegisterDB() {
 
       mediaRecorder.start()
       setIsRecording(true)
+
+      setTimeout(() => {
+        if (mediaRecorderRef.current?.state === "recording") {
+          stopRecording()
+        }
+      }, 10 * 60 * 1000)
 
     } catch (err) {
       alert("Microphone inaccessible : " + err.message)
@@ -98,8 +104,20 @@ function RegisterDB() {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0]
-    if (file) {
+    if (!file) return
+
+    const audio = new Audio(URL.createObjectURL(file))
+
+    audio.onloadedmetadata = () => {
+      if (audio.duration > 10 * 60) {
+        setError("Audio file must be under 10 minutes")
+        event.target.value = ""
+        return
+      }
+      setError(null)
       setAudioFile(file)
+      setAudioURL(URL.createObjectURL(file))
+      setResult(null)
     }
   }
 
