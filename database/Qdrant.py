@@ -8,8 +8,8 @@ client = QdrantClient(url="http://localhost:6333")
 
 #print(client.get_collections()) #Show the collections in the database
 
-def insert_points(client, base, names, emails, vectors):
-    for name, email, vector in zip(names, emails, vectors):
+def insert_points(client, base, names, emails, vectors, passwords):
+    for name, email, vector, password in zip(names, emails, vectors,passwords):
         client.upsert(
             collection_name=base,
             wait=True,
@@ -17,7 +17,9 @@ def insert_points(client, base, names, emails, vectors):
                 PointStruct(id=str(uuid.uuid4()), #generates a random unique ID 
                             vector=vector,
                             payload={"name": name, 
-                                     "email": email}),
+                                     "email": email,
+                                     "password":password}
+                                     ),
             ],
         )
 
@@ -86,20 +88,22 @@ def email_exists(client, collection_name, email):
     )
     return len(result) > 0
 
-def insert_secure(client, base, names, emails, vectors): #insert points only if the email doesn't exist in the database
+def insert_secure(client, base, names, emails, vectors, passwords): #insert points only if the email doesn't exist in the database
     names_secures=[]
     emails_secures=[]
     vectors_secures=[]
-    for name, email, vector in zip(names, emails, vectors):
+    passwords_secures=[]
+    for name, email, vector, password in zip(names, emails, vectors, passwords):
         if not email_exists(client,base,email):
             names_secures.append(name)
             emails_secures.append(email)
             vectors_secures.append(vector)
+            passwords_secures.append(password)
 
-    insert_points(client, base, names_secures, emails_secures, vectors_secures)
+    insert_points(client, base, names_secures, emails_secures, vectors_secures, passwords_secures)
     print(f"Valid insertion : {len(emails_secures)}, invalid insertion : {len(emails)-len(emails_secures)}")
 
-def replace_point(client, base, point_id, name, email, vector): #replace a point by its ID
+def replace_point(client, base, point_id, name, email, password, vector): #replace a point by its ID
     client.upsert(
         collection_name=base,
         wait=True,
@@ -107,7 +111,8 @@ def replace_point(client, base, point_id, name, email, vector): #replace a point
             PointStruct(id=point_id, 
                         vector=vector,
                         payload={"name": name, 
-                                 "email": email}),
+                                 "email": email,
+                                 "password":password}),
         ],
     )
 
