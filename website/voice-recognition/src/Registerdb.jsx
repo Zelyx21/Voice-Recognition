@@ -1,73 +1,17 @@
 import { useState, useRef } from 'react'
 import { useApi } from './hooks/useAPI'
+import { useRecording } from './hooks/useRecording'
 
 function RegisterDB() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [isRecording, setIsRecording] = useState(false)
-  const [audioURL, setAudioURL] = useState(null)
-  const [audioBlob, setAudioBlob] = useState(null)
-  const [audioFile, setAudioFile] = useState(null)
   const [result, setResult] = useState(null)
   const [mode, setMode] = useState(null)
   const [success, setSuccess] = useState(null)
 
-  const { call, loading, error, setError} = useApi()
-
-  const mediaRecorderRef = useRef(null)
-  const chunksRef = useRef([])
-  const fileInputRef = useRef(null)
-
-  const startRecording = async () => {
-    try {
-      //Ask access to the microphone
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const mediaRecorder = new MediaRecorder(stream)
-      mediaRecorderRef.current = mediaRecorder
-      chunksRef.current = []
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data)
-        }
-      }
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/wav' })
-        const url = URL.createObjectURL(blob)
-        setAudioBlob(blob)
-        setAudioURL(url)
-
-        // Stop all microphone tracks
-        stream.getTracks().forEach(track => track.stop())
-      }
-
-      mediaRecorder.start()
-      setIsRecording(true)
-
-      setTimeout(() => {
-        if (mediaRecorderRef.current?.state === "recording") {
-          stopRecording()
-        }
-      }, 10 * 60 * 1000)
-
-    } catch (err) {
-      alert("Microphone inaccessible : " + err.message)
-    }
-  }
-
-  const stopRecording = () => {
-    mediaRecorderRef.current?.stop()
-    setIsRecording(false)
-  }
-
-  const resetRecording = () => {
-    setAudioURL(null)
-    setAudioBlob(null)
-    setResult(null)
-    startRecording()
-  }
+  const { call, loading, error, setError } = useApi()
+  const { isRecording, audioURL, audioBlob, audioFile, recordingTime, fileInputRef, startRecording, stopRecording, resetRecording, handleFileChange } = useRecording()
 
   const validate = () => {
     if (!name) return "Please enter a name"
@@ -102,26 +46,6 @@ function RegisterDB() {
 
   }
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0]
-    if (!file) return
-
-    const audio = new Audio(URL.createObjectURL(file))
-
-    audio.onloadedmetadata = () => {
-      if (audio.duration > 10 * 60) {
-        setError("Audio file must be under 10 minutes")
-        event.target.value = ""
-        return
-      }
-      setError(null)
-      setAudioFile(file)
-      setAudioURL(URL.createObjectURL(file))
-      setResult(null)
-    }
-  }
-
-
   return (
     <div className="box">
       <p>Create an account</p>
@@ -150,14 +74,11 @@ function RegisterDB() {
       <div className="button-group">
         <button onClick={() => {
           setMode("record")
-          stopRecording()
-          setAudioURL(null)
-          setAudioFile(null)
+          resetRecording()
         }}>Record your voice</button>
         <button onClick={() => {
           setMode("import")
-          stopRecording()
-          setAudioURL(null)
+          resetRecording()
         }}>Import your voice</button>
       </div>
 
@@ -171,6 +92,7 @@ function RegisterDB() {
 
           {isRecording && (
             <div>
+              <p>{Math.floor(recordingTime / 60)}m {recordingTime % 60}s / 10m</p>
               <button onClick={stopRecording}>Stop recording</button>
             </div>
           )
@@ -199,7 +121,7 @@ function RegisterDB() {
             id="audio-upload-register"
             type="file"
             accept="audio/*"
-            onChange={handleFileChange}
+            onChange={(e) => handleFileChange(e, setError)}
           />
 
           {!audioFile ? (
