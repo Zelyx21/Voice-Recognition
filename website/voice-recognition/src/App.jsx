@@ -5,6 +5,7 @@ import IdentifyVoice from './IdentifyVoice.jsx'
 import Header from './header.jsx'
 import RegisterDB from './Registerdb.jsx'
 import Login from './Login.jsx'
+import { Routes, Route } from 'react-router-dom'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -12,13 +13,13 @@ function App() {
 
   return (
     <>
-      <Header />
-      <IdentifyVoice />
-      <RegisterDB />
-      <Login
-        setIsAuthenticated={setIsAuthenticated}
-        setUser={setUser}
-      />
+      <Header
+        isAuthenticated={isAuthenticated} user={user} setIsAuthenticated={setIsAuthenticated} setUser={setUser} />
+      <Routes>
+        <Route path="/" element={<IdentifyVoice />} />
+        <Route path="/register" element={<RegisterDB />} />
+        <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} setUser={setUser} />} />
+      </Routes>
     </>
   )
 }
