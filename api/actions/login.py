@@ -3,6 +3,7 @@ from audio.conversion import conversion
 from audio.processing import resample, denoise, vad
 from ai.embedding import embedding
 from qdrant_client import QdrantClient
+from api.actions.auth import create_token
 import bcrypt
 
 client = QdrantClient(host="localhost", port=6333)
@@ -17,7 +18,8 @@ def login(email, password=None, vector=None):
 
         stored_hash = result["password"]
         if bcrypt.checkpw(password.encode(), stored_hash.encode()):
-            return {"name": result["name"], "email": result["email"], "issue": ""}
+            token = create_token(email, result["name"])
+            return {"name": result["name"], "email": result["email"], "token":token, "issue": ""}
         else:
             return {"issue": "Invalid email or password"}
 

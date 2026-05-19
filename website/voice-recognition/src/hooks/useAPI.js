@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const API_URL = "http://localhost:8000";
 
-export function useApi() {
+export function useApi(token = null) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -10,8 +10,13 @@ export function useApi() {
     setLoading(true);
     setError(null);
 
+    const headers = {...options.headers}
+    if (token) headers["Authorization"] = `Bearer ${token}`
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, options);
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers,
+      });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
@@ -21,6 +26,8 @@ export function useApi() {
       return await response.json();
 
     } catch (err) {
+      console.log(err)
+      
       if (err.message === "Failed to fetch") {
         setError("No access to server");
       } else {

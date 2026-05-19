@@ -2,11 +2,12 @@
 A python file in which is built our API fastAPI
 """
 
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database
 from api.actions.login import login, clean_embedding
+from api.actions.auth import verify_token
 
 #Command to run univcorn
 # uvicorn api.api:app --reload
