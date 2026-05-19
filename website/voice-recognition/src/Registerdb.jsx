@@ -46,7 +46,6 @@ function RegisterDB() {
       setTimeout(() => setSuccess(null), 2000)
       setTimeout(()=>navigate("/"),2000)
     }
-
   }
 
   return (

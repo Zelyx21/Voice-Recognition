@@ -3,7 +3,7 @@ import { useRecording } from './hooks/useRecording'
 import { useApi } from './hooks/useAPI'
 import { useNavigate } from 'react-router-dom'
 
-function Login({ setIsAuthenticated, setUser }) {
+function Login({ setIsAuthenticated, setUser, setToken}) {
     const [email, setEmail] = useState("")
     const [success, setSuccess] = useState("")
     const [password, setPassword] = useState("")
@@ -40,6 +40,7 @@ function Login({ setIsAuthenticated, setUser }) {
             setSuccess(`Welcome back, ${data.name} !`)
             setIsAuthenticated(true)
             setUser(data)
+            setToken(data.token)
             setTimeout(()=>navigate("/"),2000)
         }
 
