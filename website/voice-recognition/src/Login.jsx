@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useRecording } from './hooks/useRecording'
 import { useApi } from './hooks/useAPI'
+import { useNavigate } from 'react-router-dom'
 
-function Login() {
+function Login({ setIsAuthenticated, setUser }) {
     const [email, setEmail] = useState("")
     const [success, setSuccess] = useState("")
     const [password, setPassword] = useState("")
@@ -10,6 +11,7 @@ function Login() {
 
     const { isRecording, audioURL, audioBlob, recordingTime, startRecording, stopRecording, resetRecording } = useRecording()
     const {call, loading, error, setError} = useApi()
+    const navigate = useNavigate()
 
     const validate = () => {
         if (!email) return "Please enter an email"
@@ -36,6 +38,9 @@ function Login() {
         const data = await call("/login", { method: "POST", body: formData })
         if (data && !data.issue) {
             setSuccess(`Welcome back, ${data.name} !`)
+            setIsAuthenticated(true)
+            setUser(data)
+            setTimeout(()=>navigate("/"),2000)
         }
 
         if (data.issue){
@@ -45,9 +50,9 @@ function Login() {
 
 
     return (
-        <div className="box">
+        <div className="box" style={{flex:1}}>
 
-            <p>Login</p>
+            <h2>Login</h2>
 
             <label htmlFor="mail-login">Email</label>
             <input

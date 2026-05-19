@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { useApi } from './hooks/useAPI'
 import { useRecording } from './hooks/useRecording'
+import { useNavigate } from 'react-router-dom'
 
 function RegisterDB() {
   const [name, setName] = useState("")
@@ -12,6 +13,7 @@ function RegisterDB() {
 
   const { call, loading, error, setError } = useApi()
   const { isRecording, audioURL, audioBlob, audioFile, recordingTime, fileInputRef, startRecording, stopRecording, resetRecording, handleFileChange } = useRecording()
+  const navigate = useNavigate()
 
   const validate = () => {
     if (!name) return "Please enter a name"
@@ -41,14 +43,15 @@ function RegisterDB() {
     if (data) {
       setResult(data)
       setSuccess("Registration successful !")
-      setTimeout(() => setSuccess(null), 3000)
+      setTimeout(() => setSuccess(null), 2000)
+      setTimeout(()=>navigate("/"),2000)
     }
 
   }
 
   return (
-    <div className="box">
-      <p>Create an account</p>
+    <div className="box" style={{flex:1}}>
+      <h2>Create an account</h2>
       <label htmlFor="name">Name</label>
       <input
         type="text"
