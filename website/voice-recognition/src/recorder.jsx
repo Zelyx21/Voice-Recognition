@@ -105,8 +105,9 @@ function Recorder() {
             {loading ? "Analysis in progress..." : "Send recording"}
           </button>
 
-          <ClonageButton audioBlob={audioBlob} />
- 
+          <ClonageButton audioBlob={audioBlob} modelName="OpenVoice" />
+          <ClonageButton audioBlob={audioBlob} modelName="VoxCPM" />
+
           {result && !result.issue && (
             <div className="result">
               <p>Speaker : {result.name}</p>

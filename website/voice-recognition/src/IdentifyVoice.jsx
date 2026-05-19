@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import './App.css'
 import { useApi } from './hooks/useAPI'
 import { useRecording } from './hooks/useRecording'
+import ClonageButton from './ClonageButton.jsx'
 
 function IdentifyVoice() {
 
@@ -147,6 +148,10 @@ function IdentifyVoice() {
                                 : "Identify speaker"
                         }
                     </button>
+                    
+                    <ClonageButton audioBlob={audioBlob} modelName="OpenVoice" />
+                    <ClonageButton audioBlob={audioBlob} modelName="VoxCPM" />
+
 
                     {result && !result.issue && (
 
