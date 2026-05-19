@@ -6,6 +6,7 @@ import tempfile
 sys.path.append("./OpenVoice")
 
 
+from fastapi.responses import JSONResponse
 import torch
 from openvoice import se_extractor
 from openvoice.api import BaseSpeakerTTS, ToneColorConverter
@@ -18,14 +19,15 @@ import nltk
 
 
 def openvoice_clonage(audio: bytes,
-    language: str = "EN_NEWEST",
-    speaker_key: str = "EN-Newest",  #see checkpoints_v2/base_speakers/ses for the available speakers
-    text: str = "Did you ever hear a folk tale about a giant turtle?",
+    language: str = "FR",
+    speaker_key: str = "FR",  #see checkpoints_v2/base_speakers/ses for the available speakers
+    text: str = "Vous testez un projet étudiant sur la reconnaissance vocale et la clonage de voix.",
     speed: float = 1.0,
 ):
     """
     Clones the voice from the input audio using OpenVoice 
-
+    Language : British English (EN_NEWEST), American English (EN), Spanish (ES), French (FR), Chinese (ZH), Japanese (JP), Korean (KR)
+    speaker_key : see checkpoints_v2/base_speakers/ses for the available speakers, ex: EN-Newest, Australian English (EN_AU), 
     """
 
     issue = [False, ""] # default no issue
@@ -55,11 +57,16 @@ def openvoice_clonage(audio: bytes,
     if target_se is None:
         return None, None, issue
 
-    # Load the TTS model for the specified language 
-    model = TTS(language=language, device=device)  
-    speaker_id = model.hps.data.spk2id[speaker_key]  
+    try:
+        # Load the TTS model for the specified language 
+        model = TTS(language=language, device=device)  
+        speaker_id = model.hps.data.spk2id[speaker_key]  
 
-    source_se = torch.load(f'OpenVoice/checkpoints_v2/base_speakers/ses/{speaker_key}.pth', map_location=device)
+        source_se = torch.load(f'OpenVoice/checkpoints_v2/base_speakers/ses/{speaker_key}.pth', map_location=device)
+    except Exception as e:
+        print(f"Error occurred while loading TTS model or source speaker embedding: {e}")
+        issue = [True, str(e)]
+        return None, None, issue
  
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as src_tmp, \
             tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as out_tmp:

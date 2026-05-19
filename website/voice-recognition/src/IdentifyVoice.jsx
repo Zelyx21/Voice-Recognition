@@ -149,9 +149,7 @@ function IdentifyVoice() {
                         }
                     </button>
                     
-                    <ClonageButton audioBlob={audioBlob} modelName="OpenVoice" />
-                    <ClonageButton audioBlob={audioBlob} modelName="VoxCPM" />
-
+                    <ClonageButton audioBlob={audioBlob} />
 
                     {result && !result.issue && (
 
