@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { useRecording } from './hooks/useRecording'
 import { useApi } from './hooks/useAPI'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
-function Login({ setIsAuthenticated, setUser, setToken}) {
+function Login({ setIsAuthenticated, setUser, setToken }) {
     const [email, setEmail] = useState("")
     const [success, setSuccess] = useState("")
     const [password, setPassword] = useState("")
     const [recordingOption, setRecordingOption] = useState(false)
+    const [searchParams] = useSearchParams()
+    const expired = searchParams.get("expired")
 
     const { isRecording, audioURL, audioBlob, recordingTime, startRecording, stopRecording, resetRecording } = useRecording()
-    const {call, loading, error, setError} = useApi()
+    const { call, loading, error, setError } = useApi()
     const navigate = useNavigate()
 
     const validate = () => {
@@ -31,27 +33,29 @@ function Login({ setIsAuthenticated, setUser, setToken}) {
         if (audioBlob) {
             formData.append("file", new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
         }
-        if (password){
+        if (password) {
             formData.append("password", password)
         }
 
         const data = await call("/login", { method: "POST", body: formData })
         if (data && !data.issue) {
-            setSuccess(`Welcome back, ${data.name} !`)
+            sessionStorage.setItem("token", data.token)
+            sessionStorage.setItem("user", JSON.stringify(data))
             setIsAuthenticated(true)
             setUser(data)
             setToken(data.token)
-            setTimeout(()=>navigate("/"),2000)
+            setSuccess(`Welcome back, ${data.name} !`)
+            setTimeout(() => navigate("/"), 2000)
         }
 
-        if (data.issue){
+        if (data && data.issue) {
             setError(data.issue)
         }
     }
 
 
     return (
-        <div className="box" style={{flex:1}}>
+        <div className="box" style={{ flex: 1 }}>
 
             <h2>Login</h2>
 
@@ -111,6 +115,9 @@ function Login({ setIsAuthenticated, setUser, setToken}) {
             <button onClick={login}>Login</button>
 
             {error && <p style={{ color: "red" }}>{error}</p>}
+            {expired && (
+                <p style={{ color: "red" }}>Your session has expired, please login again</p>
+            )}
             {success && (
                 <p style={{ color: "green" }}>{success}</p>
             )}
