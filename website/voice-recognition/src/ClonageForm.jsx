@@ -63,8 +63,8 @@ export default function ClonageForm({ onChange }) {
       <label>
         Accent / Speaker:
         <select value={speaker} onChange={(e) => { setSpeaker(e.target.value); update({ speaker: e.target.value }) }}>
-          {SPEAKERS.map((s) => (
-            <option key={s} value={s}>{s}</option>
+          {Object.entries(SPEAKERS).map(([label, value]) => (
+            <option key={value} value={value}>{label}</option>
           ))}
         </select>
       </label>
