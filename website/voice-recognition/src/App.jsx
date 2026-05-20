@@ -5,6 +5,8 @@ import IdentifyVoice from './IdentifyVoice.jsx'
 import Header from './header.jsx'
 import RegisterDB from './Registerdb.jsx'
 import Login from './Login.jsx'
+import ClonageVoice from './ClonageVoice.jsx'
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -15,6 +17,7 @@ function App() {
       <Header />
       <IdentifyVoice />
       <RegisterDB />
+      <ClonageVoice />
       <Login
         setIsAuthenticated={setIsAuthenticated}
         setUser={setUser}

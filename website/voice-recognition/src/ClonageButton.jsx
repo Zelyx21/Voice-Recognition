@@ -46,7 +46,7 @@ export default function ClonageButton({ audioBlob }) {
       setErrorclone(
         data.issue ||
         data.detail ||
-        "Unknown cloning error"
+        "Cloning error"
       )
 
       setLoading(false)

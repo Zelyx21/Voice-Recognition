@@ -11,16 +11,13 @@ const LANGUAGES = [
 ]
 
 const SPEAKERS = {
-  "EN_NEWEST": "EN-Newest",
-  "American English": "EN-US",
-  "British English": "EN-BR",
-  "Australian English": "EN-AU",
-  "Indian English": "EN-IN",
-  "Français": "FR",
-  "Espagnol": "ES",
-  "Chinois": "ZH",
-  "Japanese": "JP",
-  "Korean": "KR",
+  EN_NEWEST: ["EN-Newest"],
+  EN:        ["EN-US", "EN-BR", "EN-AU", "EN-Default"], //"EN-IN" doesn't work 
+  FR:        ["FR"],
+  ES:        ["ES"],
+  ZH:        ["ZH"],
+  JP:        ["JP"],
+  KR:        ["KR"],
 }
 
 export default function ClonageForm({ onChange }) {
@@ -31,7 +28,6 @@ export default function ClonageForm({ onChange }) {
 
   const update = (newValues) => {
     onChange({ speed, language, speaker, text, ...newValues })
-    setLoading(false)
   }
 
   const handleLanguageChange = (e) => {
@@ -63,8 +59,8 @@ export default function ClonageForm({ onChange }) {
       <label>
         Accent / Speaker:
         <select value={speaker} onChange={(e) => { setSpeaker(e.target.value); update({ speaker: e.target.value }) }}>
-          {Object.entries(SPEAKERS).map(([label, value]) => (
-            <option key={value} value={value}>{label}</option>
+          {SPEAKERS[language].map((s) => (
+            <option key={s} value={s}>{s}</option>
           ))}
         </select>
       </label>

@@ -61,10 +61,11 @@ def openvoice_clonage(audio: bytes,
         # Load the TTS model for the specified language 
         model = TTS(language=language, device=device)  
         speaker_id = model.hps.data.spk2id[speaker_key]  
+        speaker_key = speaker_key.lower().replace('_', '-')
 
         source_se = torch.load(f'OpenVoice/checkpoints_v2/base_speakers/ses/{speaker_key}.pth', map_location=device)
     except Exception as e:
-        print(f"Error occurred while loading TTS model or source speaker embedding: {e}")
+        print(f"Error occurred while loading TTS model or source speaker embedding: {str(e)}\nError on speaker_key: {speaker_key}, language: {language}")
         issue = [True, str(e)]
         return None, None, issue
  

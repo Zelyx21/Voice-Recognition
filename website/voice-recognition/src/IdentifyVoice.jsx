@@ -149,8 +149,6 @@ function IdentifyVoice() {
                         }
                     </button>
                     
-                    <ClonageButton audioBlob={audioBlob} />
-
                     {result && !result.issue && (
 
                         <div className="result">

@@ -43,6 +43,8 @@ async def clonage(file: UploadFile = File(...), model_name: str = Form(...),
     audio_bytes = await file.read() 
     print(f"Received file: {file.filename}, model_name: {model_name}, cloneText: {cloneText}, cloneNationality: {cloneNationality}, textLanguage: {textLanguage}, textSpeed: {textSpeed}")
     if model_name == "OpenVoice":
-        return voice_clonage(audio_bytes, cloneText, cloneNationality, textLanguage, textSpeed)
+        return voice_clonage(audio_bytes, language=textLanguage, speaker_key=cloneNationality, text=cloneText, speed=textSpeed)
     else:
-        return voice_clonage(audio_bytes, cloneText, cloneNationality, textLanguage, textSpeed)
+        return voice_clonage(audio_bytes, language=textLanguage, speaker_key=cloneNationality, text=cloneText, speed=textSpeed)
+    
+    
