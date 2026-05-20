@@ -1,139 +1,158 @@
-import {useState, useRef} from 'react'
+import { useState, useRef } from 'react'
+import { useApi } from './hooks/useAPI'
+import { useRecording } from './hooks/useRecording'
+import { useNavigate } from 'react-router-dom'
 
-function RegisterDB(){
-    const [name, setName] = useState("")
-    const [email, setEmail] = useState("")
-    const [isRecording, setIsRecording] = useState(false)
-    const [audioURL, setAudioURL] = useState(null)
-    const [audioBlob, setAudioBlob] = useState(null)
-    const [loading,setLoading] = useState(false)
-    const [result, setResult] = useState(null)
+function RegisterDB() {
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [result, setResult] = useState(null)
+  const [mode, setMode] = useState(null)
+  const [success, setSuccess] = useState(null)
 
-    const mediaRecorderRef = useRef(null)
-    const chunksRef = useRef([])
+  const { call, loading, error, setError } = useApi()
+  const { isRecording, audioURL, audioBlob, audioFile, recordingTime, fileInputRef, startRecording, stopRecording, resetRecording, handleFileChange } = useRecording()
+  const navigate = useNavigate()
 
-    const startRecording = async () => {
-    try {
-    //Ask access to the microphone
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const mediaRecorder = new MediaRecorder(stream)
-      mediaRecorderRef.current = mediaRecorder
-      chunksRef.current = []
+  const validate = () => {
+    if (!name) return "Please enter a name"
+    if (!email) return "Please enter an email"
+    if (!password) return "Please enter a password"
+    if (!audioBlob && !audioFile) return "Please record or import an audio file of your voice"
+    return null
+  }
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data)
-        }
-      }
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/wav' })
-        const url = URL.createObjectURL(blob)
-        setAudioBlob(blob)
-        setAudioURL(url)
-
-        // Stop all microphone tracks
-        stream.getTracks().forEach(track => track.stop())
-      }
-
-      mediaRecorder.start()
-      setIsRecording(true)
-
-    } catch (err) {
-      alert("Microphone inaccessible : " + err.message)
+  const register = async () => {
+    const err = validate()
+    if (err) {
+      setError(err)
+      return
     }
-  }
+    const formData = new FormData()
+    if (audioBlob) {
+      formData.append("file", new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
+    } else if (audioFile) {
+      formData.append("file", audioFile)
+    }
+    formData.append("name", name)
+    formData.append("email", email)
+    formData.append("password", password)
 
-  const stopRecording = () => {
-    mediaRecorderRef.current?.stop()
-    setIsRecording(false)
-  }
-
-  const resetRecording = () => {
-    setAudioURL(null)
-    setAudioBlob(null)
-    setResult(null)
-  }
-
-  const sendRecording = async () => {
-    if (!audioBlob) return
-
-    setLoading(true)
-    try{
-      const formData = new FormData()
-      formData.append("file",new File([audioBlob], "recording.wav", { type: 'audio/wav' }))
-      formData.append("name", name)
-      formData.append("email",email)
-
-      const response = await fetch("http://localhost:8000/registerdb", {
-        method: "POST",
-        body: formData,
-      })
-
-      const data = await response.json()
+    const data = await call("/registerdb", { method: "POST", body: formData })
+    if (data) {
       setResult(data)
-    }catch(err){
-      alert("Error : "+err.message)
-    }finally{
-      setLoading(false)
+      setSuccess("Registration successful !")
+      setTimeout(() => setSuccess(null), 2000)
+      setTimeout(()=>navigate("/"),2000)
     }
   }
 
   return (
-    <div id="center_recorder">
+    <div className="box" style={{flex:1}}>
+      <h2>Create an account</h2>
+      <label htmlFor="name">Name</label>
+      <input
+        type="text"
+        id="name"
+        onChange={(e) => setName(e.target.value)}
+      />
 
-      {/* Recorder not started */}
-      {!audioURL && !isRecording && (
+      <label htmlFor="email">Email</label>
+      <input
+        type="text"
+        id="email"
+        onChange={(e) => setEmail(e.target.value)}
+      />
+
+      <label>Password</label>
+      <input
+        type="password"
+        id="password"
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <label>Voice</label>
+      <div className="button-group">
+        <button onClick={() => {
+          setMode("record")
+          resetRecording()
+        }}>Record your voice</button>
+        <button onClick={() => {
+          setMode("import")
+          resetRecording()
+        }}>Import your voice</button>
+      </div>
+
+      {mode == "record" && (
         <div>
-          <p>Register in our database</p>
-
-          <label htmlFor="name">Your name</label>
-          <input
-          type="text"
-          id="name"
-          name="name"
-          minLength="2"
-          onChange={(e) => setName(e.target.value)}
-          />
-
-          <label htmlFor="email">Your email</label>
-          <input
-            type="email"
-            id="email"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <button onClick={startRecording}>
-            Start recording
-          </button>
-
-        </div>
-      )}
-
-      {/* Recording in progress */}
-      {isRecording && (
-        <button className="remove-import" onClick={stopRecording}>
-          Stop recording
-        </button>
-      )}
-
-      {/* Recording completed */}
-      {audioURL && (
-        <div className="file-info">
-          <p>Finished recording</p>
-          <audio controls src={audioURL} />
-          <button className="remove-import" onClick={resetRecording}>
-            Record again
-          </button>
-          <button className="send-import" onClick={sendRecording} disabled={loading}>
-            {loading ? "Registering in database..." : "Send recording"}
-          </button>
-
-          {result && (
-            <p>{result.status === "success" ? "Registration done !" : "Something happened"}</p>
+          {!isRecording && !audioURL && (
+            <div>
+              <button onClick={()=>{setError(null); startRecording()}}>Start recording</button>
+            </div>
           )}
- 
+
+          {isRecording && (
+            <div>
+              <p>{Math.floor(recordingTime / 60)}m {recordingTime % 60}s / 10m</p>
+              <button onClick={()=>stopRecording(setError)}>Stop recording</button>
+            </div>
+          )
+          }
+
+          {audioURL && (
+            <div className="file-info">
+              <p>Finished recording</p>
+              <audio controls src={audioURL} />
+              <button className="remove" onClick={resetRecording}>
+                Record again
+              </button>
+            </div>
+          )}
+
+
+
         </div>
+
+      )}
+
+      {mode == "import" && (
+        <div>
+          <input
+            ref={fileInputRef}
+            id="audio-upload-register"
+            type="file"
+            accept="audio/*"
+            onChange={(e) => handleFileChange(e, setError)}
+          />
+
+          {!audioFile ? (
+            <label htmlFor="audio-upload-register" className="button">
+              Import an audio file
+            </label>
+          ) : (
+            <div className="file-info">
+              <p>Selected file : <strong>{audioFile.name}</strong></p>
+              <audio controls src={URL.createObjectURL(audioFile)} />
+              <button
+                className="remove"
+                onClick={() => fileInputRef.current.click()}
+              >
+                Change file
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      <button
+        onClick={register}
+      >
+        Register
+      </button>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {success && (
+        <p style={{ color: "green" }}>{success}</p>
       )}
 
     </div>

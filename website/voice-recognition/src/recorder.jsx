@@ -104,9 +104,8 @@ function Recorder() {
           <button className="send-import" onClick={sendRecording} disabled={loading}>
             {loading ? "Analysis in progress..." : "Send recording"}
           </button>
-
           <ClonageButton audioBlob={audioBlob} />
- 
+
           {result && !result.issue && (
             <div className="result">
               <p>Speaker : {result.name}</p>
