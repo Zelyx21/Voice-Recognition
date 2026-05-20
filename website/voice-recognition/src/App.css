@@ -1,7 +1,7 @@
 /* ─── Layout ─────────────────────────────────────────────── */
 
 #root {
-  max-width: 560px;
+  max-width: 650px;
   margin: 0 auto;
   padding: 48px 24px 80px;
   display: flex;
@@ -41,6 +41,10 @@
   align-items: stretch;
   gap: 12px;
   box-shadow: var(--shadow);
+}
+
+.box h2 {
+  font-size:20px;
 }
 
 /* ─── File info card ─────────────────────────────────────── */
