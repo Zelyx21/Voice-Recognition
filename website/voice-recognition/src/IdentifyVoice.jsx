@@ -3,12 +3,12 @@ import './App.css'
 import { useApi } from './hooks/useAPI'
 import { useRecording } from './hooks/useRecording'
 
-function IdentifyVoice({token}) {
+function IdentifyVoice() {
 
     const [mode, setMode] = useState(null)
 
     const [result, setResult] = useState(null)
-    const { call, loading, error, setError } = useApi(token)
+    const { call, loading, error, setError } = useApi()
     const { isRecording, audioURL, audioBlob, audioFile, recordingTime, fileInputRef, startRecording, stopRecording, resetRecording, handleFileChange } = useRecording()
 
     // ---------------- SEND ----------------

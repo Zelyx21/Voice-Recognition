@@ -7,6 +7,8 @@ import dellLogo from './dell_logo.png'
 function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
   const navigate = useNavigate()
   const logout = () => {
+    sessionStorage.removeItem("token")
+    sessionStorage.removeItem("user")
     setIsAuthenticated(false)
     setUser(null)
     navigate("/")
