@@ -29,9 +29,9 @@ function IdentifyVoice() {
     }
 
     return (
-        <div className="box">
+        <div className="box" style={{alignItems:"center"}}>
 
-            <p>Identify a voice</p>
+            <h2>Identify a voice</h2>
 
             {/* MODE SELECTION */}
 
@@ -119,7 +119,7 @@ function IdentifyVoice() {
 
             {audioURL && (
 
-                <div className="file-info">
+                <div className="file-info" style={{alignItems:"center"}}>
 
                     <p>
                         Audio ready
@@ -133,6 +133,7 @@ function IdentifyVoice() {
                     <button
                         className="remove"
                         onClick={resetRecording}
+                        style={{ alignSelf: "center" }}
                     >
                         Remove audio
                     </button>
@@ -141,6 +142,7 @@ function IdentifyVoice() {
                         className="button"
                         onClick={sendRecording}
                         disabled={loading}
+                        style={{ alignSelf: "center" }}
                     >
                         {
                             loading
