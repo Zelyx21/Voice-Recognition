@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = "http://localhost:8000";
 
-export function useApi(token = null) {
+export function useApi(token = null, setIsAuthenticated = null, setUser = null) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate()
 
   const call = async (endpoint, options = {}) => {
     setLoading(true);
@@ -20,6 +22,15 @@ export function useApi(token = null) {
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
+        if (response.status === 401){
+          if (setIsAuthenticated) setIsAuthenticated(false)
+          if (setUser) setUser(null)
+          if (navigate) navigate("/login?expired=true")
+            return null
+        }
+        if (response.status === 429){
+          throw new Error("Too many attempts, please wait a minute before trying again")
+        }
         throw new Error(data.detail || `Erreur ${response.status}`);
       }
 
