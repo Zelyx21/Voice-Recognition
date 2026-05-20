@@ -17,7 +17,7 @@ function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
   return (
     <main id="center" style={{ justifyContent: "space-between" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        <img src={dellLogo} alt="Logo DELL" className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
+        <img src={dellLogo} alt="Logo Dell" className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
         <h1 onClick={() => navigate("/")} style={{ cursor: "pointer" }}>Voice Recognition</h1>
       </div>
 
