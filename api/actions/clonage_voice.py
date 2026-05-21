@@ -1,69 +1,63 @@
 from audio.conversion import conversion
+from audio.conversion import ndarray_to_wav_bytes
+
 from audio.processing import resample, denoise, vad
-from ai.embedding import embedding
 from qdrant_client import QdrantClient
-from database.Qdrant import search_similarity_attributes
-#from openvoice_clonage import openvoice_clonage
-from VoxCPM_clonage import clonage_voxCPM
+from openvoice_clonage import openvoice_clonage
 
 from fastapi.responses import StreamingResponse
 import io
 import soundfile as sf
 
 from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import StreamingResponse
-import io
-import soundfile as sf
 
-from VoxCPM_clonage import clonage_voxCPM
+#from CosyVoiceFunction import synthesize_zero_shot
+
 
 app = FastAPI()
-from openvoice_clonage import openvoice_clonage
 from fastapi.responses import JSONResponse, Response
 
 
 client = QdrantClient(host="localhost", port = 6333)
 
-
-@app.post("/clonage")
-def clonage_voice_voxCPM(audio_bytes:bytes, language_text={"EN_NEWEST": "Did you ever hear a folk tale about a giant turtle?"}, speed=1.0):
+def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are testing a student project on voice recognition and voice cloning.", speed=1.0, prompt_text="", emotion=None, speaking_style=None, seed=None):
     """
     Takes raw audio bytes and returns the most similar speaker
     """
-    textes="En allant au marché je croise deux hommes accompagnés chacun de deux femmes accompagnées chacune de deux enfants. Combien de personnes vont au marché ?"
+    raw = conversion(audio_bytes)
+    audio_rs, sr = resample(raw)
+    audio_dn = denoise(audio_rs,sr)
+    audio_by = ndarray_to_wav_bytes(audio_dn, sr)
+
+
+    if model_clonage == "zero_shot":
+        return
+        """return synthesize_zero_shot(prompt_audio_path=audio_by,
+                                    text=text, prompt_text=prompt_text,
+                                    emotion=emotion, speaking_style=speaking_style,
+                                    speed=speed, seed=seed
+                                    )"""
+    
+    elif model_clonage == "zero_shot2":
+        return
+    else:
+        return
+        JSONResponse(
+            status_code=400,
+            content={"issue": "Voice Cloning unknown"}
+        )    
+
+
+def voice_clonage_OpenVoice(audio_bytes:bytes, language="EN",speaker_key="EN_Newest", text="You are testing a student project on voice recognition and voice cloning.", speed=1.0):
+    """
+    Takes raw audio bytes and returns the most similar speaker
+    """
     print("API reception : OK")
     raw = conversion(audio_bytes)
-    audio, sr = resample(raw)
-
-    print("Clonage send : OK")
-    audio, sr, issue = clonage_voxCPM(audio, sr, textes, speed=speed)
-    print("Clonage : OK")
-
-    return {"clones": audio, "issue": issue}
-
-
-async def clonage(file: UploadFile = File(...)):
-
-    audio_bytes = await file.read()
-
-    print("Clonage send : OK")
-    audio, sr, issue = clonage_voxCPM(audio_bytes, )
-
-    print("Clonage : OK")
-
-    if issue[0]:
-        return {"issue": issue[1]}
-
-    buffer = io.BytesIO() 
-
-    sf.write(buffer, audio, sr, format="WAV")
-
-    buffer.seek(0)
-def voice_clonage(audio_bytes:bytes, language="EN",speaker_key="EN_Newest", text="You are testing a student project on voice recognition and voice cloning.", speed=1.0):
-    """
-    Takes raw audio bytes and returns the most similar speaker
-    """
-    audio, sr, issue = openvoice_clonage(audio_bytes, language, speaker_key, text, speed)
+    audio_rs, sr = resample(raw)
+    audio_dn = denoise(audio_rs,sr)
+    audio_by = ndarray_to_wav_bytes(audio_dn, sr)
+    audio, sr, issue = openvoice_clonage(audio_by, language, speaker_key, text, speed)
 
     if issue[0]: # if there is an issue with the audio file (no voice detected)
         print("Clonage error:", issue[1])
@@ -76,10 +70,5 @@ def voice_clonage(audio_bytes:bytes, language="EN",speaker_key="EN_Newest", text
         content=audio,
         media_type="audio/wav",
         headers={"Content-Disposition": "inline; filename=clone.wav", "X-Issue": "false"}
-    )
-
-    return StreamingResponse(
-        buffer,
-        media_type="audio/wav"
     )
 

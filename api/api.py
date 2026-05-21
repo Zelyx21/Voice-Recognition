@@ -6,7 +6,8 @@ from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, Req
 from fastapi.middleware.cors import CORSMiddleware
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database
-from api.actions.clonage_voice import clonage_voice_voxCPM
+from api.actions.clonage_voice import voice_clonage_OpenVoice
+from api.actions.clonage_voice import clonage_voice_CosyVoice
 
 from api.actions.login import login, clean_embedding
 from api.actions.auth import verify_token
@@ -62,10 +63,10 @@ async def clonage(file: UploadFile = File(...), model_name: str = Form(...),
     audio_bytes = await file.read() 
     print(f"Received file: {file.filename}, model_name: {model_name}, cloneText: {cloneText}, cloneNationality: {cloneNationality}, textLanguage: {textLanguage}, textSpeed: {textSpeed}")
     if model_name == "OpenVoice":
-        return voice_clonage(audio_bytes, language=textLanguage, speaker_key=cloneNationality, text=cloneText, speed=textSpeed)
+        return voice_clonage_OpenVoice(audio_bytes, language=textLanguage, speaker_key=cloneNationality, text=cloneText, speed=textSpeed)
     else:
-        return voice_clonage(audio_bytes, language=textLanguage, speaker_key=cloneNationality, text=cloneText, speed=textSpeed)
-    
+        return clonage_voice_CosyVoice(audio_bytes, model_clonage=model_name, language_text={textLanguage: cloneText}, speed=textSpeed)
+
     
 @app.post("/login")
 @limiter.limit("5/minute")

@@ -57,11 +57,11 @@ function ClonageVoice() {
                 <input
                     type="radio"
                     name="cloningMode"
-                    value="VoxCPM"
-                    checked={CloningMode === "VoxCPM"}
+                    value="CosyVoice"
+                    checked={CloningMode === "CosyVoice"}
                     onChange={handleModeClonageChange}
                 />
-                VoxCPM
+                CosyVoice
             </label>
         </div>
 
@@ -182,7 +182,7 @@ function ClonageVoice() {
                                     }
                                 </button>
                                 
-                                <ClonageButton audioBlob={audioBlob} />
+                                <ClonageButton audioBlob={audioBlob || audioFile} CloningMode={CloningMode} />
 
                                 {result && !result.issue && (
 
@@ -215,7 +215,7 @@ function ClonageVoice() {
             </div>
         )}
 
-            {CloningMode === "VoxCPM" && (
+            {CloningMode === "coquiTTS" && (
                 <div>
                     <p>Comming soon</p>
                 </div>
