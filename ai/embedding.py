@@ -3,15 +3,19 @@ Python file which takes an audio wav and returns a vector
 """
 
 from speechbrain.inference.classifiers import EncoderClassifier as sb
+from speechbrain.utils.fetching import LocalStrategy
 import soundfile as sf
 import torch
 import numpy as np
 
 # ------------------charge the model-----------------------
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cpu"
 speechbrain_model = sb.from_hparams(
-    source="ai\\model\\spkrec-ecapa-voxceleb", run_opts={"device": device}
+    source="ai/model/spkrec-ecapa-voxceleb",
+    savedir="ai/model/spkrec-ecapa-voxceleb",
+    local_strategy=LocalStrategy.COPY,
+    run_opts={"device": device}
 )
 
 def embedding(audio: np.ndarray):
