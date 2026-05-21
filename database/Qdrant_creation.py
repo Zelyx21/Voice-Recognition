@@ -9,6 +9,8 @@ client = QdrantClient(url="http://localhost:6333")
 
 
 if "voice_data_base" not in [collection.name for collection in client.get_collections().collections]:
+    if client.collection_exists("voice_data_base"):
+        client.delete_collection("voice_data_base")
 
     client.create_collection(
         collection_name="voice_data_base",
