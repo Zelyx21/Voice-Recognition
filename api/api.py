@@ -4,6 +4,8 @@ A python file in which is built our API fastAPI
 
 from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from torch import Optional
 from api.actions.clonage_voice import clonage_voice_CosyVoice, voice_clonage_OpenVoice
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database
@@ -104,18 +106,44 @@ async def login_route(
     return result
 
 @app.post("/clonage")
-async def clonage(file: UploadFile = File(...), model_name: str = Form(...), 
-                  cloneText: str = Form(...), cloneNationality: str = Form(...), 
-                  textLanguage: str = Form(...), textSpeed: float = Form(...)
-                  ):
-    audio_bytes = await file.read() 
-    print(f"Received file: {file.filename}, model_name: {model_name}, cloneText: {cloneText}, cloneNationality: {cloneNationality}, textLanguage: {textLanguage}, textSpeed: {textSpeed}")
+async def clonage(
+    file: UploadFile = File(...),
+    model_name: str = Form(...),
+    cloneText: str = Form(...),
+    textSpeed: float = Form(...),
+    # OpenVoice parameters
+    cloneNationality: Optional[str] = Form(None),
+    textLanguage: Optional[str] = Form(None),
+    # CosyVoice parameters
+    promptText: Optional[str] = Form(None),       
+    emotion: Optional[str] = Form(None),          
+    speakingStyle: Optional[str] = Form(None),    
+):
+    audio_bytes = await file.read()
+    print(
+        f"Received file: {file.filename}, model_name: {model_name}, "
+        f"cloneText: {cloneText}, textSpeed: {textSpeed}, "
+        f"cloneNationality: {cloneNationality}, textLanguage: {textLanguage}, "
+        f"promptText: {promptText}, emotion: {emotion}, speakingStyle: {speakingStyle}"
+    )
+ 
     if model_name == "OpenVoice":
-        return voice_clonage_OpenVoice(audio_bytes, language=textLanguage, speaker_key=cloneNationality, text=cloneText, speed=textSpeed)
+        return voice_clonage_OpenVoice(
+            audio_bytes=audio_bytes,
+            language=textLanguage,
+            speaker_key=cloneNationality,
+            text=cloneText,
+            speed=textSpeed
+        )
+ 
     else:
-        return clonage_voice_CosyVoice(audio_bytes, model_clonage=model_name, language_text={textLanguage: cloneText}, speed=textSpeed)
-
-
-
-
-
+        print("Using CosyVoice for voice cloning")
+        return clonage_voice_CosyVoice(
+            audio_bytes=audio_bytes,
+            model_clonage="zero_shot",
+            text=cloneText,
+            speed=textSpeed,
+            prompt_text=promptText or "",
+            emotion=emotion,
+            speaking_style=speakingStyle,
+        )

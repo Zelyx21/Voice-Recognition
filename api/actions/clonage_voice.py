@@ -1,3 +1,4 @@
+
 from audio.conversion import conversion
 from audio.conversion import ndarray_to_wav_bytes
 
@@ -11,7 +12,7 @@ import soundfile as sf
 
 from fastapi import FastAPI, UploadFile, File
 
-#from CosyVoiceFunction import synthesize_zero_shot
+from CosyVoiceFunction import synthesize_zero_shot
 
 
 app = FastAPI()
@@ -31,15 +32,19 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
 
 
     if model_clonage == "zero_shot":
-        return
-        """return synthesize_zero_shot(prompt_audio_path=audio_by,
+        
+        return synthesize_zero_shot(model=None,
+                                    prompt_audio_path=audio_by,
                                     text=text, prompt_text=prompt_text,
                                     emotion=emotion, speaking_style=speaking_style,
                                     speed=speed, seed=seed
-                                    )"""
+                                    )
     
     elif model_clonage == "zero_shot2":
-        return
+        return JSONResponse(
+            status_code=400,
+            content={"issue": "Voice Cloning unknown"}
+        )    
     else:
         return
         JSONResponse(
