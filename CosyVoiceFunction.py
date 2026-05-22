@@ -22,6 +22,7 @@ Usage example:
 import sys
 import os
 import io
+import tempfile
 import time
 import logging
 from enum import Enum
@@ -32,8 +33,6 @@ import torch
 import torchaudio
 import numpy as np
 
-# ── CosyVoice path setup ───────────────────────────────────────────────────
-sys.path.append("CosyVoice/third_party/Matcha-TTS")
 from CosyVoice.cosyvoice.cli.cosyvoice import AutoModel
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
@@ -254,6 +253,13 @@ def list_styles() -> dict:
     """Return all supported speaking styles mapped to their description."""
     return {s.value: STYLE_PROMPTS.get(s, "") for s in SpeakingStyle}
 
+def create_audio_path(audio_bytes:bytes):
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        tmp.write(audio_bytes)
+        tmp.close()
+        return tmp.name
+
+    # -------------------------------------
 
 # ── 1. Zero-Shot Voice Cloning ─────────────────────────────────────────────
 
@@ -296,15 +302,21 @@ def synthesize_zero_shot(
     _set_seed(seed)
     start = time.time()
 
+    audio_path = create_audio_path(prompt_audio_path)
+
     emotion_hint = EMOTION_PROMPTS.get(emotion, "")
     style_hint = STYLE_PROMPTS.get(speaking_style, "")
     extra = f"{emotion_hint} {style_hint}".strip()
     augmented_prompt = f"{prompt_text} [{extra}]" if extra else prompt_text
 
     chunks = list(model.inference_zero_shot(
-        text, augmented_prompt, prompt_audio_path, stream=False
+        text, augmented_prompt, audio_path, speed=speed, stream=False
     ))
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
+
+    if audio_path and os.path.exists(audio_path):
+        os.remove(audio_path)
+
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
 
