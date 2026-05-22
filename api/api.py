@@ -10,12 +10,11 @@ from api.actions.clonage_voice import voice_clonage_OpenVoice
 from api.actions.clonage_voice import clonage_voice_CosyVoice
 
 from api.actions.login import login, clean_embedding
+from api.actions.login import authenticate_user, clean_embedding
 from api.actions.auth import verify_token
 from api.schemas import RegisterSchema, LoginSchema
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-
-limiter = Limiter(key_func=get_remote_address)
 
 #Command to run univcorn
 # uvicorn api.api:app --reload
@@ -28,6 +27,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+ALLOWED_EXTENSIONS = (
+    ".opus",
+    ".oga",
+    ".mka",
+    ".flac",
+    ".webm",
+    ".weba",
+    ".wav",
+    ".ogg",
+    ".m4a",
+    ".mid",
+    ".mp3",
+    ".aiff",
+    ".wma",
+    ".au"
+)
+
+limiter = Limiter(key_func=get_remote_address)
+
 @app.get("/")
 def root():
     return {"status":"running"}
@@ -35,6 +53,9 @@ def root():
 @app.post("/identify")
 async def identify(file: UploadFile = File(...)):
     audio_bytes = await file.read()
+
+    if not file.filename.lower().endswith(ALLOWED_EXTENSIONS):
+        raise HTTPException(status_code=400, detail="Unsupported audio format")
     return voice_similarity(audio_bytes)
 
 @app.post("/registerdb")
@@ -86,13 +107,13 @@ async def login_route(
         raise HTTPException(status_code=422, detail="Please provide a password or a voice recording")
     
     if password:
-        result = login(email, password=password)
+        result = authenticate_user(email, password=password)
     elif file:
         audio_bytes = await file.read()
         vector = clean_embedding(audio_bytes)
         if isinstance(vector, dict):
             return vector
-        result = login(email, vector=vector)
+        result = authenticate_user(email, vector=vector)
     else:
         return {"issue": "Please provide a password or a voice recording"}
     return result

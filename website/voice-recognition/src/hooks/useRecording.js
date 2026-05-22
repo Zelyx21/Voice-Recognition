@@ -30,7 +30,7 @@ export function useRecording() {
         const blob = new Blob(chunksRef.current, { type: 'audio/wav' })
         stream.getTracks().forEach(track => track.stop())
 
-        if (tooShortRef.current) return  // trop court → on ignore
+        if (tooShortRef.current) return
 
         setAudioBlob(blob)
         setAudioURL(URL.createObjectURL(blob))
@@ -80,6 +80,33 @@ export function useRecording() {
   const handleFileChange = (event, setError) => {
     const file = event.target.files[0]
     if (!file) return
+
+    const allowedExtensions = [
+      ".opus",
+      ".oga",
+      ".mka",
+      ".flac",
+      ".webm",
+      ".weba",
+      ".wav",
+      ".ogg",
+      ".m4a",
+      ".mid",
+      ".mp3",
+      ".aiff",
+      ".wma",
+      ".au"
+    ]
+
+    const isValid = allowedExtensions.some(ext =>
+      file.name.toLowerCase().endsWith(ext)
+    )
+
+    if (!isValid) {
+      setError("Unsupported audio format")
+      event.target.value = ""
+      return
+    }
 
     const audio = new Audio(URL.createObjectURL(file))
     audio.onloadedmetadata = () => {
