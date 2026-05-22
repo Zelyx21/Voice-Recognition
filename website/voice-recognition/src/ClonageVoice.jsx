@@ -5,7 +5,7 @@ import { useApi } from './hooks/useAPI'
 import { useRecording } from './hooks/useRecording'
 import ClonageButton from './ClonageButton.jsx'
 
-function ClonageVoice() {
+function ClonageVoice({ isAuthenticated, user, setIsAuthenticated, setUser }) {
 
     const [mode, setMode] = useState(null)
 
@@ -36,8 +36,12 @@ function ClonageVoice() {
     }
 
     return (
+        
         <div className="box">
-
+            {!isAuthenticated ? (
+            <p>Please log in to use voice cloning.</p>
+        ) : (
+            <>
             <p>Clone your voice</p>
 
             {/* MODE SELECTION */}
@@ -220,8 +224,9 @@ function ClonageVoice() {
                     <p>Comming soon</p>
                 </div>
             )}
-
-    </div>
+        </>
+        )}
+        </div>
     )
 }
 

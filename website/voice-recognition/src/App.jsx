@@ -46,7 +46,8 @@ function App() {
           </PublicRoute>
         } />
       </Routes>
-       <ClonageVoice /> 
+       <ClonageVoice 
+       isAuthenticated={isAuthenticated} user={user} setIsAuthenticated={setIsAuthenticated} setUser={setUser}/> 
     </>
   )
 }

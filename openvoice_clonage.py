@@ -3,6 +3,28 @@ import os
 
 import sys
 import tempfile
+
+import sys
+from types import ModuleType
+
+import sys
+from types import ModuleType
+
+# SpeechBrain 1.x lazy imports crash if optional deps (k2, nlp, etc.) aren't installed.
+# Stub them out so the import chain doesn't fail.
+_SPEECHBRAIN_STUBS = [
+    "speechbrain.integrations.k2_fsa",
+    "speechbrain.integrations.nlp",
+    "speechbrain.integrations.huggingface",
+    "speechbrain.integrations.huggingface.wordemb",
+    "speechbrain.k2_integration",
+    "speechbrain.wordemb",
+    "speechbrain.lobes.models.huggingface_transformers",
+]
+for _mod in _SPEECHBRAIN_STUBS:
+    if _mod not in sys.modules:
+        sys.modules[_mod] = ModuleType(_mod)
+        
 sys.path.append("./OpenVoice")
 
 
@@ -50,7 +72,7 @@ def openvoice_clonage(audio: bytes,
         # Extract the speaker embedding from the input audio (voice stamp, etc..)
         target_se, audio_name = se_extractor.get_se(tmp_path, tone_color_converter, vad=True)
     except Exception as e:
-        print(f"Error occurred while extracting speaker embedding: {e}")
+        print(f"Error occurred while extracting speaker embedding: {str(e)}")
         issue = [True, str(e)]
     finally:
         os.remove(tmp_path)

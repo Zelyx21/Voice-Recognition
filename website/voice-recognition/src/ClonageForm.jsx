@@ -30,11 +30,15 @@ export default function ClonageForm({ onChange }) {
     onChange({ speed, language, speaker, text, ...newValues })
   }
 
-  const handleLanguageChange = (e) => {
+const handleLanguageChange = (e) => {
     const lang = e.target.value
+    const newSpeaker = SPEAKERS[lang][0]
+
     setLanguage(lang)
-    update({ language: lang })
-  }
+    setSpeaker(newSpeaker)
+    update({ language: lang, speaker: newSpeaker }) 
+}
+
 
   return (
     <div>
