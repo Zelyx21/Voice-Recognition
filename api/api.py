@@ -4,6 +4,7 @@ A python file in which is built our API fastAPI
 
 from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from api.actions.clonage_voice import clonage_voice_CosyVoice, voice_clonage_OpenVoice
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database
 from api.actions.login import authenticate_user, clean_embedding
@@ -11,6 +12,7 @@ from api.actions.auth import verify_token
 from api.schemas import RegisterSchema, LoginSchema
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+
 
 #Command to run univcorn
 # uvicorn api.api:app --reload
@@ -100,3 +102,20 @@ async def login_route(
     else:
         return {"issue": "Please provide a password or a voice recording"}
     return result
+
+@app.post("/clonage")
+async def clonage(file: UploadFile = File(...), model_name: str = Form(...), 
+                  cloneText: str = Form(...), cloneNationality: str = Form(...), 
+                  textLanguage: str = Form(...), textSpeed: float = Form(...)
+                  ):
+    audio_bytes = await file.read() 
+    print(f"Received file: {file.filename}, model_name: {model_name}, cloneText: {cloneText}, cloneNationality: {cloneNationality}, textLanguage: {textLanguage}, textSpeed: {textSpeed}")
+    if model_name == "OpenVoice":
+        return voice_clonage_OpenVoice(audio_bytes, language=textLanguage, speaker_key=cloneNationality, text=cloneText, speed=textSpeed)
+    else:
+        return clonage_voice_CosyVoice(audio_bytes, model_clonage=model_name, language_text={textLanguage: cloneText}, speed=textSpeed)
+
+
+
+
+
