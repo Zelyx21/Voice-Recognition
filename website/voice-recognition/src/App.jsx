@@ -5,6 +5,7 @@ import Header from './header.jsx'
 import RegisterDB from './Registerdb.jsx'
 import Login from './Login.jsx'
 import { Routes, Route, useNavigate } from 'react-router-dom'
+import ClonageVoice from './ClonageVoice.jsx'
 
 
 function ProtectedRoute({ isAuthenticated, children }) {
@@ -45,7 +46,9 @@ function App() {
           </PublicRoute>
         } />
       </Routes>
-    </>
+    <ClonageVoice
+        isAuthenticated={isAuthenticated} user={user} setIsAuthenticated={setIsAuthenticated} setUser={setUser} />
+      </>
   )
 }
 
