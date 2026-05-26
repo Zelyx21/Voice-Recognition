@@ -310,10 +310,11 @@ def synthesize_zero_shot(
 
     audio_path = create_audio_path(prompt_audio_path)
 
+    prompt_text = prompt_text or "" 
     emotion_hint = EMOTION_PROMPTS.get(emotion, "")
     style_hint = STYLE_PROMPTS.get(speaking_style, "")
     extra = f"{emotion_hint} {style_hint}".strip()
-    augmented_prompt = f"{prompt_text} [{extra}]" if extra else prompt_text
+    augmented_prompt = f"{prompt_text} [{extra}] <|endofprompt|>" if extra else f"{prompt_text} <|endofprompt|>"
 
     chunks = list(model.inference_zero_shot(
         text, augmented_prompt, audio_path, speed=speed, stream=False
