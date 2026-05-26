@@ -79,7 +79,6 @@ export default function ClonageButtonCosyVoice({ audioBlob }) {
         />
       </label>
 
-      {/* Transcription de l'audio de référence — critique pour CosyVoice */}
       <label>
         Reference audio transcript:
         <input
