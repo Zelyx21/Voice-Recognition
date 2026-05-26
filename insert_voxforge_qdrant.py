@@ -12,8 +12,8 @@ from ai.embedding import embedding
 # CONFIG
 # =====================================
 
-VOXFORGE_PATH = r"D:\Projet\Voice-Recognition\voxforge-nl"
-COLLECTION_NAME = "dutch_voice"
+VOXFORGE_PATH = r"D:\Projet\Voice-Recognition\voxforge-de"
+COLLECTION_NAME = "german_voice"
 
 client = QdrantClient(host="localhost", port=6333)
 

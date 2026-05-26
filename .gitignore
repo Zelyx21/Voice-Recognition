@@ -238,5 +238,6 @@ chroma_db/
 
 voxforge-fr/
 voxforge-nl/
-database/french_voices.snapshot
-database/dutch_voices.snapshot
+voxforge-de/
+voxforge-es/
+database/snapshots/
