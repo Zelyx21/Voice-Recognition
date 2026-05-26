@@ -7,13 +7,14 @@ client = QdrantClient(url="http://localhost:6333")
 
 #print(client.get_collections()) #Show the collections in the database
 
+collection_name = "voice_data_base"
 
-if "voice_data_base" not in [collection.name for collection in client.get_collections().collections]:
-    if client.collection_exists("voice_data_base"):
-        client.delete_collection("voice_data_base")
+if collection_name not in [collection.name for collection in client.get_collections().collections]:
+    if client.collection_exists(collection_name):
+        client.delete_collection(collection_name)
 
     client.create_collection(
-        collection_name="voice_data_base",
+        collection_name=collection_name,
         vectors_config=VectorParams(size=192,     #Change the size parameter to match the dimensionality, here 192
                                     distance=Distance.COSINE, 
                                     on_disk=False, #False, on memory storage, switch to True for disk storage

@@ -12,8 +12,8 @@ from ai.embedding import embedding
 # CONFIG
 # =====================================
 
-VOXFORGE_PATH = r"C:\Users\PC5\Documents\Voice-Recognition\voxforge-fr"
-COLLECTION_NAME = "voice_data_base"
+VOXFORGE_PATH = r"D:\Projet\Voice-Recognition\voxforge-nl"
+COLLECTION_NAME = "dutch_voice"
 
 client = QdrantClient(host="localhost", port=6333)
 
@@ -93,6 +93,13 @@ for folder in Path(VOXFORGE_PATH).iterdir():
     if not folder.is_dir():
         continue
 
+    parts = folder.name.split("-")
+    if len(parts) < 2:
+        continue
+
+    username = parts[0]
+    speaker_id = parts[1]
+
     wav_dir = folder / "wav"
     readme = folder / "etc" / "README"
 
@@ -101,19 +108,14 @@ for folder in Path(VOXFORGE_PATH).iterdir():
 
     metadata = parse_readme(readme)
 
-    username = metadata["username"]
-
-    if username is None:
-        continue
-
     wavs = sorted(list(wav_dir.glob("*.wav")))
 
     if len(wavs) == 0:
         continue
 
     if username not in speakers:
-
         speakers[username] = {
+            "speaker_id": speaker_id,
             "wavs": [],
             "gender": metadata["gender"],
             "age": metadata["age"],
@@ -181,22 +183,23 @@ for username, data in valid_speakers.items():
             continue
 
         client.upsert(
-            collection_name=COLLECTION_NAME,
-            wait=True,
-            points=[
-                PointStruct(
-                    id=str(uuid.uuid4()),
-                    vector=emb,
-                    payload={
-                        "username": username,
-                        "gender": data["gender"],
-                        "age": data["age"],
-                        "dialect": data["dialect"],
-                        "reference_audio": reference_wav.name,
-                    },
-                )
-            ],
-        )
+        collection_name=COLLECTION_NAME,
+        wait=True,
+        points=[
+            PointStruct(
+                id=str(uuid.uuid4()),
+                vector=emb,
+                payload={
+                    "username": username,
+                    "speaker_id": data["speaker_id"],
+                    "gender": data["gender"],
+                    "age": data["age"],
+                    "dialect": data["dialect"],
+                    "reference_audio": reference_wav.name,
+                },
+            )
+        ],
+    )
 
     except Exception as e:
         print("ERROR:", e)
