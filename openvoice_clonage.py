@@ -67,7 +67,7 @@ def openvoice_clonage(audio: bytes,
     target_se = None
     try:
         # Extract the speaker embedding from the input audio (voice stamp, etc..)
-        target_se, audio_name = se_extractor.get_se(tmp_path, tone_color_converter, vad=True)
+        target_se, audio_name = se_extractor.get_se(tmp_path, tone_color_converter, vad=False)
     except Exception as e:
         print(f"Error occurred while extracting speaker embedding: {str(e)}")
         issue = [True, str(e)]
@@ -88,8 +88,8 @@ def openvoice_clonage(audio: bytes,
         issue = [True, str(e)]
         return None, None, issue
  
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as src_tmp, \
-            tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as out_tmp:
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as src_tmp, \
+            tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as out_tmp:
         src_path = src_tmp.name
         out_path = out_tmp.name
 

@@ -15,11 +15,11 @@ import soundfile as sf
 
 from fastapi import FastAPI, UploadFile, File
 
+
 BASE_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..")
 )
 
-# Ajouter CosyVoice au PYTHONPATH
 COSYVOICE_DIR = os.path.join(BASE_DIR, "CosyVoice")
 
 sys.path.insert(0, COSYVOICE_DIR)
@@ -30,6 +30,7 @@ sys.path.insert(
 
 from CosyVoiceFunction import synthesize_zero_shot, Emotion, SpeakingStyle
 from cosyvoice.cli.cosyvoice import AutoModel
+
 # Modèle
 MODEL_DIR = os.path.join(
     COSYVOICE_DIR,
@@ -56,13 +57,23 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
 
 
     if model_clonage == "zero_shot":
-        
-        return synthesize_zero_shot(model=cosyvoice_model,
+        result = synthesize_zero_shot(model=cosyvoice_model,
                                     prompt_audio_path=audio_by,
-                                    text=text, prompt_text=prompt_text,
+                                    text=text, prompt_text=prompt_text or "",
                                     emotion=emotion, speaking_style=speaking_style,
                                     speed=speed, seed=seed
                                     )
+        return Response(
+        content=result.audio_bytes,
+        media_type="audio/wav",
+        headers={
+            "Content-Disposition": "inline; filename=clone.wav",
+            "X-Issue": "false",
+            "X-Generation-Time-Ms": str(result.generation_time_ms),
+            "X-Audio-Duration-S": str(result.audio_duration_s),
+            "X-RTF": str(result.real_time_factor),
+        }
+    )
     
     elif model_clonage == "zero_shot2":
         return JSONResponse(
