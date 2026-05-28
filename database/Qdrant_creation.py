@@ -7,7 +7,7 @@ client = QdrantClient(url="http://localhost:6333")
 
 #print(client.get_collections()) #Show the collections in the database
 
-collection_name = "german_voice"
+collection_name = "spanish_voice"
 
 if collection_name not in [collection.name for collection in client.get_collections().collections]:
     if client.collection_exists(collection_name):
