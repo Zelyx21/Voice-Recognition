@@ -33,6 +33,8 @@ import torch
 import torchaudio
 import numpy as np
 
+import re
+
 _BASE = os.path.dirname(os.path.abspath(__file__))  # Voice-Recognition/
 sys.path.insert(0, os.path.join(_BASE, 'CosyVoice'))
 sys.path.insert(0, os.path.join(_BASE, 'CosyVoice', 'third_party', 'Matcha-TTS'))
@@ -205,22 +207,6 @@ def _build_result(audio_bytes, sample_rate, n_chunks, model_dir, start_time) -> 
     )
 
 
-def _build_instruction(emotion, style, speed, extra="") -> str:
-    """Assemble a natural-language instruction string from individual parameters."""
-    parts = []
-    if emotion_text := EMOTION_PROMPTS.get(emotion, ""):
-        parts.append(emotion_text)
-    if style_text := STYLE_PROMPTS.get(style, ""):
-        parts.append(f"Speak {style_text}.")
-    if speed < 0.8:
-        parts.append("Speak slowly.")
-    elif speed > 1.3:
-        parts.append("Speak quickly.")
-    if extra:
-        parts.append(extra)
-    return " ".join(parts) if parts else "Speak naturally."
-
-
 def _build_instruct2_prompt(instruction: str) -> str:
     """Wrap an instruction into the CosyVoice2 system-prompt format."""
     return f"You are a helpful assistant. {instruction}<|endofprompt|>"
@@ -264,6 +250,11 @@ def create_audio_path(audio_bytes:bytes):
         tmp.write(audio_bytes)
         tmp.close()
         return tmp.name
+
+def prompt_text_adapt(text):
+    text_adapt = re.sub(r"\s*,\s*", ". ", text)
+    text_adapt = re.sub(r"\s+", " ", text)
+    return text_adapt
 
     # -------------------------------------
 
@@ -309,8 +300,9 @@ def synthesize_zero_shot(
     start = time.time()
 
     audio_path = create_audio_path(prompt_audio_path)
-
     prompt_text = prompt_text or "" 
+    prompt_text = prompt_text_adapt(prompt_text)
+
     emotion_hint = EMOTION_PROMPTS.get(emotion, "")
     style_hint = STYLE_PROMPTS.get(speaking_style, "")
     extra = f"{emotion_hint} {style_hint}".strip()
@@ -334,7 +326,10 @@ def synthesize_instruct(
     text: str,
     instruction: str,
     prompt_audio_path: str,
+    language : str,
+    dialect : str,
     output_format: OutputFormat = OutputFormat.WAV,
+    speed: float = 1.0,
     seed: Optional[int] = None,
 ) -> TTSResult:
     """
@@ -355,8 +350,15 @@ def synthesize_instruct(
     _set_seed(seed)
     start = time.time()
 
-    full_prompt = _build_instruct2_prompt(instruction)
-    chunks = list(model.inference_instruct2(text, full_prompt, prompt_audio_path, stream=False))
+    lang_instr = f"Speak in {language.value}"
+    if dialect:
+        lang_instr += f" with a {dialect} accent. "
+
+    prompt = lang_instr + instruction
+
+    full_prompt = _build_instruct2_prompt(prompt)
+    chunks = list(model.inference_instruct2(text, full_prompt, prompt_audio_path, spead=speed, stream=False))
+
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
@@ -373,7 +375,6 @@ def synthesize_cross_lingual(
     """
     Synthesize speech with inline paralinguistic tags: [breath], [laughter].
 
-    WHY THIS FUNCTION EXISTS:
     Zero-shot and instruct work at the *sentence level* — you set an overall tone.
     Cross-lingual inference works at the *token level*: you insert [breath] or
     [laughter] at exact positions in the sentence, producing hyper-realistic,
@@ -397,101 +398,7 @@ def synthesize_cross_lingual(
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
-
-# ── 4. Emotion Preset ──────────────────────────────────────────────────────
-
-def synthesize_emotion_preset(
-    model: AutoModel,
-    text: str,
-    prompt_audio_path: str,
-    emotion: Emotion,
-    intensity: float = 1.0,
-    speaking_style: SpeakingStyle = SpeakingStyle.NORMAL,
-    speed: float = 1.0,
-    output_format: OutputFormat = OutputFormat.WAV,
-    seed: Optional[int] = None,
-) -> TTSResult:
-    """
-    One-call emotion synthesis: pick an emotion + intensity and get audio.
-
-    WHY THIS FUNCTION EXISTS (vs synthesize_zero_shot):
-    Zero-shot injects emotion as a subtle prompt hint — the model may or may
-    not honor it strongly. This function uses inference_instruct2 which is
-    specifically trained to follow stylistic instructions, giving more
-    pronounced and reliable emotion.
-    The intensity parameter adds a qualifier (slightly / very / extremely)
-    to amplify or soften the emotional delivery.
-
-    Use this as your DEFAULT function for most emotion-driven use cases.
-
-    Args:
-        emotion:        Emotional tone (Emotion enum).
-        intensity:      0.5-2.0. 1.0=normal, 1.5+=expressive.
-        speaking_style: Delivery style stacked on top of emotion.
-        speed:          Speech rate (0.5=slow, 2.0=fast).
-    Returns:
-        TTSResult with audio bytes and performance metrics.
-    """
-    _set_seed(seed)
-    start = time.time()
-
-    qualifier = next(
-        (q for lo, hi, q in INTENSITY_QUALIFIERS if lo <= intensity < hi), ""
-    )
-    extra = f"Intensity: {qualifier}." if qualifier else ""
-    instruction = _build_instruction(emotion, speaking_style, speed, extra=extra)
-    full_prompt = _build_instruct2_prompt(instruction)
-
-    chunks = list(model.inference_instruct2(text, full_prompt, prompt_audio_path, stream=False))
-    audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
-    return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
-
-
-# ── 5. Roleplay / Character Voice ─────────────────────────────────────────
-
-def synthesize_roleplay(
-    model: AutoModel,
-    text: str,
-    prompt_audio_path: str,
-    character: str,
-    emotion: Emotion = Emotion.NEUTRAL,
-    speaking_style: SpeakingStyle = SpeakingStyle.NORMAL,
-    speed: float = 1.0,
-    output_format: OutputFormat = OutputFormat.WAV,
-    seed: Optional[int] = None,
-) -> TTSResult:
-    """
-    Synthesize speech in the voice of a described fictional character.
-
-    WHY THIS FUNCTION EXISTS:
-    Emotion presets map to feelings. Characters map to *identities* — they
-    carry implicit emotion + style combinations that would be tedious to
-    compose manually. Describing a character ("a weary old pirate captain")
-    lets the model infer prosody, pace, and affect holistically.
-
-    Use this for games, interactive fiction, chatbots with personas, or any
-    scenario where the speaker IS a character rather than just feeling
-    a certain way.
-
-    Args:
-        character: Free-text description, e.g.
-                   "a nervous young scientist presenting her first discovery".
-    Returns:
-        TTSResult with audio bytes and performance metrics.
-    """
-    _set_seed(seed)
-    start = time.time()
-
-    base_instr = _build_instruction(emotion, speaking_style, speed)
-    character_instr = f"You are playing the role of {character}. {base_instr}"
-    full_prompt = _build_instruct2_prompt(character_instr)
-
-    chunks = list(model.inference_instruct2(text, full_prompt, prompt_audio_path, stream=False))
-    audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
-    return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
-
-
-# ── 6. Multilingual + Dialect ──────────────────────────────────────────────
+# ── 4. Multilingual + Dialect ──────────────────────────────────────────────
 
 def synthesize_multilingual(
     model: AutoModel,
@@ -530,18 +437,12 @@ def synthesize_multilingual(
     if dialect:
         lang_instr += f" with a {dialect} accent"
     emotion_instr = EMOTION_PROMPTS.get(emotion, "")
-    if speed < 0.8:
-        emotion_instr += " Speak slowly."
-    elif speed > 1.3:
-        emotion_instr += " Speak quickly."
+
     full_prompt = _build_instruct2_prompt(f"{lang_instr}. {emotion_instr}".strip())
 
-    chunks = list(model.inference_instruct2(text, full_prompt, prompt_audio_path, stream=False))
+    chunks = list(model.inference_instruct2(text, full_prompt, prompt_audio_path, speed=speed, stream=False))
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
-
-
-
 
 
 
