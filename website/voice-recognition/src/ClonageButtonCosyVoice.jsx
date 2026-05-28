@@ -142,7 +142,18 @@ export default function ClonageButtonCosyVoice({ audioBlob }) {
         />
       </label>
 
-      {/* Émotion — commun */}
+      {/* Transcription de l'audio de référence — critique pour CosyVoice */}
+      <label>
+        Reference audio transcript:
+        <input
+          type="text"
+          value={params.promptText}
+          placeholder="Exact transcript of your reference audio (required for best quality)"
+          onChange={(e) => handleChange("promptText", e.target.value)}
+        />
+      </label>
+
+      {/* Émotion */}
       <label>
         Emotion:
         <select value={params.emotion} onChange={(e) => handleChange("emotion", e.target.value)}>
