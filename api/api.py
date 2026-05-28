@@ -6,11 +6,14 @@ from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, Req
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from torch import Optional
+
 from api.actions.clonage_voice import clonage_voice_CosyVoice, voice_clonage_OpenVoice
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database
 from api.actions.login import authenticate_user, clean_embedding
 from api.actions.auth import verify_token
+from api.actions.AudioToSpeech import AudioToSpeech
+
 from api.schemas import RegisterSchema, LoginSchema
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -18,6 +21,10 @@ from slowapi.util import get_remote_address
 
 #Command to run univcorn
 # uvicorn api.api:app --reload
+
+#uvicorn api.api:app --host 0.0.0.0 --port 8000
+
+
 app = FastAPI()
 
 app.add_middleware(
@@ -105,16 +112,31 @@ async def login_route(
         return {"issue": "Please provide a password or a voice recording"}
     return result
 
+
+
+@app.post("/ASR")
+async def ASR(file: UploadFile = File(...)):
+    print(
+        f"Received file: {file.filename}"
+    )
+    audio_bytes = await file.read()
+    if len(audio_bytes) == 0:
+        raise HTTPException(status_code=422, detail="Audio file is empty")
+
+    transcript = AudioToSpeech(audio_bytes)
+
+    return {"transcript": transcript}
+
 @app.post("/clonage")
 async def clonage(
     file: UploadFile = File(...),
     model_name: str = Form(...),
     cloneText: str = Form(...),
     textSpeed: float = Form(...),
-    # OpenVoice parameters
+
     cloneNationality: Optional[str] = Form(None),
     textLanguage: Optional[str] = Form(None),
-    # CosyVoice parameters
+
     promptText: Optional[str] = Form(None),       
     emotion: Optional[str] = Form(None),          
     speakingStyle: Optional[str] = Form(None),    
@@ -143,6 +165,8 @@ async def clonage(
             model_clonage="zero_shot",
             text=cloneText,
             speed=textSpeed,
+            language=cloneNationality,
+            dialect=textLanguage,
             prompt_text=promptText or "",
             emotion=emotion,
             speaking_style=speakingStyle,

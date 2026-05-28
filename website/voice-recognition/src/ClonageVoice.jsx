@@ -3,7 +3,7 @@ import './App.css'
 import { useApi } from './hooks/useAPI'
 import { useRecording } from './hooks/useRecording'
 import ClonageButton from './ClonageButton.jsx'
-import ClonageButtonCosyVoice from './ClonageButtonCosyVoice.jsx'
+import ClonageButtonsCosyVoice from './ClonageButtonsCosyVoice.jsx'
 
 function ClonageVoice({ isAuthenticated }) {
 
@@ -59,7 +59,7 @@ function ClonageVoice({ isAuthenticated }) {
                                 checked={CloningMode === "CosyVoice"}
                                 onChange={handleModeClonageChange}
                             />
-                            CosyVoice (slower, more accurate)
+                            CosyVoice3 (slower, more accurate)
                         </label>
                     </div>
 
@@ -132,7 +132,7 @@ function ClonageVoice({ isAuthenticated }) {
                                     )}
 
                                     {CloningMode === "CosyVoice" && (
-                                        <ClonageButtonCosyVoice
+                                        <ClonageButtonsCosyVoice
                                             audioBlob={audioBlob || audioFile}
                                         />
                                     )}
