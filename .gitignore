@@ -232,3 +232,12 @@ chroma_db/
 
 # Environment Variables
 .env
+
+
+#Folders
+
+voxforge-fr/
+voxforge-nl/
+voxforge-de/
+voxforge-es/
+database/snapshots/

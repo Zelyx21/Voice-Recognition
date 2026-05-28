@@ -4,44 +4,73 @@ Python file which takes an audio wav and returns a vector
 
 from speechbrain.inference.classifiers import EncoderClassifier as sb
 from speechbrain.utils.fetching import LocalStrategy
-import soundfile as sf
 import torch
 import numpy as np
 
 # ------------------charge the model-----------------------
 
-device = "cpu"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 speechbrain_model = sb.from_hparams(
     source="ai/model/spkrec-ecapa-voxceleb",
     savedir="ai/model/spkrec-ecapa-voxceleb",
     local_strategy=LocalStrategy.COPY,
-    run_opts={"device": device}
+    run_opts={"device": "cuda:0" if torch.cuda.is_available() else "cpu"}
 )
 
-def embedding(audio: np.ndarray):
+# ------------------single embedding-----------------------
+
+def embedding(audio: np.ndarray) -> np.ndarray:
     """
-    Takes an audio bytes and returns a numpy embedding
+    Takes a single audio array and returns a numpy embedding.
     """
-    # ------------------charge the audio-----------------------
+    tensor = torch.tensor(audio).float().to(device)
 
-    # change the type of the audio to be compatible with speechbrain
-    audio = torch.tensor(audio).float()  # need float32 and not 64 for speechbrain/torch
-    if audio.ndim == 1:
-        audio = audio.unsqueeze(
-            0
-        )  # add a dimension for speechbrain (piepline ECAPA-TDNN) (1, samples)
+    if tensor.ndim == 1:
+        tensor = tensor.unsqueeze(0)  # (1, samples)
 
-    # ------------------get the vector-----------------------
+    with torch.no_grad():
+        emb = speechbrain_model.encode_batch(tensor)
 
-    with torch.no_grad():  # deactivate gradients to save memory and accelerate because we don't train the model
-        embedding = speechbrain_model.encode_batch(audio)
+    return emb.squeeze().cpu().numpy()
 
-    # ------------------clean the vector-----------------------
 
-    return embedding.squeeze().cpu().numpy()
-    # squeeze comes back to dimension 1
-    # cpu deactivate the usage of gpu if it was used
-    # numpy converts it to a numpy to give it to Qdrant
+# ------------------batch embedding------------------------
+
+def embedding_batch(audio_list: list[np.ndarray]) -> list[np.ndarray]:
+    """
+    Takes a list of audio arrays and returns a list of numpy embeddings.
+    All audios are processed in a single GPU forward pass using padding.
+
+    Args:
+        audio_list: list of 1D np.ndarray (already preprocessed, 16kHz)
+
+    Returns:
+        list of 1D np.ndarray embeddings, same order as input
+    """
+    if len(audio_list) == 0:
+        return []
+
+    # --- pad to the same length so they can stack into a single tensor ---
+    lengths = [len(a) for a in audio_list]
+    max_len = max(lengths)
+
+    padded = np.zeros((len(audio_list), max_len), dtype=np.float32)
+    for i, audio in enumerate(audio_list):
+        padded[i, :len(audio)] = audio
+
+    # relative lengths needed by SpeechBrain for masked pooling
+    rel_lengths = torch.tensor(
+        [l / max_len for l in lengths], dtype=torch.float32
+    ).to(device)
+
+    tensor = torch.tensor(padded).to(device)  # (batch, samples)
+
+    with torch.no_grad():
+        embs = speechbrain_model.encode_batch(tensor, wav_lens=rel_lengths)
+        # embs shape: (batch, 1, embedding_dim)
+
+    return [embs[i].squeeze().cpu().numpy() for i in range(len(audio_list))]
+
 
 # ------------------references-----------------------
 """
@@ -68,13 +97,5 @@ def embedding(audio: np.ndarray):
   archivePrefix={arXiv},
   primaryClass={eess.AS},
   note={arXiv:2106.04624}
-}
-
-@misc{spkrec-ecapa-voxceleb,
-  title={SpeechBrain ECAPA-TDNN Speaker Recognition Model},
-  author={SpeechBrain Team},
-  year={2021},
-  howpublished={HuggingFace Model Hub},
-  note={https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb}
 }
 """
