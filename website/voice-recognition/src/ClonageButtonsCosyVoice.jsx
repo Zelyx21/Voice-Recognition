@@ -10,8 +10,6 @@ import TextSpeedForm      from './forms/TextSpeedForm'
 import EmotionStyleForm   from './forms/EmotionStyleForm'
 import LanguageForm       from './forms/LanguageForm'
 import InstructForm       from './forms/InstructForm'
-import { DEFAULT_EMOTION, DEFAULT_SPEAKING_STYLE } from './constants/emotions'
-import { DEFAULT_LANGUAGE, DEFAULT_DIALECT }        from './constants/Languages'
  
 const API_URL = "http://localhost:8000/clonage"
  
@@ -25,15 +23,15 @@ export default function ClonageButtonsCosyVoice({ audioBlob }) {
  
   const [text,  setText]  = useState("You are testing a student project on voice recognition and voice cloning.")
   const [speed, setSpeed] = useState(1.0)
-  const [emotion, setEmotion] = useState(DEFAULT_EMOTION)
+  const [emotion, setEmotion] = useState("NEUTRAL")
  
   // zero_shot-only parameters
   const [promptText,    setPromptText]    = useState("")
-  const [speakingStyle, setSpeakingStyle] = useState(DEFAULT_SPEAKING_STYLE)
+  const [speakingStyle, setSpeakingStyle] = useState("NORMAL")
  
   // multilingual-only parameters
-  const [language,    setLanguage]    = useState(DEFAULT_LANGUAGE)
-  const [dialect,     setDialect]     = useState(DEFAULT_DIALECT)
+  const [language,    setLanguage]    = useState("en")
+  const [dialect,     setDialect]     = useState("")
   const [instruction, setInstruction] = useState("")
 
   const [emotionOrInstruction, setEmotionOrInstruction] = useState("emotion")
@@ -145,7 +143,7 @@ export default function ClonageButtonsCosyVoice({ audioBlob }) {
       )}
  
       {/* ── multilingual only: language + dialect + emotion or instruction ── */}
-      {method === "multilingual" || method === "synthesize_instruct" && (
+      {(method === "multilingual" || method === "synthesize_instruct") && (
         <>
           <LanguageForm
             language={language}
@@ -160,7 +158,7 @@ export default function ClonageButtonsCosyVoice({ audioBlob }) {
               <input
                 type="radio" name="emotionOrInstruction" value="emotion"
                 checked={emotionOrInstruction === "emotion"}
-                onChange={() => {setEmotionOrInstruction("emotion"); setMethod("multi-language")}}
+                onChange={() => {setEmotionOrInstruction("emotion"); setMethod("multilingual")}}
               />
               Use emotion preset
             </label>
