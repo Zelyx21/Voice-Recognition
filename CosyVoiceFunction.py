@@ -256,6 +256,15 @@ def prompt_text_adapt(text):
     text_adapt = re.sub(r"\s+", " ", text)
     return text_adapt
 
+def adapt_size_prompt_text( text, prompt_text):
+    #better results if the text to be cloned is longer than the original transcription
+    words_text   = len(text.split())
+    words_prompt = len(prompt_text.split())
+    
+    if words_prompt > words_text:
+        prompt_text = " ".join(prompt_text.split()[:words_text])
+    
+    return prompt_text
     # -------------------------------------
 
 # ── 1. Zero-Shot Voice Cloning ─────────────────────────────────────────────
@@ -300,16 +309,19 @@ def synthesize_zero_shot(
     start = time.time()
 
     audio_path = create_audio_path(prompt_audio_path)
+
     prompt_text = prompt_text or "" 
-    prompt_text = prompt_text_adapt(prompt_text)
+    #prompt_text = prompt_text_adapt(prompt_text)
+    prompt_text = adapt_size_prompt_text(text=text, prompt_text=prompt_text)
 
     emotion_hint = EMOTION_PROMPTS.get(emotion, "")
     style_hint = STYLE_PROMPTS.get(speaking_style, "")
     extra = f"{emotion_hint} {style_hint}".strip()
-    augmented_prompt = f"{prompt_text} [{extra}] <|endofprompt|>" if extra else f"{prompt_text} <|endofprompt|>"
+    augmented_prompt = f"{prompt_text}<|endofprompt|>" 
+    augmented_text = f"{extra} {text}".strip() if extra else text
 
     chunks = list(model.inference_zero_shot(
-        text, augmented_prompt, audio_path, speed=speed, stream=False
+        augmented_text, augmented_prompt, audio_path, speed=speed, stream=False
     ))
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
 
@@ -349,6 +361,7 @@ def synthesize_instruct(
     """
     _set_seed(seed)
     start = time.time()
+    audio_path = create_audio_path(prompt_audio_path)
 
     lang_instr = f"Speak in {language.value}"
     if dialect:
@@ -357,7 +370,7 @@ def synthesize_instruct(
     prompt = lang_instr + instruction
 
     full_prompt = _build_instruct2_prompt(prompt)
-    chunks = list(model.inference_instruct2(text, full_prompt, prompt_audio_path, spead=speed, stream=False))
+    chunks = list(model.inference_instruct2(text, full_prompt, audio_path, speed=speed, stream=False))
 
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
@@ -393,8 +406,9 @@ def synthesize_cross_lingual(
     """
     _set_seed(seed)
     start = time.time()
+    audio_path = create_audio_path(prompt_audio_path)
 
-    chunks = list(model.inference_cross_lingual(text, prompt_audio_path, stream=False))
+    chunks = list(model.inference_cross_lingual(text, audio_path, stream=False))
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
@@ -432,6 +446,7 @@ def synthesize_multilingual(
     """
     _set_seed(seed)
     start = time.time()
+    audio_path = create_audio_path(prompt_audio_path)
 
     lang_instr = f"Speak in {language.value}"
     if dialect:
@@ -440,7 +455,7 @@ def synthesize_multilingual(
 
     full_prompt = _build_instruct2_prompt(f"{lang_instr}. {emotion_instr}".strip())
 
-    chunks = list(model.inference_instruct2(text, full_prompt, prompt_audio_path, speed=speed, stream=False))
+    chunks = list(model.inference_instruct2(text, full_prompt, audio_path, speed=speed, stream=False))
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 

@@ -6,12 +6,28 @@
  *   onChange  {function}  Called with { language, dialect } on change
  */
 
-import { LANGUAGES, DIALECTS } from '../constants/Languages'
  
 export default function LanguageForm({ language, dialect, onChange }) {
+ const DIALECTS = {
+  en:  ["", "American", "British", "Australian"],
+  zh:  ["", "Cantonese", "Sichuanese", "Shanghainese", "Hokkien"],
+  ja:  [],   
+  ko:  [],   
+  yue: [],   
+}
+
+ const LANGUAGES = [
+  { value: "en",  label: "English" },
+  { value: "zh",  label: "Chinese (Mandarin)" },
+  { value: "ja",  label: "Japanese" },
+  { value: "ko",  label: "Korean" },
+  { value: "yue", label: "Cantonese" },
+]
+  
   const dialects = DIALECTS[language] || []
   const hasDialects = dialects.length > 1  // more than just the empty default
- 
+
+
   const handleLanguageChange = (newLang) => {
     // Reset dialect when language changes — previous dialect may not apply
     onChange({ language: newLang, dialect: "" })
