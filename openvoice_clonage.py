@@ -1,5 +1,6 @@
 
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 import sys
 import tempfile
@@ -29,7 +30,6 @@ from fastapi.responses import JSONResponse
 import torch
 from openvoice import se_extractor
 from openvoice.api import BaseSpeakerTTS, ToneColorConverter
-import os
 from melo.api import TTS
 import soundfile as sf
 import io
@@ -52,8 +52,11 @@ def openvoice_clonage(audio: bytes,
     issue = [False, ""] # default no issue
 
     ckpt_converter = 'OpenVoice/checkpoints_v2/converter'
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    #device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
+
     print(f"Using device: {device}")
+
 
     # Load the tone color converter model (accent, etc.)
     tone_color_converter = ToneColorConverter(f'{ckpt_converter}/config.json', device=device)

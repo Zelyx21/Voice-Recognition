@@ -46,6 +46,7 @@ from fastapi.responses import JSONResponse, Response
 
 client = QdrantClient(host="localhost", port = 6333)
 #En allant au marché je croise deux hommes, accompagnés chacun de deux femmes, accompagnées chacune de deux enfants. Combien de personnes vont aux marché ?
+
 def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are testing a student project on voice recognition and voice cloning.", speed=1.0, prompt_text="", emotion=None, speaking_style=None, language=None, dialect=None, seed=None):
     """
     Takes raw audio bytes and returns the most similar speaker

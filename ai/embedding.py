@@ -4,6 +4,8 @@ Python file which takes an audio wav and returns a vector
 from speechbrain.pretrained import EncoderClassifier as sb
 
 #from speechbrain.inference.classifiers import EncoderClassifier as sb
+
+
 import soundfile as sf
 import torch
 import numpy as np

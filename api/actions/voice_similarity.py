@@ -3,6 +3,7 @@ from audio.processing import resample, denoise, vad
 from ai.embedding import embedding
 from database.Qdrant import search_similarity_attributes
 from qdrant_client import QdrantClient
+from ai.diari_speechbrain import diarizations
 
 client = QdrantClient(host="localhost", port = 6333)
 
@@ -13,6 +14,7 @@ def voice_similarity(audio_bytes:bytes):
     raw = conversion(audio_bytes)
     audio, sr = resample(raw)
     audio = denoise(audio,sr)
+
     audio, issue = vad(audio,sr)
 
     if issue[0]: # if there is an issue with the audio file (no voice detected)
