@@ -10,7 +10,9 @@ import numpy as np
 import torch
 import io
 
-# ------------------------Resample the file---------------------------------------------
+MODEL_VAD = load_silero_vad()
+
+# ------------------------Resample the file--------------------------------------------
 
 def resample(audio_bytes:bytes):
     """
@@ -33,10 +35,9 @@ def denoise(audio:np.ndarray, sr=16000):
     Takes a numpy audio array at sample rate 16kHz and returns a denoised numpy array
     """
 
-    model_vad = load_silero_vad()
     wav_raw = torch.FloatTensor(audio)
 
-    timestamps_raw = get_speech_timestamps(wav_raw, model_vad, return_seconds=True)
+    timestamps_raw = get_speech_timestamps(wav_raw, MODEL_VAD, return_seconds=True)
 
     # get the times where the audio has no voice
     silence_mask = np.ones(len(audio), dtype=bool)
@@ -80,12 +81,11 @@ def vad(audio_denoised:np.ndarray, sr=16000):
     """
         
     # ------------------------Cut the gaps------------------------------------------------
-    model_vad = load_silero_vad()
     wav = torch.FloatTensor(  # converts the audio to a tensor PyTorch needed for get_speech_timestamps
         audio_denoised
     )
     # get the timestamps
-    timestamps = get_speech_timestamps(wav, model_vad, return_seconds=True)
+    timestamps = get_speech_timestamps(wav, MODEL_VAD, return_seconds=True)
 
     issue = [False, ""]
     if len(timestamps) == 0: # if there is no voice detected, we raise an issue

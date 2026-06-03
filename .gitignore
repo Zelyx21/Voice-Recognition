@@ -232,3 +232,8 @@ chroma_db/
 
 # Environment Variables
 .env
+
+#CosyVoice pretrained_models
+CosyVoice/pretrained_models/
+
+
