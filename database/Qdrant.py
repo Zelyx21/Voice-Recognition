@@ -30,8 +30,8 @@ def search_similarity(client, base, query_vector, top_k=1):
         query=query_vector,
         limit=top_k,
         search_params=models.SearchParams(
-            hnsw_ef=200, # Number of neighbors to visit during search, Accuracy/speed
-            exact=False # Set to True for exact search, False for approximate search 
+            hnsw_ef=5000, # Number of neighbors to visit during search, Accuracy/speed
+            exact=True # Set to True for exact search, False for approximate search 
         )
     )
     print(type(search_result))

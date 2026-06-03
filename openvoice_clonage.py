@@ -1,6 +1,6 @@
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
+#os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 import sys
 import tempfile
@@ -52,8 +52,7 @@ def openvoice_clonage(audio: bytes,
     issue = [False, ""] # default no issue
 
     ckpt_converter = 'OpenVoice/checkpoints_v2/converter'
-    #device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    device = "cpu"
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     print(f"Using device: {device}")
 
