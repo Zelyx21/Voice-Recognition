@@ -16,6 +16,7 @@ function Diarization({audioBlob, audioFile}) {
         if (audioBlob) {
             formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
         } else {
+        
             formData.append("file", audioFile)
         }
 
@@ -42,7 +43,7 @@ function Diarization({audioBlob, audioFile}) {
                 {result_diari && (
                     <>
                     {Object.entries(result_diari).map(([speaker, data]) => (
-                    <div key={speaker}>
+                    <div key={speaker} className="file-info" style={{alignItems:"center"}}>
                         <h3>{speaker}</h3>
 
                         <audio

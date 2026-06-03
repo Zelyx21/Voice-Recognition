@@ -21,7 +21,7 @@ def diarization_audio(audio_bytes:bytes):
         return {"issue": issue[1], "audios":""}
     
     
-    return {"issue":False, "audios": result}
+    return result
 
 
 

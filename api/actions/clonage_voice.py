@@ -2,12 +2,18 @@
 import os
 import sys
 
+from faster_whisper import WhisperModel
+_whisper_warmup = WhisperModel("medium", device="cpu", compute_type="int8")
+del _whisper_warmup  # free the Python reference but CUDA keeps it cached
+
+
+from OpenVoice.openvoice import se_extractor
 from audio.conversion import conversion
 from audio.conversion import ndarray_to_wav_bytes
 
 from audio.processing import resample, denoise, vad
 from qdrant_client import QdrantClient
-from openvoice_clonage import openvoice_clonage
+from OpenVoice.openvoice_clonage import openvoice_clonage
 
 from fastapi.responses import StreamingResponse
 import io
@@ -39,6 +45,26 @@ MODEL_DIR = os.path.join(
 )
 
 cosyvoice_model = AutoModel(model_dir=MODEL_DIR)
+
+from OpenVoice.openvoice_clonage import openvoice_clonage, load_openvoice_models
+
+# Loaded once at server startup, alongside cosyvoice_model
+_ov_converter, _ov_device = load_openvoice_models(device="cpu")
+
+import numpy as np
+import soundfile as sf
+import tempfile
+
+
+_warmup_fd, _warmup_path = tempfile.mkstemp(suffix=".wav")
+os.close(_warmup_fd)
+sf.write(_warmup_path, np.zeros(16000, dtype=np.float32), 16000)
+try:
+    se_extractor.get_se(_warmup_path, _ov_converter, vad=False)
+except Exception:
+    pass
+finally:
+    os.remove(_warmup_path)
 
 app = FastAPI()
 from fastapi.responses import JSONResponse, Response
@@ -129,7 +155,7 @@ def voice_clonage_OpenVoice(audio_bytes:bytes, language="EN",speaker_key="EN_New
     audio_rs, sr = resample(raw)
     audio_dn = denoise(audio_rs,sr)
     audio_by = ndarray_to_wav_bytes(audio_dn, sr)
-    audio, sr, issue = openvoice_clonage(audio_by, language, speaker_key, text, speed)
+    audio, sr, issue = openvoice_clonage(audio_by, language, speaker_key, text, speed, tone_color_converter=_ov_converter, device=_ov_device)
 
     if issue[0]: # if there is an issue with the audio file (no voice detected)
         print("Clonage error:", issue[1])
