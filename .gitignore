@@ -233,7 +233,7 @@ chroma_db/
 # Environment Variables
 .env
 
-#CosyVoice pretrained_models
-CosyVoice/
+# DLL files
+*.dll
 
 
