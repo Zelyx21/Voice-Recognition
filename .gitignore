@@ -236,4 +236,11 @@ chroma_db/
 # DLL files
 *.dll
 
+#CosyVoice
+CosyVoice/ 
 
+# Node modules
+node_modules/
+
+# Qdrant storage
+qdrant_storage/

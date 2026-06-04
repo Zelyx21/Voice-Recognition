@@ -2,10 +2,9 @@
 import os
 import sys
 
-from faster_whisper import WhisperModel
-_whisper_warmup = WhisperModel("medium", device="cpu", compute_type="int8")
-del _whisper_warmup  # free the Python reference but CUDA keeps it cached
-
+import numpy as np
+import soundfile as sf
+import tempfile
 
 from OpenVoice.openvoice import se_extractor
 from audio.conversion import conversion
@@ -51,11 +50,7 @@ from OpenVoice.openvoice_clonage import openvoice_clonage, load_openvoice_models
 # Loaded once at server startup, alongside cosyvoice_model
 _ov_converter, _ov_device = load_openvoice_models(device="cpu")
 
-import numpy as np
-import soundfile as sf
-import tempfile
-
-
+# Warm up the OpenVoice model to avoid long loading times on the first request
 _warmup_fd, _warmup_path = tempfile.mkstemp(suffix=".wav")
 os.close(_warmup_fd)
 sf.write(_warmup_path, np.zeros(16000, dtype=np.float32), 16000)
@@ -65,6 +60,7 @@ except Exception:
     pass
 finally:
     os.remove(_warmup_path)
+
 
 app = FastAPI()
 from fastapi.responses import JSONResponse, Response

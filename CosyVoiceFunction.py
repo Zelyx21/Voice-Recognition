@@ -19,8 +19,8 @@ Usage example:
     )
 """
 
-import sys
 import os
+import sys
 import io
 import tempfile
 import time
