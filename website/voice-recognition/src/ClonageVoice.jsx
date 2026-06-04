@@ -1,233 +1,157 @@
-
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import './App.css'
+import './ClonageVoice.css'
 import { useApi } from './hooks/useAPI'
 import { useRecording } from './hooks/useRecording'
-import ClonageButton from './ClonageButton.jsx'
+import ClonageUtility from './ClonageUtility.jsx'
 
-function ClonageVoice({ isAuthenticated, user, setIsAuthenticated, setUser }) {
+const MODELS = [
+  {
+    id: 'OpenVoice',
+    label: 'OpenVoice',
+    badge: 'Quick',
+    desc: 'Faster, less accurate',
+  },
+  {
+    id: 'CosyVoice',
+    label: 'CosyVoice',
+    badge: 'Precise',
+    desc: 'Takes longer but better',
+  },
+]
 
-    const [mode, setMode] = useState(null)
+function ClonageVoice({ isAuthenticated }) {
+  const [cloningMode, setCloningMode] = useState(null)
+  const [inputMode, setInputMode] = useState(null)
 
-    const [result, setResult] = useState(null)
-    const { call, loading, error, setError } = useApi()
-    const { isRecording, audioURL, audioBlob, audioFile, recordingTime, fileInputRef, startRecording, stopRecording, resetRecording, handleFileChange } = useRecording()
-    
-    const [CloningMode, setCloningMode] = useState(null)
+  const { call, loading, error, setError } = useApi()
+  const {
+    isRecording, audioURL, audioBlob, audioFile,
+    recordingTime, fileInputRef,
+    startRecording, stopRecording, resetRecording, handleFileChange,
+  } = useRecording()
 
-    // ---------------- SEND ----------------
+  const handleReset = () => {
+    resetRecording()
+    setInputMode(null)
+  }
 
-    const sendRecording = async () => {
-        if (!audioBlob && !audioFile) return
+  return (
+    <div className="box clonage-box">
+      <div className="clonage-header">
+        <h2>Clone a voice</h2>
+      </div>
 
-        const formData = new FormData()
-        if (audioBlob) {
-            formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
-        } else {
-            formData.append("file", audioFile)
-        }
-
-        const data = await call("/identify", { method: "POST", body: formData })
-        if (data) setResult(data)
-    }
-
-    const handleModeClonageChange = (e) => {
-        setCloningMode(e.target.value)
-    }
-
-    return (
-        
-        <div className="box">
-            {!isAuthenticated ? (
-            <p>Please log in to use voice cloning.</p>
-        ) : (
-            <>
-            <p>Clone your voice</p>
-
-            {/* MODE SELECTION */}
-
-        <div className="button-group">
-            <label>
-                <input
-                    type="radio"
-                    name="cloningMode"
-                    value="OpenVoice"
-                    checked={CloningMode === "OpenVoice"}
-                    onChange={handleModeClonageChange}
-                />
-                OpenVoice (faster, less accurate)
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    name="cloningMode"
-                    value="CosyVoice"
-                    checked={CloningMode === "CosyVoice"}
-                    onChange={handleModeClonageChange}
-                />
-                CosyVoice
-            </label>
+      {!isAuthenticated ? (
+        <div className="clonage-locked">
+          <span className="lock-icon">🔒</span>
+          <p>Please log in to use voice cloning</p>
         </div>
-
-
-            {CloningMode === "OpenVoice" && (
-                <div>
-                    <div className="button-group">
-                        <button
-                            onClick={() => {
-                                setMode("record")
-                                resetRecording()
-                            }}
-                        >
-                            Record your voice
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                setMode("import")
-                                resetRecording()
-                            }}
-                        >
-                            Import your voice
-                        </button>
-                    </div>
-
-                    {/* RECORD MODE */}
-
-                    {mode === "record" && (
-
-                        <div>
-
-                            {!isRecording && !audioURL && (
-                                <button
-                                    className="button"
-                                    onClick={()=>{setError(null); startRecording()}}
-                                >
-                                    Start recording
-                                </button>
-                            )}
-
-                            {isRecording && (
-                                <div>
-                                    <p>{Math.floor(recordingTime / 60)}m {recordingTime % 60}s / 10m</p>
-                                    <button
-                                        className="remove"
-                                        onClick={()=>stopRecording(setError)}
-                                    >
-                                        Stop recording
-                                    </button>
-                                </div>
-                            )}
-
-                        </div>
-                    )}
-
-                    {/* IMPORT MODE */}
-
-                    {mode === "import" && (
-
-                            <div>
-
-                                <input
-                                    ref={fileInputRef}
-                                    id="audio-upload-clonage"
-                                    type="file"
-                                    accept="audio/*"
-                                    onChange={(e) => handleFileChange(e,setError)}
-                                />
-
-                                {!audioFile && (
-                                    <label
-                                        htmlFor="audio-upload-clonage"
-                                        className="button"
-                                    >
-                                        Import an audio file
-                                    </label>
-                                )}
-
-                            </div>
-                        )}
-
-                        {error && (
-                            <p style={{ color: "red" }}>{error}</p>
-                        )}
-
-                        {/* AUDIO PREVIEW */}
-
-                        {audioURL && (
-
-                            <div className="file-info">
-
-                                <p>
-                                    Audio ready
-                                </p>
-
-                                <audio
-                                    controls
-                                    src={audioURL}
-                                />
-
-                                <button
-                                    className="remove"
-                                    onClick={resetRecording}
-                                >
-                                    Remove audio
-                                </button>
-
-                                <button
-                                    className="button"
-                                    onClick={sendRecording}
-                                    disabled={loading}
-                                >
-                                    {
-                                        loading
-                                            ? "Analysis in progress..."
-                                            : "Identify speaker"
-                                    }
-                                </button>
-                                
-                                <ClonageButton audioBlob={audioBlob || audioFile} CloningMode={CloningMode} />
-
-                                {result && !result.issue && (
-
-                                    <div className="result">
-
-                                        <p>
-                                            Speaker : {result.name}
-                                        </p>
-
-                                        <p>
-                                            Score : {result.score}
-                                        </p>
-
-                                    </div>
-                                )}
-
-                                {result && result.issue && (
-
-                                    <div className="issue">
-
-                                        <p>
-                                            Issues : {result.issue}
-                                        </p>
-
-                                    </div>
-
-                        )}
-                    </div>
-            )}
+      ) : (
+        <>
+          {/*MODEL*/}
+          <div className="clonage-step">
+            <span className="step-label">Choose a model</span>
+            <div className="model-cards">
+              {MODELS.map((m) => (
+                <button
+                  key={m.id}
+                  className={`model-card ${cloningMode === m.id ? 'model-card--active' : ''}`}
+                  onClick={() => { setCloningMode(m.id); handleReset() }}
+                >
+                  <span className="model-icon">{m.icon}</span>
+                  <span className="model-label">{m.label}</span>
+                  <span className="model-badge">{m.badge}</span>
+                  <span className="model-desc">{m.desc}</span>
+                </button>
+              ))}
             </div>
-        )}
+          </div>
 
-            {CloningMode === "coquiTTS" && (
-                <div>
-                    <p>Comming soon</p>
+          {cloningMode && (
+            <>
+              {/*AUDIO INPUT*/}
+              <div className="clonage-step">
+                <span className="step-label">Provide a voice sample</span>
+
+                {!audioURL && (
+                  <div className="button-group">
+                    <button onClick={() => { setInputMode('record'); resetRecording() }}>
+                      Record
+                    </button>
+                    <button onClick={() => { setInputMode('import'); resetRecording() }}>
+                      Import file
+                    </button>
+                  </div>
+                )}
+
+                {/* RECORD */}
+                {inputMode === 'record' && !audioURL && (
+                  <div className="record-area">
+                    {!isRecording ? (
+                      <button className="button record-btn" onClick={() => { setError(null); startRecording() }}>
+                        Start recording
+                      </button>
+                    ) : (
+                      <div className="recording-live">
+                        <span className="rec-dot" />
+                        <span className="rec-time">
+                          {Math.floor(recordingTime / 60)}m {recordingTime % 60}s
+                        </span>
+                        <button className="remove" onClick={() => stopRecording(setError)}>
+                          Stop
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* IMPORT */}
+                {inputMode === 'import' && !audioURL && (
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      id="audio-upload-clonage"
+                      type="file"
+                      accept="audio/*"
+                      onChange={(e) => handleFileChange(e, setError)}
+                    />
+                    <label htmlFor="audio-upload-clonage" className="button">
+                      Choose an audio file
+                    </label>
+                  </div>
+                )}
+
+                {error && <p className="error-text">{error}</p>}
+
+                {/* PREVIEW */}
+                {audioURL && (
+                  <div className="audio-preview">
+                    <div className="audio-preview-top">
+                      <span className="audio-ready-badge">Audio ready</span>
+                      <button className="remove" onClick={handleReset}>Remove</button>
+                    </div>
+                    <audio controls src={audioURL} />
+                  </div>
+                )}
+              </div>
+
+              {/*CLONE*/}
+              {audioURL && (
+                <div className="clonage-step">
+                  <span className="step-label">Configure &amp; clone</span>
+                  <ClonageUtility
+                    audioBlob={audioBlob || audioFile}
+                    cloningMode={cloningMode}
+                  />
                 </div>
-            )}
+              )}
+            </>
+          )}
         </>
-        )}
-        </div>
-    )
+      )}
+    </div>
+  )
 }
 
 export default ClonageVoice
