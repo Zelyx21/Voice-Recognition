@@ -14,7 +14,8 @@ import numpy as np
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 speechbrain_model = sb.from_hparams(
-    source="ai\\model\\spkrec-ecapa-voxceleb", run_opts={"device": device}
+    source="ai\\model\\spkrec-ecapa-voxceleb", 
+    run_opts={"device": device}
 )
 
 def embedding(audio: np.ndarray):

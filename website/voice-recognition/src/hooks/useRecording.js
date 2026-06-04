@@ -14,6 +14,8 @@ export function useRecording() {
   const recordingTimeRef = useRef(0)
   const tooShortRef = useRef(false)
 
+  const [error, setError] = useState(null)
+
   const startRecording = async () => {
     tooShortRef.current = false
     try {
@@ -51,7 +53,8 @@ export function useRecording() {
       }, 1000)
 
     } catch (err) {
-      alert("Microphone inaccessible : " + err.message)
+      alert("Microphone access is required to record audio")
+      setError("Microphone inaccessible : " + err.message)
     }
   }
 
@@ -129,6 +132,7 @@ export function useRecording() {
   return {
     isRecording, audioURL, audioBlob, audioFile,
     recordingTime, fileInputRef,
-    startRecording, stopRecording, resetRecording, handleFileChange
+    startRecording, stopRecording, resetRecording, handleFileChange,
+    error, setError
   }
 }

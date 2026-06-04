@@ -13,6 +13,7 @@ export default function AudioReferenceForm({ promptText, onChange, audioBlob }) 
     setError(null)
     setSuggestion(null)
 
+    try{
     const formData = new FormData()
     formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
 
@@ -25,7 +26,12 @@ export default function AudioReferenceForm({ promptText, onChange, audioBlob }) 
       const data = await response.json()
       setSuggestion(data.transcript)
     }
+  }catch (err) {
+    console.error("Fetch error:", err)
+    setError("Network error: Unable to reach the backend server or CORS issue.")
+  } finally {
     setTranscribing(false)
+  }
   }
 
   return (

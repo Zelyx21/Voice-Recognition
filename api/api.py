@@ -13,6 +13,7 @@ from api.actions.register_database import register_database
 from api.actions.login import authenticate_user, clean_embedding
 from api.actions.auth import verify_token
 from api.actions.AudioToSpeech import AudioToSpeech
+from api.actions.diarization import diarization_audio
 
 from api.schemas import RegisterSchema, LoginSchema
 from slowapi import Limiter
@@ -21,6 +22,8 @@ from slowapi.util import get_remote_address
 
 #Command to run univcorn
 # uvicorn api.api:app --reload
+
+# uvicorn api.api:app --reload-dir api --reload-exclude "pretrained_models/*"
 
 #uvicorn api.api:app --host 0.0.0.0 --port 8000
 
@@ -126,6 +129,20 @@ async def ASR(file: UploadFile = File(...)):
     transcript = AudioToSpeech(audio_bytes)
 
     return {"transcript": transcript}
+
+@app.post("/diarization")
+async def diarization(file: UploadFile = File(...)):
+    print(
+        f"Received file: {file.filename}"
+    )
+    audio_bytes = await file.read()
+    if len(audio_bytes) == 0:
+        raise HTTPException(status_code=422, detail="Audio file is empty")
+
+    diarization = diarization_audio(audio_bytes)
+
+    return diarization
+
 
 @app.post("/clonage")
 async def clonage(

@@ -39,6 +39,7 @@ _BASE = os.path.dirname(os.path.abspath(__file__))  # Voice-Recognition/
 sys.path.insert(0, os.path.join(_BASE, 'CosyVoice'))
 sys.path.insert(0, os.path.join(_BASE, 'CosyVoice', 'third_party', 'Matcha-TTS'))
 
+#sys.path.append("CosyVoice/third_party/Matcha-TTS")
 
 from cosyvoice.cli.cosyvoice import AutoModel
 
@@ -205,6 +206,22 @@ def _build_result(audio_bytes, sample_rate, n_chunks, model_dir, start_time) -> 
         num_chunks=n_chunks,
         model_used=model_dir,
     )
+
+
+def _build_instruction(emotion, style, speed, extra="") -> str:
+    """Assemble a natural-language instruction string from individual parameters."""
+    parts = []
+    if emotion_text := EMOTION_PROMPTS.get(emotion, ""):
+        parts.append(emotion_text)
+    if style_text := STYLE_PROMPTS.get(style, ""):
+        parts.append(f"Speak {style_text}.")
+    if speed < 0.8:
+        parts.append("Speak slowly.")
+    elif speed > 1.3:
+        parts.append("Speak quickly.")
+    if extra:
+        parts.append(extra)
+    return " ".join(parts) if parts else "Speak naturally."
 
 
 def _build_instruct2_prompt(instruction: str) -> str:

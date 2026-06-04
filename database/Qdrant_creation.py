@@ -20,7 +20,11 @@ if "voice_data_base" not in [collection.name for collection in client.get_collec
         quantization_config =None, #Vector compression: None for no compression and faster search, switch to ScalarQuantizationConfig for compression and smaller RAM usage
         hnsw_config=HnswConfigDiff(
             m=16,           # linked number of vectors, recall/RAM
+<<<<<<< HEAD
             ef_construct=400, # Exploration queue size, Accuracy/speed
+=======
+            ef_construct=200, # Exploration queue size, Accuracy/speed
+>>>>>>> main
             on_disk=False, #False, on memory storage, switch to True for disk storage
             inline_storage=False #Turn True if on_disk is True and quantization_config is not None.
         ),

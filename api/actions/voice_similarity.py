@@ -14,13 +14,12 @@ def voice_similarity(audio_bytes:bytes):
     raw = conversion(audio_bytes)
     audio, sr = resample(raw)
     audio = denoise(audio,sr)
-
     audio, issue = vad(audio,sr)
 
     if issue[0]: # if there is an issue with the audio file (no voice detected)
         return {"name": None, "score": 0, "issue": issue[1]}
     
-    emb = embedding(audio)
+    emb = embedding(audio) 
 
     #change later to have more similar speakers ? 
     results = search_similarity_attributes(client=client, base="voice_data_base", query_vector=emb.tolist(), top_k=1)
