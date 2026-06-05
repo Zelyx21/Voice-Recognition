@@ -10,6 +10,7 @@ from torch import Optional
 from api.actions.clonage_voice import clonage_voice_CosyVoice, voice_clonage_OpenVoice
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database, add_voice_database
+from api.actions.gestion_database import get_voices, delete_voice_database, delete_compte
 from api.actions.login import authenticate_user, clean_embedding
 from api.actions.auth import verify_token
 from api.actions.AudioToSpeech import AudioToSpeech
@@ -30,6 +31,7 @@ from slowapi.util import get_remote_address
 
 #uvicorn api.api:app --host 0.0.0.0 --port 8000
 
+#uvicorn api.api:app --reload --reload-dir api --reload-exclude "pretrained_models/*"
 
 app = FastAPI()
 
@@ -72,9 +74,9 @@ async def identify(file: UploadFile = File(...)):
     return voice_similarity(audio_bytes)
 
 @app.post("/registerdb")
-async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str=Form(...), password:str=Form(...)):
+async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str=Form(...), password:str=Form(...), audio_name:str=Form(...)):
     try:
-        RegisterSchema(name=name, email=email, password=password)
+        RegisterSchema(name=name, email=email, password=password, audio_name=audio_name)
     except Exception as e:
         messages = [err["msg"].replace("Value error, ", "") for err in e.errors()]
         raise HTTPException(status_code=422, detail=", ".join(messages))
@@ -86,13 +88,13 @@ async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str
     if len(audio_bytes) == 0:
         raise HTTPException(status_code=422, detail = "Audio file is empty")
     
-    register_database(audio_bytes,email, name, password, audio_name="First recording")
+    register_database(audio_bytes,email, name, password, audio_name)
     return {"status":"success"}
 
 @app.post("/add_voice_db")
 async def add_voice_db(file: UploadFile = File(...), email:str=Form(...), audio_name:str=Form(...)):
     try:
-        AddVoiceSchema(audio_name=audio_name)
+        AddVoiceSchema(audio_name=audio_name, email=email)
     except Exception as e:
         messages = [err["msg"].replace("Value error, ", "") for err in e.errors()]
         raise HTTPException(status_code=422, detail=", ".join(messages))
@@ -104,9 +106,29 @@ async def add_voice_db(file: UploadFile = File(...), email:str=Form(...), audio_
     if len(audio_bytes) == 0:
         raise HTTPException(status_code=422, detail = "Audio file is empty")
     
-    add_voice_database(audio_bytes,email, audio_name="second recording")
+    add_voice_database(audio_bytes,email, audio_name)
     return {"status":"success"}
 
+@app.post("/delete_voice_db")
+async def delete_voice_db(email:str=Form(...), audio_name:str=Form(...)):
+
+    delete_voice_database(email, audio_name)
+    
+    return {"status":"success"}
+
+@app.post("/delete_compte")
+async def delete_compte_route(email:str=Form(...)):
+
+    delete_compte(email)
+    
+    return {"status":"success"}
+
+@app.post("/get_voices_db")
+async def get_voices_db(email:str=Form(...)):
+
+    voices = get_voices(email)
+    
+    return {"status":"success", "voices": voices}
 
 @app.post("/login")
 @limiter.limit("5/minute")

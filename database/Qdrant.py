@@ -28,8 +28,20 @@ def get_point_by_email(client, collection_name, email):
         with_payload=True, # no need to charge data and vectors
         with_vectors=False, 
     )
+    list_audios = []
     
-    return result
+    if len(result) != 0:    
+
+        for point in result:
+            list_audios.append({"id":point.id, 
+                                "name":point.payload.get("name"), 
+                                "email":point.payload.get("email"),
+                                "audio_name":point.payload.get("audio_name")
+                                })
+    else:
+        list_audios = None
+
+    return list_audios
 
 def search_similarity(client, base, query_vector, top_k=1):
     search_result = client.query_points(
@@ -64,7 +76,7 @@ def delete_points(client, base, point_ids): #delete points by their [IDs]
         points_selector=models.PointIdsList(points=point_ids)
     )
 
-def delete_by_filter(client, base, email): #delete points by a filter, here we delete all the points with the email in the payload that match the email given in parameter
+def delete_by_email(client, base, email): #delete points by a filter, here we delete all the points with the email in the payload that match the email given in parameter
     client.delete(
         collection_name=base,
         points_selector=models.FilterSelector(

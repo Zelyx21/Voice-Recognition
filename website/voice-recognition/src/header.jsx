@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './App.css'
 import dellLogo from './dell_logo.png'
+import Account from './Account'
 
 function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
   const navigate = useNavigate()
@@ -13,6 +14,20 @@ function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
     setUser(null)
     navigate("/")
   }
+
+  const get_info_email = async () => {
+    if (!isAuthenticated && !audioFile) return
+
+    const formData = new FormData()
+    if (audioBlob) {
+        formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
+    } else {
+        formData.append("file", audioFile)
+    }
+
+    const data = await call("/identify", { method: "POST", body: formData })
+    if (data) setResult(data)
+}
 
   return (
     <main id="center" style={{ justifyContent: "space-between" }}>
@@ -25,6 +40,7 @@ function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
         {isAuthenticated ? (
           <>
             <p style={{ color: "var(--text-primary)" }}>Welcome, {user.name}</p>
+            <button onClick={() => navigate("/account")}>Account</button>
             <button onClick={logout}>Logout</button>
           </>
         ) : (
