@@ -1,13 +1,14 @@
 from audio.conversion import conversion
 from audio.processing import resample, denoise, vad
 from ai.embedding import embedding
-from database.Qdrant import insert_secure
+from database.Qdrant import insert_secure, add_secure
 from qdrant_client import QdrantClient
 import bcrypt
 
+
 client = QdrantClient(host="localhost", port = 6333)
 
-def register_database(audio_bytes:bytes, email, name, password):
+def register_database(audio_bytes:bytes, email, name, password, audio_name):
     """
     Takes raw audio bytes and returns a vector npy
     """
@@ -18,8 +19,28 @@ def register_database(audio_bytes:bytes, email, name, password):
 
     if issue[0]: # if there is an issue with the audio file (no voice detected)
         return {"name": None, "score": 0, "issue": issue[1]}
+
+    emb = embedding(audio)
+
+    print("\n"+audio_name)
+    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    insert_secure(client=client, base="voice_data_base", name=name, email=email, vector=emb.tolist(), password=hashed, audio_name=audio_name)
+    return {"status": "success"}
+
+
+def add_voice_database(audio_bytes:bytes, email, audio_name):
+    """
+    Takes raw audio bytes and returns a vector npy
+    """
+    raw = conversion(audio_bytes)
+    audio, sr = resample(raw)
+    audio = denoise(audio,sr)
+    audio, issue = vad(audio,sr)
+    if issue[0]: # if there is an issue with the audio file (no voice detected)
+        return {"name": None, "score": 0, "issue": issue[1]}
     
     emb = embedding(audio)
-    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    insert_secure(client=client, base="voice_data_base", names=[name], emails=[email], vectors=[emb.tolist()], passwords=[hashed])
+
+    add_secure(client=client, base="voice_data_base", email=email, vector=emb.tolist(), audio_name=audio_name)
+    
     return {"status": "success"}

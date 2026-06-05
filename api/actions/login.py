@@ -62,4 +62,5 @@ def clean_embedding(audio_bytes: bytes):
         return {"name": None, "score": 0, "issue": issue[1]}
 
     emb = embedding(audio)
+
     return emb

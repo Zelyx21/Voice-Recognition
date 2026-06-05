@@ -1,6 +1,6 @@
 
 from qdrant_client import QdrantClient, models
-from qdrant_client.models import Distance, HnswConfigDiff, VectorParams, PointStruct
+from qdrant_client.models import Distance, HnswConfigDiff, PointVectors, VectorParams, PointStruct
 import numpy as np
 import uuid
 
@@ -8,21 +8,28 @@ client = QdrantClient(url="http://localhost:6333")
 
 #print(client.get_collections()) #Show the collections in the database
 
-def insert_points(client, base, names, emails, vectors, passwords):
-    for name, email, vector, password in zip(names, emails, vectors,passwords):
-        client.upsert(
-            collection_name=base,
-            wait=True,
-            points=[
-                PointStruct(id=str(uuid.uuid4()), #generates a random unique ID 
-                            vector=vector,
-                            payload={"name": name, 
-                                     "email": email,
-                                     "password":password}
-                                     ),
-            ],
-        )
 
+def generate_user_id(email: str, name_audio: str) -> str:
+    # generates a unique ID based on the email
+    return str(uuid.uuid5(uuid.NAMESPACE_DNS, email + name_audio))
+
+def get_point_by_email(client, collection_name, email):
+    result, _ = client.scroll(
+        collection_name=collection_name,
+        scroll_filter=models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="email",
+                    match=models.MatchValue(value=email),
+                ),
+            ]
+        ),
+        limit=5, # stop when he found 5 audios
+        with_payload=True, # no need to charge data and vectors
+        with_vectors=False, 
+    )
+    
+    return result
 
 def search_similarity(client, base, query_vector, top_k=1):
     search_result = client.query_points(
@@ -46,6 +53,7 @@ def search_similarity_attributes(client, base, query_vector, top_k=1): # Get att
                              "score":point.score, 
                              "name":point.payload.get("name"), 
                              "email":point.payload.get("email"),
+                             "audio_name":point.payload.get("audio_name"),
                              "issue":""
                              })
     return list_clients
@@ -71,6 +79,22 @@ def delete_by_filter(client, base, email): #delete points by a filter, here we d
         ),
     )
 
+def insert_points(client, base, names, emails, vectors, passwords, audio_names):
+    for name, email, vector, password, audio_name in zip(names, emails, vectors, passwords, audio_names):
+        client.upsert(
+            collection_name=base,
+            wait=True,
+            points=[
+                PointStruct(id=generate_user_id(email, audio_name), #generates a unique ID based on the email and audio name
+                            vector=vector,
+                            payload={"name": name, 
+                                     "email": email,
+                                     "password":password,
+                                     "audio_name": audio_name}
+                                     ),
+            ],
+        )
+
 def email_exists(client, collection_name, email):
     result, _ = client.scroll(
         collection_name=collection_name,
@@ -88,7 +112,97 @@ def email_exists(client, collection_name, email):
     )
     return len(result) > 0
 
-def insert_secure(client, base, names, emails, vectors, passwords): #insert points only if the email doesn't exist in the database
+def email_max(client, collection_name, email):
+    result, _ = client.scroll(
+        collection_name=collection_name,
+        scroll_filter=models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="email",
+                    match=models.MatchValue(value=email),
+                ),
+            ]
+        ),
+        limit=5, # stop when he found the first one
+        with_payload=False, # no need to charge data and vectors
+        with_vectors=False, 
+    )
+    return len(result) > 4
+
+def email_audio_name_exists(client, collection_name, email, audio_name):
+    result, _ = client.scroll(
+        collection_name=collection_name,
+        scroll_filter=models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="email",
+                    match=models.MatchValue(value=email),
+                ),
+                models.FieldCondition(
+                    key="audio_name",
+                    match=models.MatchValue(value=audio_name),
+                ),
+            ]
+        ),
+        limit=1, # stop when he found the first one
+        with_payload=False, # no need to charge data and vectors
+        with_vectors=False, 
+    )
+    return len(result) > 0
+
+
+def insert_secure(client, base, name, email, vector, password, audio_name): #insert points only if the audio_name doesn't exist in the email database  
+
+    if not email_audio_name_exists(client,base,email, audio_name) and not email_max(client, base, email): # if the audio name doesn't exist for this email and if the email doesn't have already 5 audios
+        client.upsert(
+            collection_name=base,
+            wait=True,
+            points=[
+                PointStruct(id=generate_user_id(email, audio_name), #generates a unique ID based on the email and audio name
+                            vector=vector,
+                            payload={"name": name, 
+                                     "email": email,
+                                     "password":password,
+                                     "audio_name": audio_name}
+                                     ),
+            ],
+        )
+        print(f"Audio {audio_name} inserted for email {email}")
+
+def get_pass_name(client, base, email, audio_name):
+    result, _ = client.scroll(
+        collection_name = base,
+        scroll_filter = models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="email",
+                    match=models.MatchValue(value=email),
+                ),
+                models.FieldCondition(
+                    key="audio_name",
+                    match=models.MatchValue(value=audio_name),
+                ),
+            ]
+        ),
+        limit=1,
+        with_payload=True,
+        with_vectors=False,
+    )
+
+    if len(result) == 0:
+        return None
+    
+    return {"id": result[0].id, "name":result[0].payload.get("name"), "email":result[0].payload.get("email"), "password": result[0].payload.get("password")}
+
+def add_secure(client, base, email, vector, audio_name):    
+    result = get_pass_name(client, base, email, audio_name)
+
+    if result != None :
+        name = result["name"]
+        password = result["password"]
+        insert_secure(client, base, name, email, vector, password, audio_name)
+
+def insert_secure_liste(client, base, names, emails, vectors, passwords): #insert points only if the email doesn't exist in the database
     names_secures=[]
     emails_secures=[]
     vectors_secures=[]
@@ -136,6 +250,8 @@ def get_email_password(client, email, base="voice_data_base"):
         return None
     
     return {"id": result[0].id, "name":result[0].payload.get("name"), "email":result[0].payload.get("email"), "password": result[0].payload.get("password")}
+
+
 
 
 #Here you can see how use the functions.

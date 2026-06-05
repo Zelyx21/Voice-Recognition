@@ -25,3 +25,12 @@ class LoginSchema(BaseModel):
         if not v.strip():
             raise ValueError("Email is required")
         return v.strip()
+    
+class AddVoiceSchema(BaseModel):
+    audio_name: str
+
+    @field_validator("audio_name")
+    def audio_name_not_empty(cls, v):
+        if len(v)<3:
+            raise ValueError("Audio name must be at least 3 characters")
+        return v

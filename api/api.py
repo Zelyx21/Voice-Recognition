@@ -9,13 +9,13 @@ from torch import Optional
 
 from api.actions.clonage_voice import clonage_voice_CosyVoice, voice_clonage_OpenVoice
 from api.actions.voice_similarity import voice_similarity
-from api.actions.register_database import register_database
+from api.actions.register_database import register_database, add_voice_database
 from api.actions.login import authenticate_user, clean_embedding
 from api.actions.auth import verify_token
 from api.actions.AudioToSpeech import AudioToSpeech
 from api.actions.diarization import diarization_audio
 
-from api.schemas import RegisterSchema, LoginSchema
+from api.schemas import AddVoiceSchema, RegisterSchema, LoginSchema
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -23,7 +23,10 @@ from slowapi.util import get_remote_address
 #Command to run univcorn
 # uvicorn api.api:app --reload
 
+#use this command to run univcorn with the reload option, it doesn't reload pretrained models.
 # uvicorn api.api:app --reload-dir api --reload-exclude "pretrained_models/*"
+
+
 
 #uvicorn api.api:app --host 0.0.0.0 --port 8000
 
@@ -83,8 +86,27 @@ async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str
     if len(audio_bytes) == 0:
         raise HTTPException(status_code=422, detail = "Audio file is empty")
     
-    register_database(audio_bytes,email,name,password)
+    register_database(audio_bytes,email, name, password, audio_name="First recording")
     return {"status":"success"}
+
+@app.post("/add_voice_db")
+async def add_voice_db(file: UploadFile = File(...), email:str=Form(...), audio_name:str=Form(...)):
+    try:
+        AddVoiceSchema(audio_name=audio_name)
+    except Exception as e:
+        messages = [err["msg"].replace("Value error, ", "") for err in e.errors()]
+        raise HTTPException(status_code=422, detail=", ".join(messages))
+    
+    if not file or not file.filename:
+        raise HTTPException(status_code=422, detail="Please provide an audio file")
+    
+    audio_bytes = await file.read()
+    if len(audio_bytes) == 0:
+        raise HTTPException(status_code=422, detail = "Audio file is empty")
+    
+    add_voice_database(audio_bytes,email, audio_name="second recording")
+    return {"status":"success"}
+
 
 @app.post("/login")
 @limiter.limit("5/minute")

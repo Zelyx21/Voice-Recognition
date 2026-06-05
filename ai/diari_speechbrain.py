@@ -116,7 +116,6 @@ def diarizations(audio_array, sample_rate=16000):
     # ─────────────────────────────────────────
     # 6. Reconstruct and export clean audio files
     # ─────────────────────────────────────────
-    os.makedirs("output_speakers11", exist_ok=True)
     result = {}
 
     for lbl in range(best_k):
@@ -133,12 +132,8 @@ def diarizations(audio_array, sample_rate=16000):
         sf.write(buffer, speaker_audio, samplerate=sample_rate, format="WAV", subtype="PCM_16")
         
         speaker_name = f"SPEAKER_{lbl:02d}"
-        out_path = f"output_speakers11/{speaker_name}.wav"
-        
-        sf.write(out_path, speaker_audio, samplerate=sample_rate)
-        
+                
         duration_sec = len(speaker_audio) / sample_rate
-        print(f"Saved: {out_path} ({duration_sec:.1f}s — reconstructed cleanly)")
 
         result[speaker_name] = {
             "audio": base64.b64encode(buffer.getvalue()).decode(),

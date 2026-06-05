@@ -239,8 +239,5 @@ chroma_db/
 #CosyVoice
 CosyVoice/ 
 
-# Node modules
-node_modules/
 
-# Qdrant storage
-qdrant_storage/
+

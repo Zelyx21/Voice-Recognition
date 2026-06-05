@@ -5,7 +5,6 @@ from speechbrain.pretrained import EncoderClassifier as sb
 
 #from speechbrain.inference.classifiers import EncoderClassifier as sb
 
-
 import soundfile as sf
 import torch
 import numpy as np
@@ -37,8 +36,9 @@ def embedding(audio: np.ndarray):
         embedding = speechbrain_model.encode_batch(audio)
 
     # ------------------clean the vector-----------------------
-
-    return embedding.squeeze().cpu().numpy()
+    vector = embedding.squeeze().cpu().numpy()
+    
+    return vector
     # squeeze comes back to dimension 1
     # cpu deactivate the usage of gpu if it was used
     # numpy converts it to a numpy to give it to Qdrant
