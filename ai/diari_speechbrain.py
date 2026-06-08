@@ -15,9 +15,8 @@ from ai.embedding import embedding as get_embedding
 def diarizations(audio_array, sample_rate=16000):
     issue = [False, ""]
 
-    # ─────────────────────────────────────────
     # 1. AI-Based VAD — Detect speech regions
-    # ─────────────────────────────────────────
+
     model_vad = load_silero_vad()
     wav_tensor = torch.FloatTensor(audio_array)
     speech_timestamps = get_speech_timestamps(wav_tensor, model_vad, return_seconds=False)
@@ -28,9 +27,8 @@ def diarizations(audio_array, sample_rate=16000):
 
     print(f"{len(speech_timestamps)} master speech segments detected via Silero VAD")
 
-    # ─────────────────────────────────────────
+
     # 2. Extract embeddings using larger Sliding Windows
-    # ─────────────────────────────────────────
     # Increased window_duration to 3.0s so SpeechBrain gets enough context to be accurate
     window_duration = 3.0 
     step_duration = 1.0   
@@ -63,15 +61,17 @@ def diarizations(audio_array, sample_rate=16000):
         issue = [True, "Not enough valid speech chunks detected for clustering"]
         return "", issue
 
-    # ─────────────────────────────────────────
     # 3. Auto-detect number of speakers (Silhouette)
-    # ─────────────────────────────────────────
     X = np.array(embeddings)
+
+    X = normalize_audio(X)  # Normalize embeddings for cosine similarity
+
     best_k, best_score = 2, -1
 
     max_k = min(8, len(embeddings) // 2)
     max_k = max(max_k, 2)
 
+    best_label = None
     for k in range(2, max_k + 1):
         labels_test = AgglomerativeClustering(
             n_clusters=k,
@@ -82,6 +82,7 @@ def diarizations(audio_array, sample_rate=16000):
         score = silhouette_score(X, labels_test, metric="cosine")
         if score > best_score:
             best_score, best_k = score, k
+            best_label = labels_test
 
     print(f"Estimated number of speakers: {best_k} (score={best_score:.3f})")
 
@@ -90,18 +91,17 @@ def diarizations(audio_array, sample_rate=16000):
         issue = [True, "There is likely only one speaker"]
         return "", issue
 
-    # ─────────────────────────────────────────
     # 4. Final clustering
-    # ─────────────────────────────────────────
-    labels = AgglomerativeClustering(
-        n_clusters=best_k,
-        metric="cosine",
-        linkage="average",
-    ).fit_predict(X)
+    if best_label is None:
+        labels = AgglomerativeClustering(
+            n_clusters=best_k,
+            metric="cosine",
+            linkage="average",
+        ).fit_predict(X)
+    else:
+        labels = best_label
 
-    # ─────────────────────────────────────────
     # 5. Sample-level Voting (Resolves overlaps & removes echo)
-    # ─────────────────────────────────────────
     # Create a voting matrix: [number_of_samples, number_of_speakers]
     voting_grid = np.zeros((len(audio_array), best_k))
     
@@ -113,9 +113,8 @@ def diarizations(audio_array, sample_rate=16000):
     # Total votes per sample to identify where speech actually happened
     total_votes_per_sample = np.sum(voting_grid, axis=1)
 
-    # ─────────────────────────────────────────
+
     # 6. Reconstruct and export clean audio files
-    # ─────────────────────────────────────────
     result = {}
 
     for lbl in range(best_k):
@@ -141,3 +140,10 @@ def diarizations(audio_array, sample_rate=16000):
         }
 
     return result, issue
+
+
+
+def normalize_audio(audio_array):
+    audio_norm = np.linalg.norm(audio_array, axis=1, keepdims=True)
+    return audio_array / audio_norm
+  

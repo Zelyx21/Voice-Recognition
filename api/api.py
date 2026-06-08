@@ -10,7 +10,7 @@ from torch import Optional
 from api.actions.clonage_voice import clonage_voice_CosyVoice, voice_clonage_OpenVoice
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database, add_voice_database
-from api.actions.gestion_database import get_voices, delete_voice_database, delete_compte
+from api.actions.gestion_database import delete_voice_database, delete_compte
 from api.actions.login import authenticate_user, clean_embedding
 from api.actions.auth import verify_token
 from api.actions.AudioToSpeech import AudioToSpeech
@@ -124,13 +124,6 @@ async def delete_compte_route(email:str=Form(...)):
     delete_compte(email)
     
     return {"status":"success"}
-
-@app.post("/get_voices_db")
-async def get_voices_db(email:str=Form(...)):
-
-    voices = get_voices(email)
-    
-    return {"status":"success", "voices": voices}
 
 @app.post("/login")
 @limiter.limit("5/minute")

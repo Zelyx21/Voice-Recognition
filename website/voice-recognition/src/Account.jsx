@@ -1,16 +1,16 @@
 
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useApi } from './hooks/useAPI'
 import { useRecording } from './hooks/useRecording'
+import { useNavigate } from "react-router-dom"
 import './Account.css'
+
 
 const MAX_VOICES = 5 // 1 registered + 4 additional
 
 function Account({ user, setUser, setIsAuthenticated, setToken }) {
-    const navigate = useNavigate()
     const { call, loading, error, setError } = useApi()
-
+    const navigate = useNavigate()
     const {
         isRecording,
         audioURL,
@@ -102,19 +102,30 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
             method: "POST",
             body: formData
         })
-
+        
         if (data) {
-            const updatedUser = {
-                ...user,
-                audios_names: voices.filter(v => v !== audio_name)
+            if (voices.length === 1){
+                sessionStorage.clear()
+
+                setIsAuthenticated(false)
+                setUser(null)
+                setToken(null)
+
+                navigate("/")
+            }else{
+
+                const updatedUser = {
+                    ...user,
+                    audios_names: voices.filter(v => v !== audio_name)
+                }
+
+                sessionStorage.setItem("user", JSON.stringify(updatedUser))
+                setUser(updatedUser)
+
+                setConfirmDelete(null)
+
+                flash(`"${audio_name}" deleted.`)
             }
-
-            sessionStorage.setItem("user", JSON.stringify(updatedUser))
-            setUser(updatedUser)
-
-            setConfirmDelete(null)
-
-            flash(`"${audio_name}" deleted.`)
         }
     }
 
@@ -176,12 +187,6 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                         </button>
                     )}
                 </div>
-
-                {voices.length === 0 && (
-                    <p className="empty-voices">
-                        No voices registered yet.
-                    </p>
-                )}
 
                 <ul className="voice-list">
                     {voices.map((v) => (
@@ -455,7 +460,7 @@ function InfoRow({ label, value }) {
     return (
         <div className="info-row">
             <span className="info-label">
-                {label}
+                {label + " "}
             </span>
 
             <span className="info-value">

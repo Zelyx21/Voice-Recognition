@@ -1,5 +1,5 @@
 
-from database.Qdrant import generate_user_id, delete_points, delete_by_email, get_point_by_email
+from database.Qdrant import generate_user_id, delete_points, delete_by_email
 
 
 def delete_voice_database(email, audio_name):
@@ -13,5 +13,4 @@ def delete_compte(email):
 
     return {"status": "success"}
 
-def get_voices(email):
-    return get_point_by_email(email=email)
+
