@@ -1,28 +1,32 @@
-from database.Qdrant import get_email_password, search_similarity_attributes
+from database.Qdrant import search_similarity_attributes, get_point_by_email
 from audio.conversion import conversion
 from audio.processing import resample, denoise, vad
 from ai.embedding import embedding
-from qdrant_client import QdrantClient
 from api.actions.auth import create_token
 import bcrypt
-
-client = QdrantClient(host="localhost", port=6333)
 
 
 def authenticate_user(email, password=None, vector=None):
     print("LOGIN FUNCTION CALLED")
     if password:
-        result = get_email_password(client, email)
+
+        result = get_point_by_email(email)
+
         if not result:
             return {"issue": "Invalid email or password"}
-
+        
         stored_hash = result["password"]
+        audios_names = result["audio_name"]
+        nbr_voices_result = len(audios_names)
+
         if bcrypt.checkpw(password.encode(), stored_hash.encode()):
             token = create_token(email, result["name"])
             return {
                 "name": result["name"],
                 "email": result["email"],
                 "token": token,
+                "nbr_voices": nbr_voices_result,
+                "audios_names": audios_names,
                 "issue": "",
             }
         else:
@@ -30,7 +34,7 @@ def authenticate_user(email, password=None, vector=None):
 
     if vector is not None:
         results = search_similarity_attributes(
-            client, "voice_data_base", vector, top_k=1
+            vector, top_k=1
         )
 
         if (results 
@@ -38,11 +42,16 @@ def authenticate_user(email, password=None, vector=None):
             and results[0]["score"] > 0.5
             ):
             token = create_token(results[0]["email"], results[0]["name"])
+
+            result = get_point_by_email(email)
+
             return {
                 "name": results[0]["name"],
                 "email": results[0]["email"],
                 "token": token,
                 "score": results[0]["score"],
+                "nbr_voices": len(result["audio_name"]),
+                "audios_names": result["audio_name"],
                 "issue": "",
             }
         else:

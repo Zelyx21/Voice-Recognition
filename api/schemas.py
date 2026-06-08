@@ -1,8 +1,5 @@
-from pydantic import BaseModel, EmailStr, field_validator
-from database.Qdrant import email_max, email_exists
-from qdrant_client import QdrantClient
-
-client = QdrantClient(host="localhost", port = 6333)
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
+from database.Qdrant import email_max, email_exists, email_audio_name_exists
 
 class RegisterSchema(BaseModel):
     name: str
@@ -20,7 +17,7 @@ class RegisterSchema(BaseModel):
     def email_not_empty(cls, v):
         if not v.strip():
             raise ValueError("Email is required")
-        if email_exists(client=client, base="voice_data_base", email=v.strip()):
+        if email_exists(email=v.strip()):
             raise ValueError("Email already exists")
         return v.strip()
 
@@ -59,9 +56,14 @@ class AddVoiceSchema(BaseModel):
 
     @field_validator("email")
     def email_max_less_than_5(cls, v):
-        if email_max(client=client, base="voice_data_base", email=v.strip()):
+        if email_max(email=v.strip()):
             raise ValueError("Maximum number of audio files (5) reached for this email")
+        return v.strip()
 
-        return v
-    
+    @model_validator(mode="after")
+    def audio_name_not_exists_for_email(self):
+        if email_audio_name_exists(email=self.email.strip(), audio_name=self.audio_name):
+            raise ValueError("Audio name already exists for this email")
+        return self
+
     

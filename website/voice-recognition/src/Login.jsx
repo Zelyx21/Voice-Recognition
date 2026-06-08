@@ -45,7 +45,6 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
             setUser(data)
             setToken(data.token)
             setSuccess(`Welcome back, ${data.name} !`)
-            setTimeout(() => navigate("/"), 2000)
         }
 
         if (data && data.issue) {

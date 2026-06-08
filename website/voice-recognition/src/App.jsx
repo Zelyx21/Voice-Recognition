@@ -47,6 +47,7 @@ function App() {
           </PublicRoute>
         } />
         <Route path="/account" element={
+          
           <ProtectedRoute isAuthenticated={isAuthenticated}>
             <Account user={user} setUser={setUser} setIsAuthenticated={setIsAuthenticated} setToken={setToken} />
           </ProtectedRoute>

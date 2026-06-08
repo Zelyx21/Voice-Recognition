@@ -107,6 +107,8 @@ async def add_voice_db(file: UploadFile = File(...), email:str=Form(...), audio_
         raise HTTPException(status_code=422, detail = "Audio file is empty")
     
     add_voice_database(audio_bytes,email, audio_name)
+
+    
     return {"status":"success"}
 
 @app.post("/delete_voice_db")
