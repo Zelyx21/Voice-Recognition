@@ -5,7 +5,7 @@ A python file in which is built our API fastAPI
 from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from torch import Optional
+from typing import Optional
 
 from api.actions.clonage_voice import clonage_voice_CosyVoice, voice_clonage_OpenVoice
 from api.actions.voice_similarity import voice_similarity

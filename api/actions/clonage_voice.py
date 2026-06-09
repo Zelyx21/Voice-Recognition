@@ -12,7 +12,7 @@ from audio.conversion import ndarray_to_wav_bytes
 
 from audio.processing import resample, denoise, vad
 from qdrant_client import QdrantClient
-from OpenVoice.openvoice_clonage import openvoice_clonage
+from OpenVoice import openvoice_clonage
 
 from fastapi.responses import StreamingResponse
 import io
