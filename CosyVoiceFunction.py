@@ -334,7 +334,9 @@ def synthesize_zero_shot(
     emotion_hint = EMOTION_PROMPTS.get(emotion, "")
     style_hint = STYLE_PROMPTS.get(speaking_style, "")
     extra = f"{emotion_hint} {style_hint}".strip()
-    augmented_prompt = f"{prompt_text}<|endofprompt|>" 
+    #augmented_prompt = f"{prompt_text}<|endofprompt|>" 
+    augmented_prompt = prompt_text_adapt(prompt_text)
+
     augmented_text = f"{extra} {text}".strip() if extra else text
 
     chunks = list(model.inference_zero_shot(

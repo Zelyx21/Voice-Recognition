@@ -8,9 +8,19 @@ import soundfile as sf
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score
 from silero_vad import load_silero_vad, get_speech_timestamps
+from scipy.signal import medfilt
 
 # Import the existing embedding module
 from ai.embedding import embedding as get_embedding
+
+
+def normalize_audio(audio_array):
+    audio_norm = np.linalg.norm(audio_array, axis=1, keepdims=True)
+    audio_norm[audio_norm == 0] = 1e-10  # Avoid division by zero
+    return audio_array / audio_norm
+
+
+
 
 def diarizations(audio_array, sample_rate=16000):
     issue = [False, ""]
@@ -19,7 +29,13 @@ def diarizations(audio_array, sample_rate=16000):
 
     model_vad = load_silero_vad()
     wav_tensor = torch.FloatTensor(audio_array)
-    speech_timestamps = get_speech_timestamps(wav_tensor, model_vad, return_seconds=False)
+    speech_timestamps = get_speech_timestamps(wav_tensor, 
+                                              model_vad, 
+                                              return_seconds=False,
+                                              threshold=0.5, #lower threshold = more speech detected (fewer missed words) but also more background noise leaking 
+                                              min_speech_duration_ms=300, # ignore bursts shorter than 300 ms
+                                              min_silence_duration_ms=100 # merge segments separated by < 200 ms of silence
+                                              )
 
     if not speech_timestamps:
         issue = [True, "No speech detected in the file."]
@@ -27,15 +43,20 @@ def diarizations(audio_array, sample_rate=16000):
 
     print(f"{len(speech_timestamps)} master speech segments detected via Silero VAD")
 
+    # Check total speech duration 
+    total_speech_samples = sum(s["end"] - s["start"] for s in speech_timestamps)
+    MIN_TOTAL_SPEECH_SEC = 4.0
+    if total_speech_samples < int(MIN_TOTAL_SPEECH_SEC * sample_rate):
+        issue = [True, f"Not enough speech detected (need at least {MIN_TOTAL_SPEECH_SEC}s)."]
+        return "", issue
 
     # 2. Extract embeddings using larger Sliding Windows
     # Increased window_duration to 3.0s so SpeechBrain gets enough context to be accurate
-    window_duration = 3.0 
-    step_duration = 1.0   
     
-    window_samples = int(window_duration * sample_rate)
-    step_samples = int(step_duration * sample_rate)
-    min_samples = int(1.5 * sample_rate) # Minimum context to accept a chunk
+    window_samples = int(3.0 * sample_rate) # 3.0s -> 48 000 samples at 16kHz
+    step_samples = int(1.0  * sample_rate)
+    min_samples = int(1.5 * sample_rate) # Minimum context to accept a chunk, reject chunks shorter than 1.5s
+
 
     embeddings = []
     valid_segments = []
@@ -62,8 +83,8 @@ def diarizations(audio_array, sample_rate=16000):
         return "", issue
 
     # 3. Auto-detect number of speakers (Silhouette)
-    X = np.array(embeddings)
 
+    X = np.array(embeddings)
     X = normalize_audio(X)  # Normalize embeddings for cosine similarity
 
     best_k, best_score = 2, -1
@@ -89,6 +110,8 @@ def diarizations(audio_array, sample_rate=16000):
     min_score_multi_loc = 0.10
     if best_score < min_score_multi_loc:
         issue = [True, "There is likely only one speaker"]
+        print(f"{issue[1]}" + f" (score={best_score:.3f} < {min_score_multi_loc})")
+
         return "", issue
 
     # 4. Final clustering
@@ -113,6 +136,18 @@ def diarizations(audio_array, sample_rate=16000):
     # Total votes per sample to identify where speech actually happened
     total_votes_per_sample = np.sum(voting_grid, axis=1)
 
+    """
+    # Median filter: kernel must be odd. 0.5s @ 16kHz = 8000 samples.
+    # Replace each value over a duration of less than 0.5 sec with the local majority.
+    kernel_size = int(0.5 * sample_rate)
+    if kernel_size % 2 == 0:
+        kernel_size += 1   # medfilt requires an odd kernel
+ 
+    # medfilt expects float input; cast back to int after filtering
+    sample_speaker_labels = medfilt(
+        sample_speaker_labels.astype(np.float32), kernel_size=kernel_size
+    ).astype(np.int32)
+    """
 
     # 6. Reconstruct and export clean audio files
     result = {}
@@ -143,7 +178,4 @@ def diarizations(audio_array, sample_rate=16000):
 
 
 
-def normalize_audio(audio_array):
-    audio_norm = np.linalg.norm(audio_array, axis=1, keepdims=True)
-    return audio_array / audio_norm
   
