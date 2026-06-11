@@ -1,53 +1,26 @@
-/* ════════════════════════════════════════════════════════════
-   index.css — Global reset & design tokens
-   Importé dans : main.jsx
-   ════════════════════════════════════════════════════════════ */
 
-/* ─── Reset ───────────────────────────────────────────────── */
-
-*,
-*::before,
-*::after {
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* ─── Design tokens ───────────────────────────────────────── */
-
 :root {
-  /* Surfaces */
-  --bg:             #f5f4f0;
-  --surface:        #ffffff;
-
-  /* Bordures */
-  --border:         #e2e0d8;
-
-  /* Texte */
-  --text-primary:   #1a1916;
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --border: #e2e0d8;
+  --text-primary: #1a1916;
   --text-secondary: #7a7870;
-
-  /* Marque */
-  --accent:         #2d6a4f;
-  --accent-dark:    #255c43;
-  --accent-light:   #e8f4ef;
-
-  /* Danger */
-  --danger:         #c94a3a;
-  --danger-light:   #fdf0ee;
-
-  /* Ombre */
-  --shadow:
-    0 1px 3px  rgba(0, 0, 0, 0.06),
-    0 4px 12px rgba(0, 0, 0, 0.04);
+  --accent: #2d6a4f;
+  --accent-light: #e8f4ef;
+  --danger: #c94a3a;
+  --danger-light: #fdf0ee;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
 }
-
-/* ─── Base body ───────────────────────────────────────────── */
 
 body {
   font-family: 'DM Sans', sans-serif;
   background-color: var(--bg);
   color: var(--text-primary);
   min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
 }

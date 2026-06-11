@@ -136,7 +136,7 @@ def diarizations(audio_array, sample_rate=16000):
     # Total votes per sample to identify where speech actually happened
     total_votes_per_sample = np.sum(voting_grid, axis=1)
 
-    """
+    
     # Median filter: kernel must be odd. 0.5s @ 16kHz = 8000 samples.
     # Replace each value over a duration of less than 0.5 sec with the local majority.
     kernel_size = int(0.5 * sample_rate)
@@ -147,7 +147,7 @@ def diarizations(audio_array, sample_rate=16000):
     sample_speaker_labels = medfilt(
         sample_speaker_labels.astype(np.float32), kernel_size=kernel_size
     ).astype(np.int32)
-    """
+    
 
     # 6. Reconstruct and export clean audio files
     result = {}
@@ -172,6 +172,7 @@ def diarizations(audio_array, sample_rate=16000):
         result[speaker_name] = {
             "audio": base64.b64encode(buffer.getvalue()).decode(),
             "duration": duration_sec
+            
         }
 
     return result, issue

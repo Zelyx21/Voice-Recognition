@@ -1,16 +1,9 @@
-/* ════════════════════════════════════════════════════════════
-   Home.css — Page d'accueil
-   Importé dans : Home.jsx
-   Thème sombre autonome, variables --hm-* isolées pour éviter
-   tout conflit avec le thème clair du reste de l'application.
-   La pleine largeur est naturelle : #root n'a plus de max-width.
-   ════════════════════════════════════════════════════════════ */
-
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap');
 
-/* ─── Tokens locaux (portée .hm) ─────────────────────────── */
-
-.hm {
+/* ═══════════════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════════════ */
+:root {
   --hm-bg:      #080C14;
   --hm-surface: #0F172A;
   --hm-border:  #1E293B;
@@ -25,20 +18,19 @@
   --hm-body:    'Inter', system-ui, sans-serif;
 }
 
-/* ─── Base page ───────────────────────────────────────────── */
-
+/* ═══════════════════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════════════════ */
 .hm {
   background: var(--hm-bg);
   color: var(--hm-text);
   font-family: var(--hm-body);
-  width: 100%; /* pleine largeur grâce au #root sans max-width */
+  min-height: 100vh;
 }
 
-/* ════════════════════════════════════════════════════════════
-   BARRES AUDIO ANIMÉES  (élément signature)
-   Chaque barre reçoit --min-h et --max-h en inline style (JS).
-   ════════════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════════════════════════════════
+   AUDIO BARS  (signature element)
+═══════════════════════════════════════════════════════ */
 .audio-bars {
   display: flex;
   align-items: center;
@@ -68,10 +60,9 @@
   }
 }
 
-/* ════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    HERO
-   ════════════════════════════════════════════════════════════ */
-
+═══════════════════════════════════════════════════════ */
 .hm-hero {
   position: relative;
   min-height: 92vh;
@@ -82,7 +73,7 @@
   padding: 7rem 1.5rem 5rem;
 }
 
-/* Barres en fond du hero */
+/* bars fill the entire hero as background texture */
 .hm-hero__bars {
   position: absolute;
   inset: 0;
@@ -96,7 +87,6 @@
   width: 3px;
 }
 
-/* Contenu centré par-dessus les barres */
 .hm-hero__content {
   position: relative;
   z-index: 2;
@@ -105,22 +95,22 @@
   width: 100%;
 }
 
-/* Badge Dell */
+/* Dell badge */
 .hm-badge {
   display: inline-block;
-  background: rgba(59, 130, 246, 0.10);
+  background: rgba(59, 130, 246, 0.1);
   border: 1px solid rgba(59, 130, 246, 0.22);
   color: #93C5FD;
   font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0.3em 1.1em;
   border-radius: 999px;
   margin-bottom: 2.25rem;
 }
 
-/* Titre géant */
+/* Giant title */
 .hm-hero__title {
   font-family: var(--hm-display);
   font-size: clamp(4.5rem, 14vw, 9.5rem);
@@ -131,7 +121,6 @@
   margin: 0 0 1rem;
 }
 
-/* "Voice" en dégradé bleu→violet */
 .hm-gradient {
   background: linear-gradient(135deg, #3B82F6 15%, #8B5CF6 85%);
   -webkit-background-clip: text;
@@ -139,7 +128,7 @@
   background-clip: text;
 }
 
-/* Sous-titre espacé */
+/* Tagline */
 .hm-hero__sub {
   font-family: var(--hm-display);
   font-size: 0.82rem;
@@ -159,7 +148,7 @@
   margin: 0 auto 2.75rem;
 }
 
-/* Ligne de CTA */
+/* CTA row */
 .hm-hero__actions {
   display: flex;
   gap: 0.875rem;
@@ -167,30 +156,25 @@
   flex-wrap: wrap;
 }
 
-/* ════════════════════════════════════════════════════════════
-   BOUTONS HOME
-   Namespaced .hm-btn pour ne pas entrer en conflit avec
-   les button{} et .button de App.css.
-   ════════════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════════════ */
 .hm-btn {
   display: inline-flex;
   align-items: center;
-  padding: 0.72em 1.65em;
+  padding: 0.7em 1.65em;
   border-radius: 6px;
   font-family: var(--hm-body);
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  border: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease;
   cursor: pointer;
+  border: none;
   white-space: nowrap;
   line-height: 1;
-  transition: transform 0.18s ease, box-shadow 0.18s ease,
-              border-color 0.18s ease, color 0.18s ease;
 }
 
-/* Primaire bleu→violet */
 .hm-btn--primary {
   background: linear-gradient(135deg, #3B82F6 0%, #6D28D9 100%);
   color: #fff;
@@ -202,7 +186,6 @@
   box-shadow: 0 5px 28px rgba(59, 130, 246, 0.45);
 }
 
-/* Fantôme */
 .hm-btn--ghost {
   background: transparent;
   border: 1px solid var(--hm-border);
@@ -214,7 +197,6 @@
   color: #93C5FD;
 }
 
-/* Violet (CTA clonage si non connecté) */
 .hm-btn--violet {
   background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%);
   color: #fff;
@@ -226,28 +208,24 @@
   box-shadow: 0 5px 28px rgba(139, 92, 246, 0.45);
 }
 
-/* ════════════════════════════════════════════════════════════
-   SECTIONS  (mise en page partagée)
-   ════════════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════════════════════════════════
+   SECTIONS  (shared layout)
+═══════════════════════════════════════════════════════ */
 .hm-section {
   padding: 5.5rem 1.5rem;
 }
 
-/* Fond légèrement différent pour les sections alternées */
 .hm-section--alt {
   background: rgba(15, 23, 42, 0.55);
   border-top: 1px solid var(--hm-border);
   border-bottom: 1px solid var(--hm-border);
 }
 
-/* Conteneur interne centré */
 .hm-inner {
   max-width: 1080px;
   margin: 0 auto;
 }
 
-/* Surtitre */
 .hm-eyebrow {
   font-size: 0.67rem;
   font-weight: 600;
@@ -257,7 +235,6 @@
   margin: 0 0 0.4rem;
 }
 
-/* Titre de section */
 .hm-section__title {
   font-family: var(--hm-display);
   font-size: clamp(1.75rem, 4vw, 2.4rem);
@@ -267,17 +244,16 @@
   letter-spacing: -0.025em;
 }
 
-/* ════════════════════════════════════════════════════════════
-   GRILLE DE FONCTIONNALITÉS
-   ════════════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════════════════════════════════
+   FEATURE GRID
+═══════════════════════════════════════════════════════ */
 .hm-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1rem;
 }
 
-/* Carte */
+/* Card base */
 .hm-card {
   position: relative;
   background: var(--hm-surface);
@@ -291,7 +267,7 @@
   transform: translateY(-2px);
 }
 
-/* Bordure colorée au hover selon la couleur de la carte */
+/* Color-coded hover borders */
 .hm-card--blue:hover   { border-color: var(--hm-blue);   }
 .hm-card--violet:hover { border-color: var(--hm-violet); }
 .hm-card--cyan:hover   { border-color: var(--hm-cyan);   }
@@ -301,21 +277,24 @@
   opacity: 0.82;
 }
 
-/* Icône SVG */
+/* Icon */
 .hm-card__icon {
   width: 38px;
   height: 38px;
   margin-bottom: 1.3rem;
 }
 
-.hm-card__icon svg  { width: 100%; height: 100%; }
+.hm-card__icon svg {
+  width: 100%;
+  height: 100%;
+}
 
 .hm-card__icon--blue   { color: var(--hm-blue);   }
 .hm-card__icon--violet { color: var(--hm-violet); }
 .hm-card__icon--cyan   { color: var(--hm-cyan);   }
 .hm-card__icon--green  { color: var(--hm-green);  }
 
-/* Badge cadenas */
+/* Lock badge */
 .lock-badge {
   position: absolute;
   top: 1.25rem;
@@ -328,13 +307,13 @@
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: #FBBF24;
-  background: rgba(251, 191, 36, 0.10);
+  background: rgba(251, 191, 36, 0.1);
   border: 1px solid rgba(251, 191, 36, 0.22);
   padding: 0.26em 0.6em;
   border-radius: 999px;
 }
 
-/* Titre de carte */
+/* Card text */
 .hm-card__title {
   font-family: var(--hm-display);
   font-size: 1.05rem;
@@ -343,7 +322,6 @@
   margin: 0 0 0.5rem;
 }
 
-/* Description */
 .hm-card__desc {
   font-size: 0.83rem;
   color: var(--hm-muted);
@@ -351,7 +329,7 @@
   margin: 0 0 1.4rem;
 }
 
-/* Lien CTA de carte */
+/* Card CTA links */
 .hm-link {
   font-size: 0.82rem;
   font-weight: 500;
@@ -366,10 +344,9 @@
 .hm-link--green        { color: var(--hm-green);  }
 .hm-link--locked       { color: var(--hm-muted);  }
 
-/* ════════════════════════════════════════════════════════════
-   COMMENT ÇA MARCHE  (étapes)
-   ════════════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════════════════════════════════
+   HOW IT WORKS  (steps)
+═══════════════════════════════════════════════════════ */
 .hm-steps {
   display: flex;
   align-items: flex-start;
@@ -377,7 +354,6 @@
   flex-wrap: wrap;
 }
 
-/* Étape individuelle */
 .hm-step {
   flex: 1;
   min-width: 200px;
@@ -415,7 +391,7 @@
   margin: 0;
 }
 
-/* Flèche entre les étapes */
+/* Arrow between steps */
 .hm-step__arrow {
   color: var(--hm-border);
   font-size: 1.4rem;
@@ -428,11 +404,9 @@
   .hm-step__arrow { display: none; }
 }
 
-/* ════════════════════════════════════════════════════════════
-   SECTION CLONAGE
-   ════════════════════════════════════════════════════════════ */
-
-/* Grille texte / visuel */
+/* ═══════════════════════════════════════════════════════
+   CLONING DETAIL
+═══════════════════════════════════════════════════════ */
 .hm-cloning {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -441,10 +415,7 @@
 }
 
 @media (max-width: 768px) {
-  .hm-cloning {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
+  .hm-cloning { grid-template-columns: 1fr; gap: 2.5rem; }
 }
 
 .hm-cloning__title {
@@ -463,7 +434,7 @@
   margin-bottom: 1.5rem;
 }
 
-/* Liste des modes */
+/* Mode list */
 .hm-modes {
   list-style: none;
   padding: 0;
@@ -495,7 +466,7 @@
   font-weight: 600;
 }
 
-/* Panneau visuel avec les barres animées */
+/* Visual panel */
 .hm-cloning__visual {
   display: flex;
   flex-direction: column;
@@ -512,10 +483,10 @@
 .hm-cloning__bars {
   height: 90px;
   gap: 5px;
-  align-items: flex-end; /* barres croissent vers le haut */
+  align-items: flex-end;
 }
 
-/* Couleur inversée (violet→bleu) pour les barres du panneau clonage */
+/* Override bar color for cloning panel (violet → blue, reversed gradient) */
 .hm-cloning__bars .audio-bar {
   width: 5px;
   background: linear-gradient(to top, #8B5CF6, #3B82F6);
@@ -529,17 +500,15 @@
   margin: 0;
 }
 
-/* ════════════════════════════════════════════════════════════
-   SECTION À PROPOS
-   ════════════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════════════════════════════════
+   ABOUT  (cards)
+═══════════════════════════════════════════════════════ */
 .hm-about {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;
 }
 
-/* Carte à propos */
 .hm-about__card {
   background: var(--hm-surface);
   border: 1px solid var(--hm-border);
@@ -547,7 +516,7 @@
   padding: 1.75rem;
 }
 
-/* Liseré coloré en haut de chaque carte */
+/* Colored top accent per card */
 .hm-about__card--dell { border-top: 2px solid #0076CE; }
 .hm-about__card--uni  { border-top: 2px solid var(--hm-violet); }
 .hm-about__card--team { border-top: 2px solid var(--hm-cyan); }
@@ -576,7 +545,7 @@
   margin: 0;
 }
 
-/* Logo Dell en texte stylisé */
+/* Dell wordmark (styled text, not an image) */
 .hm-dell-logo {
   font-family: var(--hm-display);
   font-size: 2.1rem;
@@ -587,7 +556,7 @@
   line-height: 1;
 }
 
-/* Membres de l'équipe */
+/* Team members */
 .hm-team {
   display: flex;
   flex-direction: column;
@@ -601,7 +570,6 @@
   gap: 0.75rem;
 }
 
-/* Avatars initiaux */
 .hm-avatar {
   width: 38px;
   height: 38px;
@@ -633,10 +601,9 @@
   margin: 0;
 }
 
-/* ════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    FOOTER
-   ════════════════════════════════════════════════════════════ */
-
+═══════════════════════════════════════════════════════ */
 .hm-footer {
   border-top: 1px solid var(--hm-border);
   padding: 2rem 1.5rem;
@@ -650,15 +617,14 @@
   margin: 0;
 }
 
-/* ════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    RESPONSIVE
-   ════════════════════════════════════════════════════════════ */
-
+═══════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
-  .hm-hero        { min-height: 85vh; padding: 5rem 1rem 4rem; }
+  .hm-hero { min-height: 85vh; padding: 5rem 1rem 4rem; }
   .hm-hero__title { font-size: 4rem; }
-  .hm-section     { padding: 3.5rem 1rem; }
-  .hm-card        { padding: 1.4rem; }
-  .hm-step        { padding: 1.4rem; }
+  .hm-section { padding: 3.5rem 1rem; }
+  .hm-card { padding: 1.4rem; }
+  .hm-step { padding: 1.4rem; }
   .hm-cloning__visual { padding: 2rem 1rem; }
 }

@@ -1,14 +1,5 @@
-/* ════════════════════════════════════════════════════════════
-   ClonageVoice.css — Section clonage vocale
-   Importé dans : ClonageVoice.jsx, ClonageUtility.jsx
-   Couvre        : ClonageVoice + ClonageUtility + ClonageButtonsCosyVoice
-   ════════════════════════════════════════════════════════════ */
+/* ─── Clonage box ────────────────────────────────────────── */
 
-/* ════════════════════════════════════════════════════════════
-   1. BOÎTE PRINCIPALE
-   ════════════════════════════════════════════════════════════ */
-
-/* .clonage-box s'applique conjointement à .box (App.css) */
 .clonage-box {
   gap: 20px;
 }
@@ -23,9 +14,7 @@
   margin: 0;
 }
 
-/* ════════════════════════════════════════════════════════════
-   2. ÉTAT VERROUILLÉ
-   ════════════════════════════════════════════════════════════ */
+/* ─── Locked state ───────────────────────────────────────── */
 
 .clonage-locked {
   display: flex;
@@ -41,12 +30,9 @@
 
 .lock-icon {
   font-size: 18px;
-  flex-shrink: 0;
 }
 
-/* ════════════════════════════════════════════════════════════
-   3. ÉTAPES
-   ════════════════════════════════════════════════════════════ */
+/* ─── Steps ──────────────────────────────────────────────── */
 
 .clonage-step {
   display: flex;
@@ -64,25 +50,15 @@
   color: var(--text-secondary);
 }
 
-/* ════════════════════════════════════════════════════════════
-   4. CARTES MODÈLE
-   ════════════════════════════════════════════════════════════ */
+/* ─── Model cards ────────────────────────────────────────── */
 
 .model-cards {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap;
 }
 
-/*
-  CORRECTION : background explicite en hover pour empêcher
-  button:hover (App.css, spécificité 0,1,1) de colorer
-  ces cartes en vert.
-  .model-card:hover a spécificité (0,2,0) → l'emporte.
-*/
 .model-card {
   flex: 1;
-  min-width: 140px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -99,17 +75,17 @@
 
 .model-card:hover {
   border-color: var(--accent);
-  background: var(--surface); /* explicite : bloque button:hover */
   transform: translateY(-1px);
 }
 
 .model-card--active {
   border-color: var(--accent);
-  background: var(--accent-light);
+  background: #e8f4ef;
 }
 
-.model-card--active:hover {
-  background: var(--accent-light); /* préserve la couleur active */
+.model-icon {
+  font-size: 20px;
+  margin-bottom: 2px;
 }
 
 .model-label {
@@ -135,9 +111,7 @@
   margin-top: 2px;
 }
 
-/* ════════════════════════════════════════════════════════════
-   5. ZONE D'ENREGISTREMENT
-   ════════════════════════════════════════════════════════════ */
+/* ─── Recording ──────────────────────────────────────────── */
 
 .record-area {
   display: flex;
@@ -148,14 +122,13 @@
   align-self: flex-start;
 }
 
-/* Bandeau d'enregistrement en cours */
 .recording-live {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
   border-radius: 8px;
-  background: var(--danger-light);
+  background: #fdf0ee;
   border: 1px solid #f5c4b3;
 }
 
@@ -164,12 +137,11 @@
   height: 8px;
   border-radius: 50%;
   background: var(--danger);
-  animation: rec-blink 1s infinite;
-  flex-shrink: 0;
+  animation: blink 1s infinite;
 }
 
-@keyframes rec-blink {
-  0%, 100% { opacity: 1;   }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
   50%       { opacity: 0.2; }
 }
 
@@ -180,9 +152,7 @@
   min-width: 60px;
 }
 
-/* ════════════════════════════════════════════════════════════
-   6. APERÇU AUDIO
-   ════════════════════════════════════════════════════════════ */
+/* ─── Audio preview ──────────────────────────────────────── */
 
 .audio-preview {
   display: flex;
@@ -207,7 +177,6 @@
   background: var(--accent-light);
   padding: 3px 10px;
   border-radius: 20px;
-  white-space: nowrap;
 }
 
 .audio-preview audio {
@@ -216,9 +185,7 @@
   border-radius: 6px;
 }
 
-/* ════════════════════════════════════════════════════════════
-   7. PANNEAU DE CLONAGE  (ClonageUtility)
-   ════════════════════════════════════════════════════════════ */
+/* ─── Clonage panel ──────────────────────────────────────── */
 
 .clonage-panel {
   display: flex;
@@ -226,7 +193,6 @@
   gap: 16px;
 }
 
-/* Groupe de paramètre (label + contrôle) */
 .param-group {
   display: flex;
   flex-direction: column;
@@ -242,7 +208,6 @@
   color: var(--text-primary);
 }
 
-/* Deux param-group côte à côte */
 .param-row {
   display: flex;
   gap: 12px;
@@ -251,8 +216,6 @@
 .param-row .param-group {
   flex: 1;
 }
-
-/* ─── Select ──────────────────────────────────────────────── */
 
 select {
   width: 100%;
@@ -276,7 +239,7 @@ select:focus {
   border-color: var(--accent);
 }
 
-/* ─── Curseur de vitesse ──────────────────────────────────── */
+/* ─── Speed slider ───────────────────────────────────────── */
 
 .speed-value {
   font-family: 'DM Mono', monospace;
@@ -302,21 +265,26 @@ select:focus {
   margin-top: -4px;
 }
 
-/* ─── Bouton clone ────────────────────────────────────────── */
+/* ─── Clone button ───────────────────────────────────────── */
 
 .clone-btn {
   align-self: flex-start;
   margin-top: 4px;
-  /* :disabled géré globalement dans App.css */
 }
 
-/* ─── Spinner de chargement ───────────────────────────────── */
+.clone-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── Spinner ────────────────────────────────────────────── */
 
 .spinner {
   display: inline-block;
   width: 12px;
   height: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
+  border: 2px solid rgba(255,255,255,0.4);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -326,7 +294,7 @@ select:focus {
   to { transform: rotate(360deg); }
 }
 
-/* ─── Résultat du clonage ─────────────────────────────────── */
+/* ─── Clone result ───────────────────────────────────────── */
 
 .clone-result {
   display: flex;
@@ -349,21 +317,27 @@ select:focus {
   text-decoration: none;
 }
 
-/* ─── Texte d'erreur inline ───────────────────────────────── */
+/* ─── Errors ─────────────────────────────────────────────── */
 
 .error-text {
   font-size: 13px;
   color: var(--danger);
-  margin: 0;
 }
 
-/* ════════════════════════════════════════════════════════════
-   8. SÉLECTEUR DE MÉTHODE CosyVoice  (ClonageButtonsCosyVoice)
-   Les fieldset/legend/label ci-dessous sont intentionnellement
-   non-scopés pour correspondre aux éléments HTML bruts du
-   composant. Ils ne s'appliquent qu'à l'intérieur de
-   .clonage-step grâce à la hiérarchie HTML.
-   ════════════════════════════════════════════════════════════ */
+/* ─── ClonageButtonsCosyVoice.css ───────────────────────────
+   Completes ClonageVoice.css for the CosyVoice cloning panel.
+   Targets the bare HTML elements rendered by the component
+   (fieldset, legend, label, p, input[type=radio]).
+──────────────────────────────────────────────────────────── */
+
+/* Main panel — vertical rhythm identical to .clonage-panel */
+.clonage-step > div:not(.model-cards) {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── Method selector fieldset ───────────────────────────── */
 
 fieldset {
   display: flex;
@@ -384,7 +358,7 @@ legend {
   padding: 0 6px;
 }
 
-/* Ligne radio */
+/* Each radio row */
 fieldset label {
   display: flex;
   align-items: center;
@@ -395,15 +369,14 @@ fieldset label {
   cursor: pointer;
 }
 
-/* Description sous chaque radio */
-fieldset > p {
+/* Description paragraph under each radio */
+fieldset p {
   font-size: 12px;
   color: var(--text-secondary);
   margin: 0 0 4px 22px;
-  line-height: 1.4;
 }
 
-/* Sous-fieldset (toggle Method instruction) */
+/* Sub-fieldset (Method instruction toggle) */
 fieldset fieldset {
   border: 1px dashed var(--border);
   background: transparent;
@@ -411,13 +384,22 @@ fieldset fieldset {
   gap: 6px;
 }
 
-/* ─── Bouton documentation spéciale tokens ────────────────── */
+/* ─── Error box (.issue) ─────────────────────────────────── */
 
-/*
-  .ButtonDoc a spécificité (0,1,0) + hover (0,2,0).
-  Les deux l'emportent sur button:hover (0,1,1) → pas de fond vert.
-*/
-.ButtonDoc {
+.issue {
+  padding: 10px 14px;
+  background: #fdf0ee;
+  border: 1px solid #f5c4b3;
+  border-radius: 8px;
+}
+
+.issue p {
+  font-size: 13px;
+  color: var(--danger);
+  margin: 0;
+}
+
+.ButtonDoc{
   padding: 8px 14px;
   background-color: #f1f5f9;
   border: 1px solid #cbd5e1;
@@ -426,15 +408,9 @@ fieldset fieldset {
   font-size: 0.875rem;
   font-weight: 600;
   color: #334155;
-  display: inline-flex;
+  margin-bottom: 12px;
+  display: flex;
   align-items: center;
   gap: 6px;
-  transition: background-color 0.2s, color 0.2s;
-  align-self: flex-start;
-  margin-bottom: 4px;
-}
-
-.ButtonDoc:hover {
-  background-color: #e2e8f0;
-  color: #0f172a;
+  transition: all 0.2s;
 }

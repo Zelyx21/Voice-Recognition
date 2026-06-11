@@ -1,31 +1,37 @@
-/* ════════════════════════════════════════════════════════════
-   App.css — Root layout & composants UI partagés
-   Importé dans : App.jsx
-   Utilisé par  : IdentifyVoice, Login, Registerdb, Account,
-                  Diarization (via App.jsx global)
-   ════════════════════════════════════════════════════════════ */
+/* ─── Layout ─────────────────────────────────────────────── */
 
-/* ─── Racine ──────────────────────────────────────────────── */
-
-/*
-  Pas de max-width ici : chaque enfant gère sa propre contrainte.
-  Cela permet à Home (.hm) d'être naturellement pleine largeur
-  sans hack de débordement.
-*/
 #root {
-  min-height: 100vh;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding-bottom: 80px;
 }
 
-/* ─── Conteneur de page partagé (.box) ───────────────────── */
+/* ─── Header ─────────────────────────────────────────────── */
+
+#center {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+#center h1 {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+}
+
+/* ─── Sections ───────────────────────────────────────────── */
 
 .box {
-  max-width: 800px;
-  width: calc(100% - 48px); /* 24px de marge de chaque côté */
-  margin: 0 auto;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -38,12 +44,10 @@
 }
 
 .box h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size:20px;
 }
 
-/* ─── Carte info fichier audio ────────────────────────────── */
+/* ─── File info card ─────────────────────────────────────── */
 
 .file-info {
   width: 100%;
@@ -60,6 +64,7 @@
 .file-info p {
   font-size: 14px;
   color: var(--text-secondary);
+  font-weight: 400;
 }
 
 .file-info p strong {
@@ -76,7 +81,7 @@
   outline: none;
 }
 
-/* ─── Groupe de boutons ───────────────────────────────────── */
+/* ─── Buttons ────────────────────────────────────────────── */
 
 input[type="file"] {
   display: none;
@@ -88,16 +93,8 @@ input[type="file"] {
   flex-wrap: wrap;
 }
 
-/* ─── Bouton primaire ─────────────────────────────────────── */
-
-/*
-  Cible les <button> sans classe spéciale ET la classe .button.
-  Les composants qui redéfinissent leurs boutons (.model-card,
-  .remove, .ButtonDoc) ont une spécificité plus élevée (0,1,x)
-  et écrasent ces règles sans conflit.
-*/
-button,
-.button {
+.button,
+button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -111,40 +108,21 @@ button,
   cursor: pointer;
   background-color: var(--accent);
   color: #ffffff;
-  transition: background-color 0.18s, transform 0.12s;
-  text-decoration: none; /* pour les <a class="button"> */
-  white-space: nowrap;
+  transition: background 0.18s, transform 0.12s;
 }
 
-button:hover:not(:disabled),
 .button:hover {
-  background-color: var(--accent-dark);
+  background-color: #255c43;
   transform: translateY(-1px);
 }
 
-button:active:not(:disabled),
 .button:active {
   transform: translateY(0);
 }
 
-/* Désactivé — règle globale, évite les duplications dans les composants */
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-/* ─── Bouton secondaire / fantôme ─────────────────────────── */
-
-/*
-  .remove a spécificité (0,1,0), plus haute que button (0,0,1).
-  Le hover est (0,2,0), plus haut que button:hover (0,1,1) :
-  le background vert ne peut pas déborder ici.
-*/
 .remove {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 500;
@@ -154,31 +132,18 @@ button:disabled {
   cursor: pointer;
   background-color: var(--surface);
   color: var(--text-secondary);
-  transition:
-    border-color  0.15s,
-    background-color 0.15s,
-    color         0.15s,
-    transform     0.12s;
+  transition: border-color 0.15s, color 0.15s, transform 0.12s;
 }
 
 .remove:hover {
   border-color: var(--danger);
-  background-color: var(--danger-light); /* explicite : empêche button:hover de déborder */
   color: var(--danger);
   transform: translateY(-1px);
 }
 
-.remove:active {
-  transform: translateY(0);
-}
+/* ─── Forms ────────────────────────────────────────────── */
 
-/* ─── Champs de formulaire ────────────────────────────────── */
-
-/*
-  Exclut type="file", "checkbox", "radio" et "range" pour éviter
-  de styler des contrôles natifs qui n'en ont pas besoin.
-*/
-input:not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+input {
   width: 100%;
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
@@ -193,40 +158,11 @@ input:not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="r
   box-sizing: border-box;
 }
 
-input:not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus {
+input:focus {
   border-color: var(--accent);
 }
 
 input::placeholder {
   color: var(--text-secondary);
   opacity: 0.6;
-}
-
-/* ─── Blocs de résultat et d'erreur ───────────────────────── */
-
-/* Résultat positif (identification réussie) */
-.result {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px 16px;
-  background: var(--accent-light);
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  font-size: 14px;
-  color: var(--text-primary);
-}
-
-/* Erreur fonctionnelle (issue serveur, validation…) */
-.issue {
-  padding: 10px 14px;
-  background: var(--danger-light);
-  border: 1px solid #f5c4b3;
-  border-radius: 8px;
-}
-
-.issue p {
-  font-size: 13px;
-  color: var(--danger);
-  margin: 0;
 }

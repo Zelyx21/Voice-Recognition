@@ -19,8 +19,8 @@ def diarization_audio(audio_bytes:bytes):
 
     if issue[0]: # if there is an issue with the audio file (no voice detected)
         return {"issue": issue[1], "audios":""}
-    
-    
+            
+
     return result
 
 
