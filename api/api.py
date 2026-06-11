@@ -5,9 +5,9 @@ A python file in which is built our API fastAPI
 from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from torch import Optional
+from typing import Optional
 
-from api.actions.clonage_voice import clonage_voice_CosyVoice, voice_clonage_OpenVoice
+from api.actions.clonage_voice import clonage_voice_CosyVoice
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database, add_voice_database
 from api.actions.gestion_database import delete_voice_database, delete_compte
@@ -207,16 +207,7 @@ async def clonage(
         f"promptText: {dialect}, emotion: {emotion}, speakingStyle: {speakingStyle}"
     )
  
-    if model_name == "OpenVoice":
-        return voice_clonage_OpenVoice(
-            audio_bytes=audio_bytes,
-            language=language,
-            speaker_key=dialect,
-            text=cloneText,
-            speed=textSpeed
-        )
- 
-    elif (model_name == "CosyVoice"):
+    if (model_name == "CosyVoice"):
         print("Using CosyVoice for voice cloning")
         return clonage_voice_CosyVoice(
             audio_bytes=audio_bytes,

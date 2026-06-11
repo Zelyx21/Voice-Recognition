@@ -56,6 +56,7 @@ function App() {
             <Account user={user} setUser={setUser} setIsAuthenticated={setIsAuthenticated} setToken={setToken} />
           </ProtectedRoute>
         } />
+        
       </Routes>
 
     <ClonageVoice

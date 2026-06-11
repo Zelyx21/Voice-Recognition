@@ -6,12 +6,10 @@ import numpy as np
 import soundfile as sf
 import tempfile
 
-from OpenVoice.openvoice import se_extractor
 from audio.conversion import conversion
 from audio.conversion import ndarray_to_wav_bytes
 
 from audio.processing import resample, denoise, vad
-from OpenVoice.openvoice_clonage import openvoice_clonage
 
 from fastapi.responses import StreamingResponse
 import io
@@ -43,22 +41,6 @@ MODEL_DIR = os.path.join(
 )
 
 cosyvoice_model = AutoModel(model_dir=MODEL_DIR)
-
-from OpenVoice.openvoice_clonage import openvoice_clonage, load_openvoice_models
-
-# Loaded once at server startup, alongside cosyvoice_model
-_ov_converter, _ov_device = load_openvoice_models(device="cpu")
-
-# Warm up the OpenVoice model to avoid long loading times on the first request
-_warmup_fd, _warmup_path = tempfile.mkstemp(suffix=".wav")
-os.close(_warmup_fd)
-sf.write(_warmup_path, np.zeros(16000, dtype=np.float32), 16000)
-try:
-    se_extractor.get_se(_warmup_path, _ov_converter, vad=False)
-except Exception:
-    pass
-finally:
-    os.remove(_warmup_path)
 
 
 app = FastAPI()
@@ -159,27 +141,4 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
         )    
 
 
-def voice_clonage_OpenVoice(audio_bytes:bytes, language="EN",speaker_key="EN_Newest", text="You are testing a student project on voice recognition and voice cloning.", speed=1.0):
-    """
-    Takes raw audio bytes and returns the most similar speaker
-    """
-    print("API reception : OK")
-    raw = conversion(audio_bytes)
-    audio_rs, sr = resample(raw)
-    audio_dn = denoise(audio_rs,sr)
-    audio_by = ndarray_to_wav_bytes(audio_dn, sr)
-    audio, sr, issue = openvoice_clonage(audio_by, language, speaker_key, text, speed, tone_color_converter=_ov_converter, device=_ov_device)
-
-    if issue[0]: # if there is an issue with the audio file (no voice detected)
-        print("Clonage error:", issue[1])
-        return JSONResponse(
-            status_code=400,
-            content={"issue": issue[1]}
-        )    
-    print("Clonage successful, returning audio.")
-    return Response(
-        content=audio,
-        media_type="audio/wav",
-        headers={"Content-Disposition": "inline; filename=clone.wav", "X-Issue": "false"}
-    )
 
