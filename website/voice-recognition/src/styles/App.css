@@ -1,0 +1,161 @@
+/* ─── Layout Global ───────────────────────────────────────── */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Encapsulation intelligente pour donner de la largeur aux pages standards sans casser la navbar */
+main:not(.hm),
+.identify-container,
+.account-container {
+  max-width: 800px;
+  width: 100%;
+  margin: 2rem auto 5rem;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ─── Conteneurs & Sections (.box) ────────────────────────── */
+.box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow);
+}
+
+.box h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+/* ─── Carte d'informations de fichier audio ──────────────── */
+.file-info {
+  width: 100%;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.file-info p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.file-info p strong {
+  color: #3B82F6; /* Accentuation en bleu */
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.file-info audio {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  outline: none;
+  filter: invert(0.9) hue-rotate(180deg); /* Adapter le lecteur audio par défaut au mode sombre */
+}
+
+/* ─── Formulaires & Inputs ────────────────────────────────── */
+input {
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-primary);
+  background-color: rgba(8, 12, 20, 0.5);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.4;
+}
+
+/* ─── Boutons Applicatifs Internes ───────────────────────── */
+input[type="file"] {
+  display: none;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Cible tous les boutons génériques sauf ceux configurés à part dans le Header */
+.button,
+button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #3B82F6 0%, #6D28D9 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 14px rgba(59, 130, 246, 0.25);
+  transition: all 0.2s ease;
+}
+
+.button:hover,
+button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.45);
+}
+
+.button:active,
+button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):active {
+  transform: translateY(0);
+}
+
+/* Boutons de suppression / secondaires */
+.remove {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background-color: transparent;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+.remove:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.05);
+  transform: translateY(-1px);
+}

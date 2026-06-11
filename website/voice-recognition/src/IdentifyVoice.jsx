@@ -1,8 +1,7 @@
 import { useState, useRef } from 'react'
-import './App.css'
+import './styles/App.css'
 import { useApi } from './hooks/useAPI'
 import { useRecording } from './hooks/useRecording'
-import Diarization from './Diarization'
 
 function IdentifyVoice() {
 
@@ -150,11 +149,6 @@ function IdentifyVoice() {
                                 : "Identify speaker"
                         }
                     </button>
-                    {(audioBlob || audioFile) && (
-
-                        <Diarization audioBlob={audioBlob} audioFile={audioFile}/>
-
-                    )}
 
                     {result && !result.issue && (
 

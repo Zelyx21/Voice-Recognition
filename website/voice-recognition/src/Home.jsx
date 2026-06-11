@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
-import './Home.css'
+import './styles/Home.css'
+import './styles/header.css'
+
 
 /* ── Animated audio-visualizer bars ─────────────────────────────── */
 const AudioBars = ({ count = 48, className = '' }) => (
@@ -46,7 +48,7 @@ const FEATURES = [
     color: 'violet',
     d: 'M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3m4-8v8m-4-4h8',
     title: 'Voice Cloning',
-    desc: 'Clone your registered voice across languages, emotional tones, and styles using CosyVoice neural synthesis.',
+    desc: 'Clone your registered voice across languages, emotional tones, and styles using Fun-CosyVoice 3.0.',
     link: '#cloning',
     cta: 'Explore cloning',
     locked: true,
@@ -97,14 +99,14 @@ export default function Home({ isAuthenticated, user }) {
       <section className="hm-hero">
         <AudioBars count={56} className="hm-hero__bars" />
         <div className="hm-hero__content">
-          <span className="hm-badge">Dell Technologies Internship · 2025</span>
+          <span className="hm-badge">Dell Technologies Internship · 2026</span>
           <h1 className="hm-hero__title">
             <span className="hm-gradient">Voice</span>ID
           </h1>
           <p className="hm-hero__sub">Identify &middot; Clone &middot; Analyze</p>
           <p className="hm-hero__desc">
-            A full-stack voice intelligence platform built on neural speaker embeddings
-            and zero-shot synthesis — developed as part of our L3&nbsp;MIASHS internship
+            A voice intelligence platform built on speaker embeddings
+            — developed as part of our L3&nbsp;MIASHS internship
             at&nbsp;Dell&nbsp;Technologies.
           </p>
           <div className="hm-hero__actions">
@@ -210,10 +212,10 @@ export default function Home({ isAuthenticated, user }) {
               four distinct modes:
             </p>
             <ul className="hm-modes">
-              <li><strong>Cross-lingual</strong> — keep your timbre, speak in another language</li>
-              <li><strong>Instructed</strong> — guide emotion, pace, and tone via a text prompt</li>
               <li><strong>Zero-shot</strong> — synthesize from a short reference clip only</li>
-              <li><strong>Fine-tuned</strong> — higher fidelity via speaker-specific training</li>
+              <li><strong>Cross-lingual</strong> — keep your timbre, speak in another language</li>
+              <li><strong>Guided instruction</strong> — Select emotion and speaking style</li>
+              <li><strong>Custom instruction</strong> — guide emotion, pace, and tone via a text prompt</li>
             </ul>
             {isAuthenticated
               ? <Link to="/account" className="hm-btn hm-btn--primary">Open Voice Cloning</Link>
@@ -238,12 +240,11 @@ export default function Home({ isAuthenticated, user }) {
 
             <div className="hm-about__card hm-about__card--dell">
               <p className="hm-about__label">Internship host</p>
-              <div className="hm-dell-logo" aria-label="Dell">dell</div>
+              <div className="hm-dell-logo" aria-label="Dell">Dell</div>
               <h3>Dell Technologies</h3>
               <p>
-                This project was developed as a research and engineering internship
-                within Dell Technologies, exploring practical applications of biometric
-                voice analysis and neural speech synthesis.
+                This project was developed in order to showcase the possible results 
+                of a two-month voice recognition project using only open-source tools.
               </p>
             </div>
 
@@ -251,9 +252,9 @@ export default function Home({ isAuthenticated, user }) {
               <p className="hm-about__label">Academic context</p>
               <h3>L3 MIASHS · Paul Valéry Montpellier</h3>
               <p>
-                We recently validated our third year of the MIASHS programme —
+                We did this internship in the conclusion of our third year of the MIASHS programme —
                 Mathematics and Computer Science Applied to Humanities and Social
-                Sciences — at Université Paul Valéry Montpellier&nbsp;3.
+                Sciences — at Université Paul Valéry Montpellier.
               </p>
             </div>
 
@@ -286,7 +287,7 @@ export default function Home({ isAuthenticated, user }) {
       <footer className="hm-footer">
         <p>
           VoiceID &nbsp;·&nbsp; L3 MIASHS &nbsp;·&nbsp;
-          Université Paul Valéry Montpellier 3 &nbsp;·&nbsp;
+          Université Paul Valéry Montpellier &nbsp;·&nbsp;
           Dell Technologies Internship 2025
         </p>
       </footer>

@@ -4,7 +4,7 @@ export default function Statistics() {
   return (
     <div>
       <p>
-        Page stat
+        Works in progress
       </p>
  
     </div>

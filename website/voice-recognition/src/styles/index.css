@@ -1,0 +1,26 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #080C14;           /* Fond ultra sombre de Home.css */
+  --surface: #0F172A;      /* Surfaces de cartes */
+  --border: #1E293B;       /* Bordures discrètes */
+  --text-primary: #F1F5F9;  /* Texte clair */
+  --text-secondary: #94A3B8;/* Texte secondaire/atténué */
+  --accent: #3B82F6;       /* Bleu électrique */
+  --accent-light: rgba(59, 130, 246, 0.1);
+  --danger: #EF4444;
+  --danger-light: rgba(239, 68, 68, 0.1);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import './App.css'
+import './styles/App.css'
 import IdentifyVoice from './IdentifyVoice.jsx'
 import Header from './header.jsx'
 import RegisterDB from './Registerdb.jsx'
@@ -8,7 +8,7 @@ import Account from './Account.jsx'
 import Home from './Home.jsx'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import ClonageVoice from './ClonageVoice.jsx'
-
+import Statistics from './Statistics.jsx'
 
 function ProtectedRoute({ isAuthenticated, children }) {
   const navigate = useNavigate()
@@ -36,8 +36,10 @@ function App() {
       <Header
         isAuthenticated={isAuthenticated} user={user} setIsAuthenticated={setIsAuthenticated} setUser={setUser} />
       <Routes>
-        <Route path="/" element={<IdentifyVoice />} />
-        <Route path="/Home" element={<Home />} />
+        <Route path="/Voice_Recognition" element={<IdentifyVoice />} />
+        <Route path="/" element={<Home isAuthenticated={isAuthenticated} user={user}/>} />
+
+        <Route path="/Statistics" element={<Statistics />} />
 
 
         <Route path="/register" element={
@@ -56,11 +58,15 @@ function App() {
             <Account user={user} setUser={setUser} setIsAuthenticated={setIsAuthenticated} setToken={setToken} />
           </ProtectedRoute>
         } />
-        
+        <Route path="/Clonage" element={
+          
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ClonageVoice isAuthenticated={isAuthenticated}/>
+          </ProtectedRoute>
+        } />
+
       </Routes>
 
-    <ClonageVoice
-        isAuthenticated={isAuthenticated} user={user} setIsAuthenticated={setIsAuthenticated} setUser={setUser} />
       </>
   )
 }

@@ -1,12 +1,11 @@
-
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import './header.css'
-import dellLogo from './dell_logo.png'
-import Account from './Account'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
+import './styles/header.css'
+import dellLogo from './styles/dell_logo.png'
 
 function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
   const navigate = useNavigate()
+  const location = useLocation()
+
   const logout = () => {
     sessionStorage.removeItem("token")
     sessionStorage.removeItem("user")
@@ -15,30 +14,47 @@ function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
     navigate("/")
   }
 
+  const isActive = (path) => location.pathname === path ? "nav-link active" : "nav-link"
 
   return (
-    <main id="center" style={{ justifyContent: "space-between" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        <img src={dellLogo} alt="Logo DELL" className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
-        <h1 onClick={() => navigate("/")} style={{ cursor: "pointer" }}>Voice Recognition</h1>
+    <header className="site-header">
+      <div className="header-brand" onClick={() => navigate("/")}>
+        <img src={dellLogo} alt="Logo DELL" className="header-logo" />
+        <span className="brand-title">
+          <span className="gradient-text">Voice</span>ID
+        </span>
       </div>
 
-      <div style={{ display: "flex", gap: "12px" }}>
+      {/* CENTRE : Liens de navigation principale */}
+      <nav className="header-nav">
+        <Link to="/" className={isActive("/")}>Home</Link>
+        <Link to="/Voice_Recognition" className={isActive("/Voice_Recognition")}>Voice Recognition</Link>
+        <Link to="/Clonage" className={isActive("/Clonage")}>Voice Cloning</Link>
+        <Link to="/Statistics" className={isActive("/Statistics")}>Statistics</Link>
+      </nav>
+
+      {/* DROITE : Actions d'authentification conditionnelles */}
+      <div className="header-actions">
         {isAuthenticated ? (
           <>
-            <p style={{ color: "var(--text-primary)" }}>Welcome, {user.name}</p>
-            <button onClick={() => {navigate("/account")}}>Account</button>
-            <button onClick={logout}>Logout</button>
+            <Link to="/account" className="account-link">
+              <span>Account</span>
+              {user?.name && (
+                <span className="user-badge">
+                  {user.name}
+                </span>
+              )}
+            </Link>
+            <button className="btn-logout" onClick={logout}>Log out</button>
           </>
         ) : (
           <>
-            <button onClick={() => navigate("/login")}>Login</button>
-            <button onClick={() => navigate("/register")}>Register</button>
+            <button className="btn-login" onClick={() => navigate("/login")}>Log in</button>
+            <Link to="/register" className="btn-register">Create an account</Link>
           </>
-        )
-        }
+        )}
       </div>
-    </main>
+    </header>
   )
 }
 
