@@ -2,10 +2,8 @@ from audio.conversion import conversion
 from audio.processing import resample, denoise, vad
 from ai.embedding import embedding
 from database.Qdrant import search_similarity_attributes
-from qdrant_client import QdrantClient
 from ai.diari_speechbrain import diarizations
 
-client = QdrantClient(host="localhost", port = 6333)
 
 def voice_similarity(audio_bytes:bytes):
     """
@@ -22,7 +20,7 @@ def voice_similarity(audio_bytes:bytes):
     emb = embedding(audio)
 
     #change later to have more similar speakers ? 
-    results = search_similarity_attributes(client=client, base="voice_data_base", query_vector=emb.tolist(), top_k=1)
+    results = search_similarity_attributes(query_vector=emb.tolist(), top_k=1)
     print("results: \n" + str(results))
 
 

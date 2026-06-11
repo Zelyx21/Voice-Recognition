@@ -22,7 +22,8 @@ export default function InstructForm({ instruction, onChange }) {
         id="instruction"
         value={instruction}
         rows={3}
-        placeholder="e.g. Speak as if reading a bedtime story to a child."
+        placeholder="e.g. Please say a sentence as loudly as possible.
+        e.g. Can you try answering in a robotic way?"
         onChange={(e) => onChange(e.target.value)}
       />
  

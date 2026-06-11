@@ -1,8 +1,9 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import './App.css'
+import './header.css'
 import dellLogo from './dell_logo.png'
+import Account from './Account'
 
 function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
   const navigate = useNavigate()
@@ -13,6 +14,7 @@ function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
     setUser(null)
     navigate("/")
   }
+
 
   return (
     <main id="center" style={{ justifyContent: "space-between" }}>
@@ -25,6 +27,7 @@ function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
         {isAuthenticated ? (
           <>
             <p style={{ color: "var(--text-primary)" }}>Welcome, {user.name}</p>
+            <button onClick={() => {navigate("/account")}}>Account</button>
             <button onClick={logout}>Logout</button>
           </>
         ) : (

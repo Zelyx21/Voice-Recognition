@@ -7,6 +7,7 @@ function RegisterDB() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [audio_name, setAudio_name] = useState("")
   const [result, setResult] = useState(null)
   const [mode, setMode] = useState(null)
   const [success, setSuccess] = useState(null)
@@ -19,6 +20,7 @@ function RegisterDB() {
     if (!name) return "Please enter a name"
     if (!email) return "Please enter an email"
     if (!password) return "Please enter a password"
+    if (!audio_name) return "Please enter an audio name"
     if (!audioBlob && !audioFile) return "Please record or import an audio file of your voice"
     return null
   }
@@ -38,6 +40,7 @@ function RegisterDB() {
     formData.append("name", name)
     formData.append("email", email)
     formData.append("password", password)
+    formData.append("audio_name", audio_name)
 
     const data = await call("/registerdb", { method: "POST", body: formData })
     if (data) {
@@ -70,6 +73,13 @@ function RegisterDB() {
         type="password"
         id="password"
         onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <label>Audio name</label>
+      <input
+        type="text"
+        id="audio_name"
+        onChange={(e) => setAudio_name(e.target.value)}
       />
 
       <label>Voice</label>

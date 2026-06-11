@@ -2,11 +2,9 @@ from audio.conversion import conversion
 from audio.processing import resample, denoise, vad
 from ai.embedding import embedding
 from database.Qdrant import insert_secure, add_secure
-from qdrant_client import QdrantClient
 import bcrypt
 
 
-client = QdrantClient(host="localhost", port = 6333)
 
 def register_database(audio_bytes:bytes, email, name, password, audio_name):
     """
@@ -24,7 +22,7 @@ def register_database(audio_bytes:bytes, email, name, password, audio_name):
 
     print("\n"+audio_name)
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    insert_secure(client=client, base="voice_data_base", name=name, email=email, vector=emb.tolist(), password=hashed, audio_name=audio_name)
+    insert_secure(name=name, email=email, vector=emb.tolist(), password=hashed, audio_name=audio_name)
     return {"status": "success"}
 
 
@@ -41,6 +39,6 @@ def add_voice_database(audio_bytes:bytes, email, audio_name):
     
     emb = embedding(audio)
 
-    add_secure(client=client, base="voice_data_base", email=email, vector=emb.tolist(), audio_name=audio_name)
+    add_secure(email=email, vector=emb.tolist(), audio_name=audio_name)
     
     return {"status": "success"}

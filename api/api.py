@@ -10,6 +10,7 @@ from typing import Optional
 from api.actions.clonage_voice import clonage_voice_CosyVoice, voice_clonage_OpenVoice
 from api.actions.voice_similarity import voice_similarity
 from api.actions.register_database import register_database, add_voice_database
+from api.actions.gestion_database import delete_voice_database, delete_compte
 from api.actions.login import authenticate_user, clean_embedding
 from api.actions.auth import verify_token
 from api.actions.AudioToSpeech import AudioToSpeech
@@ -30,6 +31,7 @@ from slowapi.util import get_remote_address
 
 #uvicorn api.api:app --host 0.0.0.0 --port 8000
 
+#uvicorn api.api:app --reload --reload-dir api --reload-exclude "pretrained_models/*"
 
 app = FastAPI()
 
@@ -72,9 +74,9 @@ async def identify(file: UploadFile = File(...)):
     return voice_similarity(audio_bytes)
 
 @app.post("/registerdb")
-async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str=Form(...), password:str=Form(...)):
+async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str=Form(...), password:str=Form(...), audio_name:str=Form(...)):
     try:
-        RegisterSchema(name=name, email=email, password=password)
+        RegisterSchema(name=name, email=email, password=password, audio_name=audio_name)
     except Exception as e:
         messages = [err["msg"].replace("Value error, ", "") for err in e.errors()]
         raise HTTPException(status_code=422, detail=", ".join(messages))
@@ -86,13 +88,13 @@ async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str
     if len(audio_bytes) == 0:
         raise HTTPException(status_code=422, detail = "Audio file is empty")
     
-    register_database(audio_bytes,email, name, password, audio_name="First recording")
+    register_database(audio_bytes,email, name, password, audio_name)
     return {"status":"success"}
 
 @app.post("/add_voice_db")
 async def add_voice_db(file: UploadFile = File(...), email:str=Form(...), audio_name:str=Form(...)):
     try:
-        AddVoiceSchema(audio_name=audio_name)
+        AddVoiceSchema(audio_name=audio_name, email=email)
     except Exception as e:
         messages = [err["msg"].replace("Value error, ", "") for err in e.errors()]
         raise HTTPException(status_code=422, detail=", ".join(messages))
@@ -104,9 +106,24 @@ async def add_voice_db(file: UploadFile = File(...), email:str=Form(...), audio_
     if len(audio_bytes) == 0:
         raise HTTPException(status_code=422, detail = "Audio file is empty")
     
-    add_voice_database(audio_bytes,email, audio_name="second recording")
+    add_voice_database(audio_bytes,email, audio_name)
+
+    
     return {"status":"success"}
 
+@app.post("/delete_voice_db")
+async def delete_voice_db(email:str=Form(...), audio_name:str=Form(...)):
+
+    delete_voice_database(email, audio_name)
+    
+    return {"status":"success"}
+
+@app.post("/delete_compte")
+async def delete_compte_route(email:str=Form(...)):
+
+    delete_compte(email)
+    
+    return {"status":"success"}
 
 @app.post("/login")
 @limiter.limit("5/minute")
@@ -171,12 +188,14 @@ async def clonage(
     file: UploadFile = File(...),
     model_name: str = Form(...),
     cloneText: str = Form(...),
-    textSpeed: float = Form(...),
+    
+    textSpeed: Optional[float] = Form(1.0),
+    language: Optional[str] = Form(None),
+    dialect: Optional[str] = Form(None),
 
-    cloneNationality: Optional[str] = Form(None),
-    textLanguage: Optional[str] = Form(None),
-
-    promptText: Optional[str] = Form(None),       
+    cloneMethod: Optional[str] = Form(None),
+    transcriptAudio: Optional[str] = Form(None),    
+    instruction: Optional[str] = Form(None),    
     emotion: Optional[str] = Form(None),          
     speakingStyle: Optional[str] = Form(None),    
 ):
@@ -184,30 +203,36 @@ async def clonage(
     print(
         f"Received file: {file.filename}, model_name: {model_name}, "
         f"cloneText: {cloneText}, textSpeed: {textSpeed}, "
-        f"cloneNationality: {cloneNationality}, textLanguage: {textLanguage}, "
-        f"promptText: {promptText}, emotion: {emotion}, speakingStyle: {speakingStyle}"
+        f"cloneNationality: {language}, textLanguage: {dialect}, "
+        f"promptText: {dialect}, emotion: {emotion}, speakingStyle: {speakingStyle}"
     )
  
     if model_name == "OpenVoice":
         return voice_clonage_OpenVoice(
             audio_bytes=audio_bytes,
-            language=textLanguage,
-            speaker_key=cloneNationality,
+            language=language,
+            speaker_key=dialect,
             text=cloneText,
             speed=textSpeed
         )
  
-    else:
+    elif (model_name == "CosyVoice"):
         print("Using CosyVoice for voice cloning")
         return clonage_voice_CosyVoice(
             audio_bytes=audio_bytes,
-            model_clonage="zero_shot",
+            model_clonage=cloneMethod,
             text=cloneText,
             speed=textSpeed,
-            language=cloneNationality,
-            dialect=textLanguage,
-            prompt_text=promptText or "",
+            language=language,
+            dialect=dialect,
+
+            transcriptAudio=transcriptAudio,
+            instruction=instruction,
             emotion=emotion,
             speaking_style=speakingStyle,
         )
+    else:
+        raise HTTPException(status_code=422, detail="model name for cloning doesn't exist !")
+
+    
     

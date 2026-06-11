@@ -21,7 +21,15 @@ function Diarization({audioBlob, audioFile}) {
         }
 
         const data = await call("/diarization", { method: "POST", body: formData })
-        if (data) setResult_diari(data)
+        if (data) {
+            if (data.issue) {
+                setError(data.issue)
+                return
+            }
+            
+            setResult_diari(data)
+
+        }
     }
 
     return (

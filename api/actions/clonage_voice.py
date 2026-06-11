@@ -11,7 +11,6 @@ from audio.conversion import conversion
 from audio.conversion import ndarray_to_wav_bytes
 
 from audio.processing import resample, denoise, vad
-from qdrant_client import QdrantClient
 from OpenVoice.openvoice_clonage import openvoice_clonage
 
 from fastapi.responses import StreamingResponse
@@ -33,7 +32,7 @@ sys.path.insert(
     os.path.join(COSYVOICE_DIR, "third_party", "Matcha-TTS")
 )
 
-from CosyVoiceFunction import synthesize_zero_shot, Emotion, SpeakingStyle, synthesize_multilingual, synthesize_instruct
+from CosyVoiceFunction import preset_instruct, synthesize_cross_lingual, synthesize_zero_shot, Emotion, SpeakingStyle, synthesize_instruct
 from cosyvoice.cli.cosyvoice import AutoModel
 
 # Modèle
@@ -66,10 +65,9 @@ app = FastAPI()
 from fastapi.responses import JSONResponse, Response
 
 
-client = QdrantClient(host="localhost", port = 6333)
 #En allant au marché je croise deux hommes, accompagnés chacun de deux femmes, accompagnées chacune de deux enfants. Combien de personnes vont aux marché ?
 
-def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are testing a student project on voice recognition and voice cloning.", speed=1.0, prompt_text="", emotion=None, speaking_style=None, language=None, dialect=None, seed=None):
+def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are testing a student project on voice recognition and voice cloning.", speed=1.0, transcriptAudio="", instruction="", emotion=None, speaking_style=None, language=None, dialect=None, seed=None):
     """
     Takes raw audio bytes and returns the most similar speaker
     """
@@ -81,9 +79,8 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
 
     if model_clonage == "zero_shot":
         result = synthesize_zero_shot(model=cosyvoice_model,
-                                    prompt_audio_path=audio_by,
-                                    text=text, prompt_text=prompt_text or "",
-                                    emotion=emotion, speaking_style=speaking_style,
+                                    audio_bytes_reference=audio_by,
+                                    text=text, prompt_text=transcriptAudio or "",
                                     speed=speed, seed=seed
                                     )
         return Response(
@@ -98,10 +95,10 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
         }
     )
     
-    elif model_clonage == "multi-language":
-        result = synthesize_multilingual(model=cosyvoice_model,
-                                    prompt_audio_path=audio_by,
-                                    text=text,seed=seed
+    elif model_clonage == "multilingual":
+        result = synthesize_cross_lingual(model=cosyvoice_model,
+                                    audio_bytes_reference=audio_by,
+                                    prompt_text=text,seed=seed
                                     )
 
         return Response(
@@ -117,9 +114,9 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
     )   
     elif model_clonage == "synthesize_instruct":
         result = synthesize_instruct(model=cosyvoice_model,
-                            prompt_audio_path=audio_by, language=language,
+                            audio_bytes_reference=audio_by, language=language,
                             dialect=dialect,
-                            text=text, instruction=prompt_text,
+                            text=text, instruction=instruction,
                             speed=speed, seed=seed
                             )
 
@@ -133,6 +130,26 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
             "X-Audio-Duration-S": str(result.audio_duration_s),
             "X-RTF": str(result.real_time_factor),
         }
+    )
+    elif model_clonage == "preset_instruct":
+        result = preset_instruct(model=cosyvoice_model,
+                            audio_bytes_reference=audio_by, language=language,
+                            dialect=dialect, emotion=emotion, speaker_style=speaking_style,
+                            text=text,
+                            speed=speed, seed=seed
+                            )
+
+        return Response(
+        content=result.audio_bytes,
+        media_type="audio/wav",
+        headers={
+            "Content-Disposition": "inline; filename=clone.wav",
+            "X-Issue": "false",
+            "X-Generation-Time-Ms": str(result.generation_time_ms),
+            "X-Audio-Duration-S": str(result.audio_duration_s),
+            "X-RTF": str(result.real_time_factor),
+        }
+        
     )
     else:
         return

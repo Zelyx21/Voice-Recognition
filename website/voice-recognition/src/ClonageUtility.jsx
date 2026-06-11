@@ -54,8 +54,8 @@ export default function ClonageUtility({ audioBlob, cloningMode }) {
     const formData = new FormData()
     formData.append('file', new File([audioBlob], 'recording.wav', { type: 'audio/wav' }))
     formData.append('textSpeed', params.speed)
-    formData.append('textLanguage', params.language)
-    formData.append('cloneNationality', params.speaker)
+    formData.append('dialect', params.language)
+    formData.append('language', params.speaker)
     formData.append('cloneText', params.text)
     formData.append('model_name', cloningMode)
 
