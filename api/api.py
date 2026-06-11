@@ -188,12 +188,14 @@ async def clonage(
     file: UploadFile = File(...),
     model_name: str = Form(...),
     cloneText: str = Form(...),
-    textSpeed: float = Form(...),
+    
+    textSpeed: Optional[float] = Form(1.0),
+    language: Optional[str] = Form(None),
+    dialect: Optional[str] = Form(None),
 
-    cloneNationality: Optional[str] = Form(None),
-    textLanguage: Optional[str] = Form(None),
-
-    promptText: Optional[str] = Form(None),       
+    cloneMethod: Optional[str] = Form(None),
+    transcriptAudio: Optional[str] = Form(None),    
+    instruction: Optional[str] = Form(None),    
     emotion: Optional[str] = Form(None),          
     speakingStyle: Optional[str] = Form(None),    
 ):
@@ -201,30 +203,36 @@ async def clonage(
     print(
         f"Received file: {file.filename}, model_name: {model_name}, "
         f"cloneText: {cloneText}, textSpeed: {textSpeed}, "
-        f"cloneNationality: {cloneNationality}, textLanguage: {textLanguage}, "
-        f"promptText: {promptText}, emotion: {emotion}, speakingStyle: {speakingStyle}"
+        f"cloneNationality: {language}, textLanguage: {dialect}, "
+        f"promptText: {dialect}, emotion: {emotion}, speakingStyle: {speakingStyle}"
     )
  
     if model_name == "OpenVoice":
         return voice_clonage_OpenVoice(
             audio_bytes=audio_bytes,
-            language=textLanguage,
-            speaker_key=cloneNationality,
+            language=language,
+            speaker_key=dialect,
             text=cloneText,
             speed=textSpeed
         )
  
-    else:
+    elif (model_name == "CosyVoice"):
         print("Using CosyVoice for voice cloning")
         return clonage_voice_CosyVoice(
             audio_bytes=audio_bytes,
-            model_clonage="zero_shot",
+            model_clonage=cloneMethod,
             text=cloneText,
             speed=textSpeed,
-            language=cloneNationality,
-            dialect=textLanguage,
-            prompt_text=promptText or "",
+            language=language,
+            dialect=dialect,
+
+            transcriptAudio=transcriptAudio,
+            instruction=instruction,
             emotion=emotion,
             speaking_style=speakingStyle,
         )
+    else:
+        raise HTTPException(status_code=422, detail="model name for cloning doesn't exist !")
+
+    
     

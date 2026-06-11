@@ -1,0 +1,163 @@
+/* ════════════════════════════════════════════════════════════
+   DocToken.css — Composant guide des tokens spéciaux
+   Importé dans : forms/DocToken.jsx  (anciennement styleDoc.css)
+   ════════════════════════════════════════════════════════════ */
+
+/* ─── Conteneur principal ─────────────────────────────────── */
+
+.doc-token-wrapper {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #334155;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  max-width: 100%;
+  margin: 16px 0;
+  box-sizing: border-box;
+}
+
+/* ─── Typographie ─────────────────────────────────────────── */
+
+.doc-token-main-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+.doc-token-intro {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #475569;
+  margin-bottom: 24px;
+}
+
+.doc-token-section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 24px 0 10px;
+  border-bottom: 2px solid #cbd5e1;
+  padding-bottom: 6px;
+}
+
+.doc-token-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #475569;
+  margin-bottom: 12px;
+}
+
+/* ─── Tableau ─────────────────────────────────────────────── */
+
+.doc-token-table-responsive {
+  overflow-x: auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.doc-token-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.doc-token-th-row {
+  background-color: #f1f5f9;
+}
+
+.doc-token-th {
+  padding: 12px;
+  font-weight: 600;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+/* Zébrure automatique */
+.doc-token-table tbody tr:nth-child(even) { background-color: #ffffff; }
+.doc-token-table tbody tr:nth-child(odd)  { background-color: #f8fafc; }
+
+.doc-token-td {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+/* Cellule token en bleu */
+.doc-token-td-token {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+  white-space: nowrap;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+/* Cellule exemple en italique */
+.doc-token-td-example {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  font-style: italic;
+  color: #64748b;
+  vertical-align: middle;
+}
+
+.doc-token-sub-text {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Token en rouge (highlight) */
+.doc-token-highlight {
+  color: #dc2626;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+/* ─── Cartes d'exemples ───────────────────────────────────── */
+
+.doc-token-card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0 20px;
+}
+
+.doc-token-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.doc-token-card-header {
+  font-weight: 700;
+  color: #16a34a;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.doc-token-card-body {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #334155;
+}
+
+/* ─── Encadré info ────────────────────────────────────────── */
+
+.doc-token-alert-box {
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  padding: 16px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #1e40af;
+}

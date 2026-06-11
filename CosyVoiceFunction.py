@@ -93,6 +93,16 @@ class SpeakingStyle(str, Enum):
     WARM          = "warm"
     LIVELY        = "lively"
 
+"""
+                '[breath]', '<strong>', '</strong>', '[noise]',
+                '[laughter]', '[cough]', '[clucking]', '[accent]',
+                '[quick_breath]',
+                "<laughter>", "</laughter>",
+                "[hissing]", "[sigh]", 
+                "[lipsmack]"
+
+"""
+
 
 class Language(str, Enum):
     """Target output language for multilingual synthesis."""
@@ -133,42 +143,35 @@ class TTSResult:
 # ══════════════════════════════════════════════════════════════════════════
 
 EMOTION_PROMPTS: dict = {
-    Emotion.HAPPY:      "Speak with a joyful, light, and enthusiastic voice.",
-    Emotion.SAD:        "Speak with a sad, slow, and melancholic voice.",
-    Emotion.ANGRY:      "Speak with an energetic, firm, and angry voice.",
-    Emotion.NEUTRAL:    "Speak with a neutral and natural voice.",
-    Emotion.EXCITED:    "Speak with a very excited, fast, and enthusiastic voice.",
-    Emotion.FEARFUL:    "Speak with a fearful, hesitant, and trembling voice.",
-    Emotion.SURPRISED:  "Speak with an astonished and surprised voice.",
-    Emotion.DISGUSTED:  "Speak with a disgusted and disapproving voice.",
-    Emotion.CALM:       "Speak with a calm, soft, and composed voice.",
-    Emotion.CONFUSED:   "Speak with a hesitant and puzzled voice.",
-    Emotion.EMPATHETIC: "Speak with a gentle, caring, and empathetic voice.",
-    Emotion.DEPRESSED:  "Speak with a very low, slow, and lifeless voice.",
+    Emotion.HAPPY:      "Speak with a joyful, light, and enthusiastic voice",
+    Emotion.SAD:        "Speak with a sad, slow, and melancholic voice",
+    Emotion.ANGRY:      "Speak with an energetic, firm, and angry voice",
+    Emotion.NEUTRAL:    "Speak with a neutral and natural voice",
+    Emotion.EXCITED:    "Speak with a very excited, fast, and enthusiastic voice",
+    Emotion.FEARFUL:    "Speak with a fearful, hesitant, and trembling voice",
+    Emotion.SURPRISED:  "Speak with an astonished and surprised voice",
+    Emotion.DISGUSTED:  "Speak with a disgusted and disapproving voice",
+    Emotion.CALM:       "Speak with a calm, soft, and composed voice",
+    Emotion.CONFUSED:   "Speak with a hesitant and puzzled voice",
+    Emotion.EMPATHETIC: "Speak with a gentle, caring, and empathetic voice",
+    Emotion.DEPRESSED:  "Speak with a very low, slow, and lifeless voice",
 }
 
 STYLE_PROMPTS: dict = {
-    SpeakingStyle.WHISPER:        "while whispering",
-    SpeakingStyle.SHOUT:          "while speaking loudly",
-    SpeakingStyle.STORYTELLING:   "like a storyteller",
-    SpeakingStyle.NEWS:           "like a TV news anchor",
-    SpeakingStyle.COMMERCIAL:     "like a radio advertisement",
-    SpeakingStyle.CHILD:          "with a child's voice",
-    SpeakingStyle.ELDER:          "with an elderly person's voice",
-    SpeakingStyle.MYSTERIOUS:     "in a mysterious way",
-    SpeakingStyle.GENTLE:         "in a soft and gentle way",
-    SpeakingStyle.AUTHORITATIVE:  "with authority and confidence",
-    SpeakingStyle.WARM:           "with warmth and kindness",
-    SpeakingStyle.LIVELY:         "in a lively and animated way",
-    SpeakingStyle.NORMAL:         "",
+    SpeakingStyle.WHISPER:        "while whispering.",
+    SpeakingStyle.SHOUT:          "while speaking loudly.",
+    SpeakingStyle.STORYTELLING:   "like a storyteller.",
+    SpeakingStyle.NEWS:           "like a TV news anchor.",
+    SpeakingStyle.COMMERCIAL:     "like a radio advertisement.",
+    SpeakingStyle.CHILD:          "with a child's voice.",
+    SpeakingStyle.ELDER:          "with an elderly person's voice.",
+    SpeakingStyle.MYSTERIOUS:     "in a mysterious way.",
+    SpeakingStyle.GENTLE:         "in a soft and gentle way.",
+    SpeakingStyle.AUTHORITATIVE:  "with authority and confidence.",
+    SpeakingStyle.WARM:           "with warmth and kindness.",
+    SpeakingStyle.LIVELY:         "in a lively and animated way.",
+    SpeakingStyle.NORMAL:         ".",
 }
-
-INTENSITY_QUALIFIERS = [
-    (0.5, 0.8, "slightly"),
-    (0.8, 1.2, ""),
-    (1.2, 1.6, "very"),
-    (1.6, 2.1, "extremely"),
-]
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -207,60 +210,9 @@ def _build_result(audio_bytes, sample_rate, n_chunks, model_dir, start_time) -> 
         model_used=model_dir,
     )
 
-
-def _build_instruction(emotion, style, speed, extra="") -> str:
-    """Assemble a natural-language instruction string from individual parameters."""
-    parts = []
-    if emotion_text := EMOTION_PROMPTS.get(emotion, ""):
-        parts.append(emotion_text)
-    if style_text := STYLE_PROMPTS.get(style, ""):
-        parts.append(f"Speak {style_text}.")
-    if speed < 0.8:
-        parts.append("Speak slowly.")
-    elif speed > 1.3:
-        parts.append("Speak quickly.")
-    if extra:
-        parts.append(extra)
-    return " ".join(parts) if parts else "Speak naturally."
-
-
-def _build_instruct2_prompt(instruction: str) -> str:
-    """Wrap an instruction into the CosyVoice2 system-prompt format."""
-    return f"You are a helpful assistant. {instruction}<|endofprompt|>"
-
-
 # ══════════════════════════════════════════════════════════════════════════
 # PUBLIC API
 # ══════════════════════════════════════════════════════════════════════════
-
-def load_model(model_dir: str = "pretrained_models/Fun-CosyVoice3-0.5B") -> AutoModel:
-    """
-    Load and return the CosyVoice AutoModel.
-
-    WHY A SEPARATE FUNCTION?
-    The model is large and takes several seconds to load.
-    Load it ONCE at startup (FastAPI lifespan) and pass the instance to
-    every synthesis function — never reload per request.
-
-    Args:
-        model_dir: Path to the pretrained model folder.
-    Returns:
-        Loaded AutoModel instance.
-    """
-    logger.info(f"Loading CosyVoice model from {model_dir} ...")
-    model = AutoModel(model_dir=model_dir)
-    logger.info("Model loaded.")
-    return model
-
-
-def list_emotions() -> dict:
-    """Return all supported emotions mapped to their instruction description."""
-    return {e.value: EMOTION_PROMPTS.get(e, "") for e in Emotion}
-
-
-def list_styles() -> dict:
-    """Return all supported speaking styles mapped to their description."""
-    return {s.value: STYLE_PROMPTS.get(s, "") for s in SpeakingStyle}
 
 def create_audio_path(audio_bytes:bytes):
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
@@ -273,16 +225,7 @@ def prompt_text_adapt(text):
     text_adapt = re.sub(r"\s+", " ", text)
     return text_adapt
 
-def adapt_size_prompt_text( text, prompt_text):
-    #better results if the text to be cloned is longer than the original transcription
-    words_text   = len(text.split())
-    words_prompt = len(prompt_text.split())
-    
-    if words_prompt > words_text:
-        prompt_text = " ".join(prompt_text.split()[:words_text])
-    
-    return prompt_text
-    # -------------------------------------
+initial_instruction = "You are a helpful assistant."
 
 # ── 1. Zero-Shot Voice Cloning ─────────────────────────────────────────────
 
@@ -290,9 +233,7 @@ def synthesize_zero_shot(
     model: AutoModel,
     text: str,
     prompt_text: str,
-    prompt_audio_path: str,
-    emotion: Emotion = Emotion.NEUTRAL,
-    speaking_style: SpeakingStyle = SpeakingStyle.NORMAL,
+    audio_bytes_reference: bytes,
     speed: float = 1.0,
     output_format: OutputFormat = OutputFormat.WAV,
     seed: Optional[int] = None,
@@ -300,47 +241,37 @@ def synthesize_zero_shot(
     """
     Clone a voice from a reference audio sample and synthesize new speech.
 
-    WHY THIS FUNCTION EXISTS (vs a generic TTS):
     Zero-shot cloning replicates the *timbre and identity* of a reference
-    speaker without any fine-tuning. The model listens to a short WAV clip
+    speaker. The model listens to a short WAV clip
     (5-30s) and reproduces that exact voice on new text.
-    Use this when you have an actual audio sample of the target speaker.
-
-    Emotion is injected as a hint appended to prompt_text. The model uses it
-    as prosody guidance while preserving the cloned voice identity.
 
     Args:
         text:              Text to synthesize.
         prompt_text:       Exact transcript of the reference audio clip.
                            MUST match the audio or quality degrades badly.
-        prompt_audio_path: Path to the reference WAV file (5-30s recommended).
-        emotion:           Emotional tone to apply.
-        speaking_style:    Delivery style (whisper, news anchor, etc.).
+        audio_bytes:       Raw audio bytes of the reference clip.
         speed:             Speech rate multiplier (0.5=slow, 1.0=normal, 2.0=fast).
         output_format:     WAV or MP3.
         seed:              Fixed seed for reproducible output.
     Returns:
         TTSResult with audio bytes and performance metrics.
     """
+
     _set_seed(seed)
     start = time.time()
 
-    audio_path = create_audio_path(prompt_audio_path)
+    audio_path = create_audio_path(audio_bytes_reference)
 
     prompt_text = prompt_text or "" 
-    #prompt_text = prompt_text_adapt(prompt_text)
-    prompt_text = adapt_size_prompt_text(text=text, prompt_text=prompt_text)
+    prompt_text = prompt_text.strip()
+    prompt_text = prompt_text_adapt(prompt_text)
+    
+    clean_text = text.strip()
 
-    emotion_hint = EMOTION_PROMPTS.get(emotion, "")
-    style_hint = STYLE_PROMPTS.get(speaking_style, "")
-    extra = f"{emotion_hint} {style_hint}".strip()
-    #augmented_prompt = f"{prompt_text}<|endofprompt|>" 
-    augmented_prompt = prompt_text_adapt(prompt_text)
-
-    augmented_text = f"{extra} {text}".strip() if extra else text
+    augmented_prompt = f"{initial_instruction}<|endofprompt|>{prompt_text}"     
 
     chunks = list(model.inference_zero_shot(
-        augmented_text, augmented_prompt, audio_path, speed=speed, stream=False
+        clean_text, augmented_prompt, audio_path, speed=speed, stream=False
     ))
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
 
@@ -356,7 +287,7 @@ def synthesize_instruct(
     model: AutoModel,
     text: str,
     instruction: str,
-    prompt_audio_path: str,
+    audio_bytes_reference: bytes,
     language : str,
     dialect : str,
     output_format: OutputFormat = OutputFormat.WAV,
@@ -366,11 +297,8 @@ def synthesize_instruct(
     """
     Synthesize speech guided by a free natural-language instruction.
 
-    WHY THIS FUNCTION EXISTS:
-    Emotion presets cover common cases, but sometimes you need precise,
-    unconventional control: "Speak like you're reading a bedtime story to a
-    3-year-old while slightly out of breath." No enum can cover that.
-    This passes your instruction string directly to instruct2 — full freedom.
+    Permit to precise unconventional control: "Speak like you're reading a bedtime story to a
+    3-year-old while slightly out of breath." 
 
     Args:
         instruction: Any natural-language directive, e.g.
@@ -380,16 +308,17 @@ def synthesize_instruct(
     """
     _set_seed(seed)
     start = time.time()
-    audio_path = create_audio_path(prompt_audio_path)
+    audio_path = create_audio_path(audio_bytes_reference)
+    init_instruction = initial_instruction
 
-    lang_instr = f"Speak in {language.value}"
-    if dialect:
-        lang_instr += f" with a {dialect} accent. "
+    if language is not None and language != "None":
+        lang_instr = f"Speak in {language}. "
+        if dialect:
+            lang_instr = lang_instr.replace(". ",f" with a {dialect} accent. ") 
+        init_instruction += lang_instr 
 
-    prompt = lang_instr + instruction
-
-    full_prompt = _build_instruct2_prompt(prompt)
-    chunks = list(model.inference_instruct2(text, full_prompt, audio_path, speed=speed, stream=False))
+    instruction = initial_instruction + instruction + "<|endofprompt|>"
+    chunks = list(model.inference_instruct2(text, instruction, audio_path, speed=speed, stream=False))
 
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
@@ -399,20 +328,19 @@ def synthesize_instruct(
 
 def synthesize_cross_lingual(
     model: AutoModel,
-    text: str,
-    prompt_audio_path: str,
+    prompt_text: str,
+    audio_bytes_reference: bytes,
     output_format: OutputFormat = OutputFormat.WAV,
     seed: Optional[int] = None,
 ) -> TTSResult:
     """
     Synthesize speech with inline paralinguistic tags: [breath], [laughter].
 
-    Zero-shot and instruct work at the *sentence level* — you set an overall tone.
     Cross-lingual inference works at the *token level*: you insert [breath] or
     [laughter] at exact positions in the sentence, producing hyper-realistic,
     human-sounding speech with natural hesitations and reactions.
 
-    Use this for podcasts, audiobooks, dialogue systems, or any output where
+    Use for podcasts, audiobooks, dialogue systems, or any output where
     naturalness matters more than emotion control.
 
     Text example:
@@ -425,21 +353,32 @@ def synthesize_cross_lingual(
     """
     _set_seed(seed)
     start = time.time()
-    audio_path = create_audio_path(prompt_audio_path)
+    audio_path = create_audio_path(audio_bytes_reference)
 
-    chunks = list(model.inference_cross_lingual(text, audio_path, stream=False))
+
+    prompt_text = prompt_text or "" 
+    prompt_text = prompt_text.strip()
+    #prompt_text = prompt_text_adapt(prompt_text)
+    
+    instruction = "You are a helpful assistant."
+    
+    augmented_prompt = f"{instruction}<|endofprompt|>{prompt_text}"     
+
+    print(f"augmented_prompt = {augmented_prompt}")
+    chunks = list(model.inference_cross_lingual(augmented_prompt, audio_path, stream=False))
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
 # ── 4. Multilingual + Dialect ──────────────────────────────────────────────
 
-def synthesize_multilingual(
+def preset_instruct(
     model: AutoModel,
     text: str,
-    prompt_audio_path: str,
+    audio_bytes_reference: bytes,
     language: Language,
     dialect: Optional[str] = None,
     emotion: Emotion = Emotion.NEUTRAL,
+    speaker_style: SpeakingStyle = SpeakingStyle.NORMAL,
     speed: float = 1.0,
     output_format: OutputFormat = OutputFormat.WAV,
     seed: Optional[int] = None,
@@ -447,34 +386,40 @@ def synthesize_multilingual(
     """
     Synthesize speech in a specific language and optional regional dialect.
 
-    WHY THIS FUNCTION EXISTS:
     CosyVoice2 supports Chinese, English, Japanese, Korean, and Cantonese —
     but defaults to Mandarin even for dialectal text unless explicitly told
-    otherwise. This function handles the language/dialect instruction so you
-    never have to think about it.
-
-    It also enables cross-cloning: record a French speaker and make them
-    speak Japanese with the same voice timbre.
+    otherwise. This function handles the language/dialect instruction and simplify 
+    instruction with preset emotions and speaker style sentences. 
 
     Args:
         language: Target output language (Language enum).
         dialect:  Optional dialect string, e.g. "Cantonese", "Sichuanese",
                   "Shanghainese". Only meaningful for Language.CHINESE.
+        emotion:           Emotional tone to apply.
+        speaking_style:    Delivery style (whisper, news anchor, etc.).
+
     Returns:
         TTSResult with audio bytes and performance metrics.
     """
     _set_seed(seed)
     start = time.time()
-    audio_path = create_audio_path(prompt_audio_path)
+    audio_path = create_audio_path(audio_bytes_reference)
 
-    lang_instr = f"Speak in {language.value}"
-    if dialect:
-        lang_instr += f" with a {dialect} accent"
+    instruction = initial_instruction
+    
+    if language is not None and language != "None": 
+        lang_instr = f"Speak in {language}. "
+        if dialect:
+            lang_instr = lang_instr.replace(". ",f" with a {dialect} accent. ") 
+        instruction += lang_instr 
+
     emotion_instr = EMOTION_PROMPTS.get(emotion, "")
+    speaker_instr = STYLE_PROMPTS.get(speaker_style, "")
 
-    full_prompt = _build_instruct2_prompt(f"{lang_instr}. {emotion_instr}".strip())
+    instruction_final = f"{instruction} {emotion_instr} {speaker_instr}".strip() + "<|endofprompt|>"
 
-    chunks = list(model.inference_instruct2(text, full_prompt, audio_path, speed=speed, stream=False))
+
+    chunks = list(model.inference_instruct2(text, instruction_final, audio_path, speed=speed, stream=False))
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 

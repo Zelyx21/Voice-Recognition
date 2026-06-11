@@ -8,21 +8,32 @@
 
  
 export default function LanguageForm({ language, dialect, onChange }) {
- const DIALECTS = {
-  en:  ["", "American", "British", "Australian"],
-  zh:  ["", "Cantonese", "Sichuanese", "Shanghainese", "Hokkien"],
-  ja:  [],   
-  ko:  [],   
-  yue: [],   
-}
+const DIALECTS = {
+    None: [],
+    zh: ["", "Cantonese", "Shanghainese", "Sichuanese", "Dongbei", "Tianjin", "Shandong", "Minnan"],
+    fr: [], 
+    en: [], 
+    es: [], 
+    de: [],   
+    it: [],   
+    ja: [],   
+    ko: [],   
+    ru: [],   
+  }
 
- const LANGUAGES = [
-  { value: "en",  label: "English" },
-  { value: "zh",  label: "Chinese (Mandarin)" },
-  { value: "ja",  label: "Japanese" },
-  { value: "ko",  label: "Korean" },
-  { value: "yue", label: "Cantonese" },
-]
+const LANGUAGES = [
+    { value: "None",  label: "Same language as reference" },
+    { value: "fr",  label: "French" },
+    { value: "en",  label: "English" },
+    { value: "zh",  label: "Chinese (Mandarin)" },
+    { value: "es",  label: "Spanish" },
+    { value: "de",  label: "German" },
+    { value: "it",  label: "Italian" },
+    { value: "ko",  label: "Korean" },
+    { value: "ru",  label: "Russian" },
+    { value: "ja",  label: "Japanese" }, //NOTE for Japanese usage, you must translate it to katakana. 
+
+  ]
   
   const dialects = DIALECTS[language] || []
   const hasDialects = dialects.length > 1  // more than just the empty default
@@ -39,7 +50,7 @@ export default function LanguageForm({ language, dialect, onChange }) {
       {/* ── Target language ── */}
       <label htmlFor="language">Target language</label>
       <p>
-        The language the cloned voice will speak in.
+        WARNING: If you modify it, the cloning will be less accurate !
       </p>
       <select
         id="language"

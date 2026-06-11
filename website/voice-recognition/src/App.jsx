@@ -4,7 +4,8 @@ import IdentifyVoice from './IdentifyVoice.jsx'
 import Header from './header.jsx'
 import RegisterDB from './Registerdb.jsx'
 import Login from './Login.jsx'
-import Account from './Account'
+import Account from './Account.jsx'
+import Home from './Home.jsx'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import ClonageVoice from './ClonageVoice.jsx'
 
@@ -36,6 +37,9 @@ function App() {
         isAuthenticated={isAuthenticated} user={user} setIsAuthenticated={setIsAuthenticated} setUser={setUser} />
       <Routes>
         <Route path="/" element={<IdentifyVoice />} />
+        <Route path="/Home" element={<Home />} />
+
+
         <Route path="/register" element={
           <PublicRoute isAuthenticated={isAuthenticated}>
             <RegisterDB />
@@ -53,6 +57,7 @@ function App() {
           </ProtectedRoute>
         } />
       </Routes>
+
     <ClonageVoice
         isAuthenticated={isAuthenticated} user={user} setIsAuthenticated={setIsAuthenticated} setUser={setUser} />
       </>

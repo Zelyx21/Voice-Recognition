@@ -6,11 +6,13 @@
 
 import { useState, useEffect } from 'react'
 import AudioReferenceForm from './forms/AudioReferenceForm'
-import TextSpeedForm      from './forms/TextSpeedForm'
+import TextForm      from './forms/TextForm'
 import EmotionStyleForm   from './forms/EmotionStyleForm'
 import LanguageForm       from './forms/LanguageForm'
 import InstructForm       from './forms/InstructForm'
- 
+import SpeedForm       from './forms/SpeedForm'
+import DocToken from './forms/DocToken'
+
 const API_URL = "http://localhost:8000/clonage"
  
 export default function ClonageButtonsCosyVoice({ audioBlob }) {
@@ -22,6 +24,10 @@ export default function ClonageButtonsCosyVoice({ audioBlob }) {
   const [method, setMethod] = useState("zero_shot")
  
   const [text,  setText]  = useState("You are testing a student project on voice recognition and voice cloning.")
+  const placeholder = "You are testing a student project on voice recognition and voice cloning."
+  const [textMultilingual,  setTextMultilingual]  = useState("Vous pouvez entrez le texte [breath], directement dans la langue de votre choix.[laughter] Avec notamment des instructions quand à sa lecture !")
+  const placeholderMultilingual = "Vous pouvez entrez le texte [breath], directement dans la langue de votre choix.[laughter] Avec notamment des instructions quand à sa lecture !"
+
   const [speed, setSpeed] = useState(1.0)
   const [emotion, setEmotion] = useState("NEUTRAL")
  
@@ -30,11 +36,11 @@ export default function ClonageButtonsCosyVoice({ audioBlob }) {
   const [speakingStyle, setSpeakingStyle] = useState("NORMAL")
  
   // multilingual-only parameters
-  const [language,    setLanguage]    = useState("en")
+  const [language,    setLanguage]    = useState("None")
   const [dialect,     setDialect]     = useState("")
   const [instruction, setInstruction] = useState("")
 
-  const [emotionOrInstruction, setEmotionOrInstruction] = useState("emotion")
+  const [showDoc, setShowDoc] = useState(false)
 
   // Reset result when any parameter changes
   useEffect(() => {
@@ -48,25 +54,36 @@ export default function ClonageButtonsCosyVoice({ audioBlob }) {
     if (!audioBlob) return
  
     setLoading(true)
-    setErrorclone(null)
- 
+    setErrorclone(null)  
+
     const formData = new FormData()
     formData.append("file",        new File([audioBlob], "recording.wav", { type: "audio/wav" }))
     formData.append("model_name",  "CosyVoice")
     formData.append("cloneMethod", method)
-    formData.append("cloneText",   text)
-    formData.append("textSpeed",   speed)
-    formData.append("emotion",     emotion)
  
     if (method === "zero_shot") {
-      formData.append("promptText",    promptText)
-      formData.append("speakingStyle", speakingStyle)
+      formData.append("cloneText",   text)
+      formData.append("textSpeed",   speed)
+      formData.append("transcriptAudio",    promptText)
+
+    } else if(method === "multilingual") {
+      formData.append("cloneText",  textMultilingual)
+
     } else {
-      // multilingual
-      formData.append("textLanguage", language)
-      formData.append("dialect",      dialect)
-      formData.append("instruction",  instruction)
-    }
+        formData.append("cloneText",   text)
+        formData.append("textSpeed",   speed)
+        formData.append("language",   language) 
+        formData.append("dialect",   dialect)  
+
+        if (method === "synthesize_instruct") {
+          formData.append("instruction",   instruction)
+
+        } else if (method === "preset_instruct"){
+        formData.append("emotion",     emotion)
+        formData.append("speakingStyle", speakingStyle)
+
+        } 
+    } 
  
     const response = await fetch(API_URL, { method: "POST", body: formData })
  
@@ -85,7 +102,8 @@ export default function ClonageButtonsCosyVoice({ audioBlob }) {
 
  
   // ── Render ────────────────────────────────────────────────────────────────
- 
+ // This is a voice recognition project [breath] that also allows voice cloning. [laughter] For this project, [sigh] we used several preexisting models [lipsmack]. Thanks you ! 
+
   return (
     <div>
  
@@ -102,7 +120,7 @@ export default function ClonageButtonsCosyVoice({ audioBlob }) {
           Zero-Shot — same language as reference audio
         </label>
         <p>
-          Uses inference_zero_shot by default.
+          Uses inference_zero_shot by default. It clones the voice with the same language
         </p>
  
         <label>
@@ -114,37 +132,77 @@ export default function ClonageButtonsCosyVoice({ audioBlob }) {
           Multilingual — output in a different language
         </label>
         <p>
-          Supports free-text instructions and language/dialect selection.
+          Supports precise text and language/dialect selection.
+        </p>
+
+        <label>
+          <input
+            type="radio" name="cosyMethod" value="synthesize_instruct"
+            checked={method === "synthesize_instruct" || method === "preset_instruct"}
+            onChange={() => setMethod("synthesize_instruct")}
+          />
+          Instruction-based — custom style guidance
+        </label>
+        <p>
+          Supports instruction.
         </p>
       </fieldset>
- 
-      {/* ── Shared: text + speed ── */}
-      <TextSpeedForm
-        text={text}
-        speed={speed}
-        onChange={({ text: t, speed: s }) => { setText(t); setSpeed(s) }}
-      />
  
       {/* ── zero_shot only: emotion + style + reference transcript ── */}
       {method === "zero_shot" && (
         <>
-          <EmotionStyleForm
-            emotion={emotion}
-            speakingStyle={speakingStyle}
-            showStyle={true}
-            onChange={({ emotion: e, speakingStyle: s }) => { setEmotion(e); setSpeakingStyle(s) }}
+          <TextForm
+            text={text}
+            placeholder={placeholder}
+            onChange={({ text: t }) => { setText(t) }}
           />
+ 
           <AudioReferenceForm
             promptText={promptText}
             onChange={setPromptText}
             audioBlob={audioBlob}
           />
+          <SpeedForm
+            speed={speed}
+            onChange={({ speed: s }) => { setSpeed(s) }}
+          />
+
+        </>
+      )}
+
+      {method === "multilingual" && (
+        <>
+          <button
+            type="button"
+            className="ButtonDoc"
+            onClick={() => setShowDoc(!showDoc)}
+          >
+            {showDoc ? "▲ Hide Special Tokens Guide" : "▼ Show Special Tokens Guide"}
+          </button>
+
+          {showDoc && <DocToken/>}
+          <TextForm
+            text={textMultilingual}
+            placeholder={placeholderMultilingual}
+            onChange={({ text: tM }) => { setTextMultilingual(tM) }}
+          />
         </>
       )}
  
       {/* ── multilingual only: language + dialect + emotion or instruction ── */}
-      {(method === "multilingual" || method === "synthesize_instruct") && (
-        <>
+      {(method === "preset_instruct" || method === "synthesize_instruct") && (
+          <>
+          <TextForm
+            text={text}
+            placeholder={placeholder}
+            onChange={({ text: t }) => { setText(t) }}
+          />
+
+          <SpeedForm
+            speed={speed}
+            onChange={({ speed: s }) => { setSpeed(s) }}
+          />
+        
           <LanguageForm
             language={language}
             dialect={dialect}
@@ -153,35 +211,37 @@ export default function ClonageButtonsCosyVoice({ audioBlob }) {
 
           {/* Toggle: emotion preset vs free-text instruction */}
           <fieldset>
-            <legend>Style guidance</legend>
+            <legend>Method instruction</legend>
             <label>
               <input
-                type="radio" name="emotionOrInstruction" value="emotion"
-                checked={emotionOrInstruction === "emotion"}
-                onChange={() => {setEmotionOrInstruction("emotion"); setMethod("multilingual")}}
-              />
-              Use emotion preset
-            </label>
-            <label>
-              <input
-                type="radio" name="emotionOrInstruction" value="instruction"
-                checked={emotionOrInstruction === "instruction"}
-                onChange={() => {setEmotionOrInstruction("instruction"); setMethod("synthesize_instruct")}}
+                type="radio" name="method_instruction" value="instruction"
+                checked={method === "synthesize_instruct"}
+                onChange={() => { setMethod("synthesize_instruct")}}
               />
               Use custom instruction
             </label>
+
+            <label>
+              <input
+                type="radio" name="method_instruction" value="preset_instruct"
+                checked={method === "preset_instruct"}
+                onChange={() => {setMethod("preset_instruct")}}
+              />
+              Use preset instruction
+            </label>
+
           </fieldset>
 
-          {emotionOrInstruction === "emotion" && (
+          {method === "preset_instruct" && (
             <EmotionStyleForm
               emotion={emotion}
               speakingStyle={speakingStyle}
-              showStyle={false}
+              showStyle={true}
               onChange={({ emotion: e, speakingStyle: s}) => { setEmotion(e); setSpeakingStyle(s)}}
             />
           )}
 
-          {emotionOrInstruction === "instruction" && (
+          {method === "synthesize_instruct" && (
             <InstructForm
               instruction={instruction}
               onChange={setInstruction}

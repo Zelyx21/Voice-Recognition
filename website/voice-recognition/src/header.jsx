@@ -1,7 +1,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import './App.css'
+import './header.css'
 import dellLogo from './dell_logo.png'
 import Account from './Account'
 

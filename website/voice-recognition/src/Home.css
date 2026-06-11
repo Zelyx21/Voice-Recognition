@@ -1,0 +1,664 @@
+/* ════════════════════════════════════════════════════════════
+   Home.css — Page d'accueil
+   Importé dans : Home.jsx
+   Thème sombre autonome, variables --hm-* isolées pour éviter
+   tout conflit avec le thème clair du reste de l'application.
+   La pleine largeur est naturelle : #root n'a plus de max-width.
+   ════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap');
+
+/* ─── Tokens locaux (portée .hm) ─────────────────────────── */
+
+.hm {
+  --hm-bg:      #080C14;
+  --hm-surface: #0F172A;
+  --hm-border:  #1E293B;
+  --hm-blue:    #3B82F6;
+  --hm-violet:  #8B5CF6;
+  --hm-cyan:    #06B6D4;
+  --hm-green:   #22C55E;
+  --hm-text:    #F1F5F9;
+  --hm-muted:   #94A3B8;
+  --hm-faint:   #475569;
+  --hm-display: 'Space Grotesk', system-ui, sans-serif;
+  --hm-body:    'Inter', system-ui, sans-serif;
+}
+
+/* ─── Base page ───────────────────────────────────────────── */
+
+.hm {
+  background: var(--hm-bg);
+  color: var(--hm-text);
+  font-family: var(--hm-body);
+  width: 100%; /* pleine largeur grâce au #root sans max-width */
+}
+
+/* ════════════════════════════════════════════════════════════
+   BARRES AUDIO ANIMÉES  (élément signature)
+   Chaque barre reçoit --min-h et --max-h en inline style (JS).
+   ════════════════════════════════════════════════════════════ */
+
+.audio-bars {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.audio-bar {
+  width: 3px;
+  height: var(--min-h, 12px);
+  background: linear-gradient(to top, #3B82F6, #8B5CF6);
+  border-radius: 2px;
+  animation: bar-pulse 1.4s ease-in-out infinite;
+  will-change: height;
+}
+
+@keyframes bar-pulse {
+  0%, 100% { height: var(--min-h, 12px); }
+  50%       { height: var(--max-h, 60px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audio-bar {
+    animation: none;
+    height: calc((var(--min-h, 12px) + var(--max-h, 60px)) / 2);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   HERO
+   ════════════════════════════════════════════════════════════ */
+
+.hm-hero {
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 7rem 1.5rem 5rem;
+}
+
+/* Barres en fond du hero */
+.hm-hero__bars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  opacity: 0.11;
+}
+
+.hm-hero__bars .audio-bar {
+  width: 3px;
+}
+
+/* Contenu centré par-dessus les barres */
+.hm-hero__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 680px;
+  width: 100%;
+}
+
+/* Badge Dell */
+.hm-badge {
+  display: inline-block;
+  background: rgba(59, 130, 246, 0.10);
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  color: #93C5FD;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 0.3em 1.1em;
+  border-radius: 999px;
+  margin-bottom: 2.25rem;
+}
+
+/* Titre géant */
+.hm-hero__title {
+  font-family: var(--hm-display);
+  font-size: clamp(4.5rem, 14vw, 9.5rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 0.88;
+  color: #F8FAFC;
+  margin: 0 0 1rem;
+}
+
+/* "Voice" en dégradé bleu→violet */
+.hm-gradient {
+  background: linear-gradient(135deg, #3B82F6 15%, #8B5CF6 85%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Sous-titre espacé */
+.hm-hero__sub {
+  font-family: var(--hm-display);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--hm-faint);
+  margin: 0 0 1.75rem;
+}
+
+/* Description */
+.hm-hero__desc {
+  font-size: 0.95rem;
+  color: var(--hm-muted);
+  line-height: 1.78;
+  max-width: 510px;
+  margin: 0 auto 2.75rem;
+}
+
+/* Ligne de CTA */
+.hm-hero__actions {
+  display: flex;
+  gap: 0.875rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ════════════════════════════════════════════════════════════
+   BOUTONS HOME
+   Namespaced .hm-btn pour ne pas entrer en conflit avec
+   les button{} et .button de App.css.
+   ════════════════════════════════════════════════════════════ */
+
+.hm-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.72em 1.65em;
+  border-radius: 6px;
+  font-family: var(--hm-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+              border-color 0.18s ease, color 0.18s ease;
+}
+
+/* Primaire bleu→violet */
+.hm-btn--primary {
+  background: linear-gradient(135deg, #3B82F6 0%, #6D28D9 100%);
+  color: #fff;
+  box-shadow: 0 2px 18px rgba(59, 130, 246, 0.28);
+}
+
+.hm-btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 28px rgba(59, 130, 246, 0.45);
+}
+
+/* Fantôme */
+.hm-btn--ghost {
+  background: transparent;
+  border: 1px solid var(--hm-border);
+  color: #CBD5E1;
+}
+
+.hm-btn--ghost:hover {
+  border-color: var(--hm-blue);
+  color: #93C5FD;
+}
+
+/* Violet (CTA clonage si non connecté) */
+.hm-btn--violet {
+  background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%);
+  color: #fff;
+  box-shadow: 0 2px 18px rgba(139, 92, 246, 0.28);
+}
+
+.hm-btn--violet:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 28px rgba(139, 92, 246, 0.45);
+}
+
+/* ════════════════════════════════════════════════════════════
+   SECTIONS  (mise en page partagée)
+   ════════════════════════════════════════════════════════════ */
+
+.hm-section {
+  padding: 5.5rem 1.5rem;
+}
+
+/* Fond légèrement différent pour les sections alternées */
+.hm-section--alt {
+  background: rgba(15, 23, 42, 0.55);
+  border-top: 1px solid var(--hm-border);
+  border-bottom: 1px solid var(--hm-border);
+}
+
+/* Conteneur interne centré */
+.hm-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* Surtitre */
+.hm-eyebrow {
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hm-blue);
+  margin: 0 0 0.4rem;
+}
+
+/* Titre de section */
+.hm-section__title {
+  font-family: var(--hm-display);
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  font-weight: 600;
+  color: var(--hm-text);
+  margin: 0 0 2.75rem;
+  letter-spacing: -0.025em;
+}
+
+/* ════════════════════════════════════════════════════════════
+   GRILLE DE FONCTIONNALITÉS
+   ════════════════════════════════════════════════════════════ */
+
+.hm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+/* Carte */
+.hm-card {
+  position: relative;
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-border);
+  border-radius: 12px;
+  padding: 1.75rem;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.hm-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Bordure colorée au hover selon la couleur de la carte */
+.hm-card--blue:hover   { border-color: var(--hm-blue);   }
+.hm-card--violet:hover { border-color: var(--hm-violet); }
+.hm-card--cyan:hover   { border-color: var(--hm-cyan);   }
+.hm-card--green:hover  { border-color: var(--hm-green);  }
+
+.hm-card--locked {
+  opacity: 0.82;
+}
+
+/* Icône SVG */
+.hm-card__icon {
+  width: 38px;
+  height: 38px;
+  margin-bottom: 1.3rem;
+}
+
+.hm-card__icon svg  { width: 100%; height: 100%; }
+
+.hm-card__icon--blue   { color: var(--hm-blue);   }
+.hm-card__icon--violet { color: var(--hm-violet); }
+.hm-card__icon--cyan   { color: var(--hm-cyan);   }
+.hm-card__icon--green  { color: var(--hm-green);  }
+
+/* Badge cadenas */
+.lock-badge {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32em;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #FBBF24;
+  background: rgba(251, 191, 36, 0.10);
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  padding: 0.26em 0.6em;
+  border-radius: 999px;
+}
+
+/* Titre de carte */
+.hm-card__title {
+  font-family: var(--hm-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--hm-text);
+  margin: 0 0 0.5rem;
+}
+
+/* Description */
+.hm-card__desc {
+  font-size: 0.83rem;
+  color: var(--hm-muted);
+  line-height: 1.68;
+  margin: 0 0 1.4rem;
+}
+
+/* Lien CTA de carte */
+.hm-link {
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.hm-link:hover         { opacity: 0.65; }
+.hm-link--blue         { color: var(--hm-blue);   }
+.hm-link--violet       { color: var(--hm-violet); }
+.hm-link--cyan         { color: var(--hm-cyan);   }
+.hm-link--green        { color: var(--hm-green);  }
+.hm-link--locked       { color: var(--hm-muted);  }
+
+/* ════════════════════════════════════════════════════════════
+   COMMENT ÇA MARCHE  (étapes)
+   ════════════════════════════════════════════════════════════ */
+
+.hm-steps {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+}
+
+/* Étape individuelle */
+.hm-step {
+  flex: 1;
+  min-width: 200px;
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-border);
+  border-radius: 12px;
+  padding: 1.75rem;
+}
+
+.hm-step__num {
+  display: block;
+  font-family: var(--hm-display);
+  font-size: 1.9rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.65rem;
+  line-height: 1;
+}
+
+.hm-step__title {
+  font-family: var(--hm-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #E2E8F0;
+  margin: 0 0 0.5rem;
+}
+
+.hm-step__body {
+  font-size: 0.83rem;
+  color: var(--hm-muted);
+  line-height: 1.68;
+  margin: 0;
+}
+
+/* Flèche entre les étapes */
+.hm-step__arrow {
+  color: var(--hm-border);
+  font-size: 1.4rem;
+  padding-top: 2.4rem;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+@media (max-width: 620px) {
+  .hm-step__arrow { display: none; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   SECTION CLONAGE
+   ════════════════════════════════════════════════════════════ */
+
+/* Grille texte / visuel */
+.hm-cloning {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .hm-cloning {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+.hm-cloning__title {
+  font-family: var(--hm-display);
+  font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+  font-weight: 600;
+  color: var(--hm-text);
+  margin: 0.25rem 0 0.9rem;
+  letter-spacing: -0.02em;
+}
+
+.hm-cloning__intro {
+  font-size: 0.875rem;
+  color: var(--hm-muted);
+  line-height: 1.75;
+  margin-bottom: 1.5rem;
+}
+
+/* Liste des modes */
+.hm-modes {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.hm-modes li {
+  font-size: 0.84rem;
+  color: #CBD5E1;
+  padding-left: 1.25rem;
+  position: relative;
+  line-height: 1.55;
+}
+
+.hm-modes li::before {
+  content: '▹';
+  position: absolute;
+  left: 0;
+  color: var(--hm-violet);
+  font-size: 0.75rem;
+  top: 0.1em;
+}
+
+.hm-modes strong {
+  color: #E2E8F0;
+  font-weight: 600;
+}
+
+/* Panneau visuel avec les barres animées */
+.hm-cloning__visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 3rem 2rem;
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-border);
+  border-radius: 16px;
+  min-height: 200px;
+}
+
+.hm-cloning__bars {
+  height: 90px;
+  gap: 5px;
+  align-items: flex-end; /* barres croissent vers le haut */
+}
+
+/* Couleur inversée (violet→bleu) pour les barres du panneau clonage */
+.hm-cloning__bars .audio-bar {
+  width: 5px;
+  background: linear-gradient(to top, #8B5CF6, #3B82F6);
+}
+
+.hm-cloning__caption {
+  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #2D3748;
+  margin: 0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SECTION À PROPOS
+   ════════════════════════════════════════════════════════════ */
+
+.hm-about {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* Carte à propos */
+.hm-about__card {
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-border);
+  border-radius: 12px;
+  padding: 1.75rem;
+}
+
+/* Liseré coloré en haut de chaque carte */
+.hm-about__card--dell { border-top: 2px solid #0076CE; }
+.hm-about__card--uni  { border-top: 2px solid var(--hm-violet); }
+.hm-about__card--team { border-top: 2px solid var(--hm-cyan); }
+
+.hm-about__label {
+  font-size: 0.64rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--hm-faint);
+  margin: 0 0 0.4rem;
+}
+
+.hm-about__card h3 {
+  font-family: var(--hm-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #E2E8F0;
+  margin: 0 0 0.8rem;
+  line-height: 1.35;
+}
+
+.hm-about__card p:not(.hm-about__label) {
+  font-size: 0.83rem;
+  color: var(--hm-muted);
+  line-height: 1.68;
+  margin: 0;
+}
+
+/* Logo Dell en texte stylisé */
+.hm-dell-logo {
+  font-family: var(--hm-display);
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #0076CE;
+  letter-spacing: -0.07em;
+  margin-bottom: 0.8rem;
+  line-height: 1;
+}
+
+/* Membres de l'équipe */
+.hm-team {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-top: 0.6rem;
+}
+
+.hm-member {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Avatars initiaux */
+.hm-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.hm-avatar--blue   { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+.hm-avatar--violet { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
+
+.hm-member__name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #CBD5E1;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.hm-member__role {
+  font-size: 0.74rem;
+  color: var(--hm-faint);
+  margin: 0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   FOOTER
+   ════════════════════════════════════════════════════════════ */
+
+.hm-footer {
+  border-top: 1px solid var(--hm-border);
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.hm-footer p {
+  font-size: 0.7rem;
+  color: #2D3748;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .hm-hero        { min-height: 85vh; padding: 5rem 1rem 4rem; }
+  .hm-hero__title { font-size: 4rem; }
+  .hm-section     { padding: 3.5rem 1rem; }
+  .hm-card        { padding: 1.4rem; }
+  .hm-step        { padding: 1.4rem; }
+  .hm-cloning__visual { padding: 2rem 1rem; }
+}
