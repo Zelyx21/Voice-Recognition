@@ -1,17 +1,10 @@
 import { useState } from 'react'
 import './ClonageVoice.css'
 import { useRecording } from './hooks/useRecording'
-import ClonageUtility from './ClonageUtility.jsx'
 import ClonageButtonsCosyVoice from './ClonageButtonsCosyVoice.jsx'
 
 // Available cloning models — add new entries here to extend the model picker
 const MODELS = [
-  {
-    id: 'OpenVoice',
-    label: 'OpenVoice',
-    badge: 'Quick',
-    desc: 'Faster, less accurate',
-  },
   {
     id: 'CosyVoice',
     label: 'CosyVoice',
@@ -148,13 +141,6 @@ function ClonageVoice({ isAuthenticated }) {
               {audioURL && (
                 <div className="clonage-step">
                   <span className="step-label">Configure &amp; clone</span>
-
-                  {cloningMode === 'OpenVoice' && (
-                    <ClonageUtility
-                      audioBlob={audioBlob || audioFile}
-                      cloningMode={cloningMode}
-                    />
-                  )}
 
                   {cloningMode === 'CosyVoice' && (
                     <ClonageButtonsCosyVoice
