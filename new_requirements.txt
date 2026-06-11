@@ -9,14 +9,13 @@ python-dotenv
 
 slowapi
 
-numpy
+numpy==1.26.4
 scipy
 scikit-learn
 
-torch
-torchaudio
-
 soundfile
+librosa
+pydub
 noisereduce
 
 silero-vad
@@ -28,8 +27,34 @@ python-jose
 bcrypt
 
 openai-whisper
-
-librosa
-pydub
 faster-whisper
 whisper-timestamped
+
+eng_to_ipa
+inflect
+unidecode
+
+pypinyin
+cn2an
+jieba
+langid
+
+wavmark
+
+openai
+
+gradio
+
+modelscope==1.20.0
+transformers==4.51.3
+
+num2words
+pykakasi
+
+mecab-python3
+fugashi[unidic-lite]
+
+#melo tts
+g2p-en
+cached_path
+txtsplit
