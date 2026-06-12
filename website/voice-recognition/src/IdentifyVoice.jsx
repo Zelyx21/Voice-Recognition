@@ -13,6 +13,22 @@ function IdentifyVoice() {
     const { call, loading, error, setError } = useApi()
     const { isRecording, audioURL, audioBlob, audioFile, recordingTime, fileInputRef, startRecording, stopRecording, resetRecording, handleFileChange } = useRecording()
 
+const EXAMPLE_SENTENCES = {
+    None: "None",
+    English:
+        "Of course I'm angry ! You dropped an old hammer on my lap ! Do you know what time the meeting starts ? " +
+        "Can you bring these books back to the library ? Trees also provide shade, and they can temper the climate. " +
+        "The city lies at the mouth of the river.",
+    French:
+        "Bonjour, comment allez-vous aujourd'hui ? Chaque chercheur poursuit ses propres hypothèses. " +
+        "Les journalistes interrogent plusieurs témoins. Le spectateur applaudit chaleureusement les musiciens. " +
+        "Le système détecte correctement la voix humaine.",
+
+}
+
+    const [exempleLanguage, setExempleLanguage] = useState(null)
+
+    
     // ---------------- SEND ----------------
 
     const sendRecording = async () => {
@@ -27,9 +43,9 @@ function IdentifyVoice() {
             }
 
             const response = await call("/identify", { method: "POST", body: formData })
-
-            const data = await response.json()
-            const test = data.data
+            
+      
+            const data = await response
             if (data.status === "multiple_speakers") {
                 setDiarization(data.diarization)
                 setResultDiarization(data.data)
@@ -43,9 +59,7 @@ function IdentifyVoice() {
 
         } catch (err) {
             setErrorclone(err.message || "An unexpected error occurred during Voice recognition.")
-        } finally {
-            setLoading(false)
-        }
+        } 
     }
 
 
@@ -53,7 +67,6 @@ function IdentifyVoice() {
         <div className="box" style={{alignItems:"center"}}>
 
             <h2>Identify a voice</h2>
-
             {/* MODE SELECTION */}
 
             <div className="button-group">
@@ -80,7 +93,7 @@ function IdentifyVoice() {
 
             {mode === "record" && (
 
-                <div>
+                <div class="record_state">
 
                     {!isRecording && !audioURL && (
                         <button
@@ -102,6 +115,30 @@ function IdentifyVoice() {
                             </button>
                         </div>
                     )}
+
+                    <div>
+                        <p>Say anything !</p>
+                        <p>You don't know what to say ? Choose a language and get example sentences</p>
+
+                        <select
+                        id="exemple"
+                        value={exempleLanguage}
+                        onChange={(e) => setExempleLanguage(e.target.value)}
+                        >
+                        {Object.entries(EXAMPLE_SENTENCES).map( ([key, value]) => (
+                        <option key={key} value={key}>{key}</option>
+                        ))}
+
+                        </select>
+                        
+                        <div class="text_Exemple">
+
+                            {exempleLanguage !== "None" && (
+                                EXAMPLE_SENTENCES[exempleLanguage]
+                            )}
+                        </div>
+
+                    </div>
 
                 </div>
             )}
@@ -172,62 +209,37 @@ function IdentifyVoice() {
                         }
                     </button>
 
-                    {diarization && (
-                        <div className="diarization-result-card">
-                        <div className="result-header">
-                            <span className="warning-icon">⚠️</span>
-                            <h3>Multiple Speakers Detected</h3>
-                        </div>
-                        <p>
-                            The audio sample contains <strong>{Object.keys(diarization).length} speakers</strong>.
-                            Voice cloning requires a single-speaker recording. Preview each speaker below
-                            and re-upload an isolated segment.
-                        </p>
-                        <div className="speakers-list">
-                            {Object.entries(diarization).map(([speakerName, speakerData]) => (
-                            <div key={speakerName} className="speaker-item">
-                                <div className="speaker-meta">
-                                <span className="speaker-label">{speakerName}</span>
-                                <span className="speaker-duration">
-                                    {speakerData.duration.toFixed(1)}s
-                                </span>
-                                </div>
-                                <audio
-                                controls
-                                src={`data:audio/wav;base64,${speakerData.audio}`}
-                                className="custom-audio-player"
-                                />
+                    {diarization && resultDiarization && (
+                    <div className="diarization-result-card">
+                    <div className="result-header">
+                        <h3>Multiple Speakers Detected</h3>
+                    </div>
+                    <p>
+                        The audio sample contains <strong>{Object.keys(diarization).length} speakers</strong>.
+                    </p>
+                    <div className="speakers-list">
+                        {Object.entries(diarization).map(([speakerName, speakerData], idx) => (
+                        <div key={speakerName} className="speaker-item">
+                            <div className="speaker-meta">
+                            <span className="speaker-label">{speakerName}</span>
+                            <span className="speaker-duration">
+                                {speakerData.duration.toFixed(1)}s
+                            </span>
                             </div>
-                            ))}
-                        </div>
-                        </div>
-                    )}
-
-                    {result && (
-                        <div className="result">
-
-                            <p>
-                                Speaker : {result.name}
-                            </p>
-
-                            <p>
-                                Score : {result.score}
-                            </p>
+                            <audio
+                            controls
+                            src={`data:audio/wav;base64,${speakerData.audio}`}
+                            className="custom-audio-player"
+                            />
+                            <SpeakerResult result={resultDiarization[idx]} />
 
                         </div>
-                    )}
+                        ))}
+                    </div>
+                    </div>
+                )}
 
-                    {result && result.issue && (
-
-                        <div className="issue">
-
-                            <p>
-                                Issues : {result.issue}
-                            </p>
-
-                        </div>
-
-                    )}
+                {result && <SpeakerResult result={result} />}
 
                 </div>
             )}
@@ -235,5 +247,28 @@ function IdentifyVoice() {
         </div>
     )
 }
+
+function SpeakerResult({ result }) {
+    if (!result) return null
+    return (
+        <div className="speaker-result">
+            <div className="speaker-result-row">
+                <span className="speaker-result-label">Speaker : </span>
+                <span className="speaker-result-value">{result.name}</span>
+            </div>
+            <div className="speaker-result-row">
+                <span className="speaker-result-label">Score : </span>
+                <span className="speaker-result-value score">{result.score}</span>
+            </div>
+            {result.issue && (
+                <div className="speaker-result-row issue">
+                    <span className="speaker-result-label">Issue : </span>
+                    <span className="speaker-result-value">{result.issue}</span>
+                </div>
+            )}
+        </div>
+    )
+}
+
 
 export default IdentifyVoice

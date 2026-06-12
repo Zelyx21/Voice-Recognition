@@ -159,3 +159,13 @@ button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):active
   background: rgba(239, 68, 68, 0.05);
   transform: translateY(-1px);
 }
+
+.text_Exemple{
+  margin-top: 10px;
+}
+
+.record_state{
+  margin: auto;
+  max-width: 60%;
+  text-align: center;
+}

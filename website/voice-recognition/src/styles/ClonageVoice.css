@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .clonage-box {
-  max-width: 760px !important;
+  width: 55%;
   margin: 2rem auto !important;
   background: #0F172A !important; /* Matches --hm-surface */
   border: 1px solid #1E293B !important; /* Matches --hm-border */
@@ -287,7 +287,6 @@
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
   width: 100%;
   text-align: center;
   margin-top: 0.5rem;

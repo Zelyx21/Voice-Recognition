@@ -250,7 +250,7 @@ function ClonageVoice({ isAuthenticated }) {
                       checked={method === "zero_shot"}
                       onChange={() => setMethod("zero_shot")}
                     />
-                    <span className="radio-custom">Zero-Shot (Default)</span>
+                    <span className="radio-custom">Zero-Shot</span>
                   </label>
 
                   <label className="radio-label">

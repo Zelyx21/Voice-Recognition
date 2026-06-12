@@ -25,6 +25,22 @@ function RegisterDB() {
     return null
   }
 
+  const EXAMPLE_SENTENCES = {
+    None: "None",
+    English:
+        "Of course I'm angry ! You dropped an old hammer on my lap ! Do you know what time the meeting starts ? " +
+        "Can you bring these books back to the library ? Trees also provide shade, and they can temper the climate. " +
+        "The city lies at the mouth of the river.",
+    French:
+        "Bonjour, comment allez-vous aujourd'hui ? Chaque chercheur poursuit ses propres hypothèses. " +
+        "Les journalistes interrogent plusieurs témoins. Le spectateur applaudit chaleureusement les musiciens. " +
+        "Le système détecte correctement la voix humaine.",
+
+  }
+
+  const [exempleLanguage, setExempleLanguage] = useState(null)
+
+
   const register = async () => {
     const err = validate()
     if (err) {
@@ -52,7 +68,7 @@ function RegisterDB() {
   }
 
   return (
-    <div className="box" style={{flex:1}}>
+    <div className="box clonage-box">
       <h2>Create an account</h2>
       <label htmlFor="name">Name</label>
       <input
@@ -95,7 +111,7 @@ function RegisterDB() {
       </div>
 
       {mode == "record" && (
-        <div>
+        <div class="record_state">
           {!isRecording && !audioURL && (
             <div>
               <button onClick={()=>{setError(null); startRecording()}}>Start recording</button>
@@ -120,7 +136,29 @@ function RegisterDB() {
             </div>
           )}
 
+          <div>
+              <p>Say anything !</p>
+              <p>You don't know what to say ? Choose a language and get example sentences</p>
 
+              <select
+              id="exemple"
+              value={exempleLanguage}
+              onChange={(e) => setExempleLanguage(e.target.value)}
+              >
+              {Object.entries(EXAMPLE_SENTENCES).map( ([key, value]) => (
+              <option key={key} value={key}>{key}</option>
+              ))}
+
+              </select>
+              
+              <div class="text_Exemple">
+
+                  {exempleLanguage !== "None" && (
+                      EXAMPLE_SENTENCES[exempleLanguage]
+                  )}
+              </div>
+
+          </div>
 
         </div>
 

@@ -80,8 +80,13 @@ def search_multi_similarity(query_vectors, client=CLIENT, collection_name=BASE):
     for query_vector in query_vectors:
         response = search_similarity(query_vector, client, collection_name)
         for point in response:
+            if point.score > 0.99:
+                score=1.0
+            else:
+                score=point.score
+
             list_clients.append({"id":point.id, 
-                                "score":point.score, 
+                                "score":score, 
                                 "name":point.payload.get("name"), 
                                 "email":point.payload.get("email"),
                                 "audio_name":point.payload.get("audio_name"),

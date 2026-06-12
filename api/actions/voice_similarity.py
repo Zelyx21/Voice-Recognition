@@ -2,7 +2,7 @@ from audio.conversion import conversion
 from audio.processing import resample, denoise, vad
 from ai.embedding import embedding
 from database.Qdrant import search_similarity_attributes, search_multi_similarity
-
+import base64
 
 def voice_similarity(audio_bytes:bytes):
     """
@@ -31,7 +31,10 @@ def multi_similarity(audios:list):
     """
     list_vectors=[]
     for audio_bytes in audios:
-        raw = conversion(audio_bytes)
+        audio_unique = audio_bytes["audio"]
+        audio_unique = base64.b64decode(audio_unique)
+        
+        raw = conversion(audio_unique)
         audio, sr = resample(raw)
         audio = denoise(audio,sr)
         audio, issue = vad(audio,sr)
@@ -42,7 +45,7 @@ def multi_similarity(audios:list):
         emb = embedding(audio)
         list_vectors.append(emb.tolist())
 
-    results = search_multi_similarity(query_vector=emb.tolist())
+    results = search_multi_similarity(query_vectors=list_vectors)
     for result in results:
         print("result: \n" + str(result))
 

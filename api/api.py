@@ -81,18 +81,21 @@ async def identify(file: UploadFile = File(...)):
 
     elif diarization["issue_info"] == "several speakers":
         print("\nSeveral speakers detected.")
-        voices_score = multi_similarity(diarization["result"])
+
+        audio_list = list(diarization["result"].values())
+        print("type audio :",str(type(audio_list[0])))
+
+        voices_score = multi_similarity(audio_list)
+
+
         return JSONResponse(content={"status": "multiple_speakers",
                                      "diarization": diarization["result"],
                                      "data": voices_score
                                      })
 
     voice_score = voice_similarity(audio_bytes)
-    
-    return JSONResponse(content={
-        "status": "success",
-        "data": voice_score
-    })
+    return JSONResponse(content={"status": "success", "data": voice_score})
+
 
 @app.post("/registerdb")
 async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str=Form(...), password:str=Form(...), audio_name:str=Form(...)):
