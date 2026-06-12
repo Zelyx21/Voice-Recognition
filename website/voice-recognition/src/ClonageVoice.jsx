@@ -25,9 +25,16 @@ function ClonageVoice({ isAuthenticated }) {
 
   // ─── CosyVoice Generation States ───
   const [clone, setClone] = useState(null)
+  const [cloneScore, setCloneScore] = useState(null)    // X-Score-Clone
+  const [cloneName, setCloneName] = useState(null)      // X-Score-name
+  const [cloneAudioName, setCloneAudioName] = useState(null) // X-Score-audio_name
   const [loading, setLoading] = useState(false)
   const [errorclone, setErrorclone] = useState(null)
-  
+
+  // ─── Diarization (several speakers) State ───
+  // Shape: { SPEAKER_00: { audio: "<base64>", duration: float }, ... }
+  const [diarization, setDiarization] = useState(null)
+
   // ─── CosyVoice Parameter States ───
   const [method, setMethod] = useState("zero_shot")
   const [text, setText] = useState("You are testing a student project on voice recognition and voice cloning.")
@@ -36,13 +43,22 @@ function ClonageVoice({ isAuthenticated }) {
   const [speakingStyle, setSpeakingStyle] = useState("Normal")
   const [instruction, setInstruction] = useState("")
   const [language, setLanguage] = useState("en")
+  const [dialect, setDialect] = useState("")
   const [speed, setSpeed] = useState(1.0)
+  const [transcriptAudio, setTranscriptAudio] = useState("")
+
+  // ─── UI States ───
+  const [showDocToken, setShowDocToken] = useState(false)
 
   // Full reset of audio inputs and generation results
   const handleReset = () => {
     resetRecording()
     setInputMode(null)
     setClone(null)
+    setCloneScore(null)
+    setCloneName(null)
+    setCloneAudioName(null)
+    setDiarization(null)
     setErrorclone(null)
   }
 
@@ -51,6 +67,10 @@ function ClonageVoice({ isAuthenticated }) {
     setLoading(true)
     setErrorclone(null)
     setClone(null)
+    setCloneScore(null)
+    setCloneName(null)
+    setCloneAudioName(null)
+    setDiarization(null)
 
     try {
       const targetAudio = audioBlob || audioFile
@@ -59,14 +79,16 @@ function ClonageVoice({ isAuthenticated }) {
       }
 
       const formData = new FormData()
-      formData.append("audio", targetAudio)
-      formData.append("method", method)
-      formData.append("text", method === "zero_shot" ? text : textMultilingual)
+      formData.append("file", targetAudio)
+      formData.append("cloneMethod", method)
+      formData.append("cloneText", method === "textMultilingual" ? textMultilingual : text)
       formData.append("emotion", emotion)
       formData.append("speakingStyle", speakingStyle)
       formData.append("instruction", instruction)
       formData.append("language", language)
-      formData.append("speed", speed)
+      formData.append("dialect", dialect)
+      formData.append("textSpeed", speed)
+      formData.append("transcriptAudio", transcriptAudio)
 
       const response = await fetch(API_URL, {
         method: "POST",
@@ -74,21 +96,43 @@ function ClonageVoice({ isAuthenticated }) {
       })
 
       if (!response.ok) {
-        throw new Error(`Server returned an error status: ${response.status}`)
+        let detail = `Server error: ${response.status}`
+        try {
+          const errData = await response.json()
+          detail = errData.detail || detail
+        } catch {
+        }
+        throw new Error(detail)
       }
 
       const data = await response.json()
-      if (data.audio_url) {
-        setClone(data.audio_url)
-      } else {
-        throw new Error("Invalid response scheme from generation server.")
+
+      if (data.status === "multiple_speakers") {
+        setDiarization(data.diarization)
+      } 
+      else if (data.status === "success") {
+        const cloneData = data.data.clone
+        const metadata = data.data.metadata
+
+        const base64Response = await fetch(`data:audio/wav;base64,${cloneData.audio}`)
+        const blob = await base64Response.blob()
+        setClone(URL.createObjectURL(blob))
+
+        setCloneScore(metadata.score_clone !== "N/A" ? metadata.score_clone : null)
+        setCloneName(metadata.score_name !== "N/A" ? metadata.score_name : null)
+        setCloneAudioName(metadata.score_audio_name !== "N/A" ? metadata.score_audio_name : null)
+      } 
+      else {
+        throw new Error("Unexpected response format from server.")
       }
+
     } catch (err) {
       setErrorclone(err.message || "An unexpected error occurred during cloning.")
     } finally {
       setLoading(false)
     }
   }
+
 
   return (
     <div className="box clonage-box">
@@ -122,13 +166,13 @@ function ClonageVoice({ isAuthenticated }) {
             {/* Input Selection Trigger Buttons */}
             {!audioURL && (
               <div className="clonage-mode-selector">
-                <button 
+                <button
                   className={`btn-mode ${inputMode === 'record' ? 'active' : ''}`}
                   onClick={() => { setInputMode('record'); resetRecording() }}
                 >
                   🎙️ Record Sample Live
                 </button>
-                <button 
+                <button
                   className={`btn-mode ${inputMode === 'import' ? 'active' : ''}`}
                   onClick={() => { setInputMode('import'); resetRecording() }}
                 >
@@ -191,14 +235,14 @@ function ClonageVoice({ isAuthenticated }) {
             )}
           </div>
 
-          {/* ─── Step 2: Advanced Parameters Configuration (Triggered when sample is ready) ─── */}
+          {/* ─── Step 2: Advanced Parameters Configuration ─── */}
           {audioURL && (
             <div className="clonage-step">
               <span className="step-label">2. Synthesis Parameters</span>
 
               {/* Inference Generation Engine Method Selectors */}
               <fieldset className="clonage-fieldset">
-                <legend>Inference Pipeline Method</legend>
+                <legend>All Distinct Cloning Method</legend>
                 <div className="radio-group">
                   <label className="radio-label">
                     <input
@@ -242,21 +286,25 @@ function ClonageVoice({ isAuthenticated }) {
               <div className="form-parameters-grid">
                 {method === "zero_shot" && (
                   <>
-                    <TextForm text={text} onChange={setText} />
-                    <AudioReferenceForm />
+                    <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
+                    <AudioReferenceForm
+                      transcriptAudio={transcriptAudio}
+                      onChange={setTranscriptAudio}
+                      audioBlob={audioBlob}
+                    />
                   </>
                 )}
 
                 {method === "cross_lingual" && (
                   <>
-                    <TextForm text={textMultilingual} onChange={setTextMultilingual} />
-                    <LanguageForm language={language} onChange={setLanguage} />
+                    <TextForm text={textMultilingual} onChange={({ textMultilingual: tM }) => { setTextMultilingual(tM) }} />
+                    <LanguageForm language={language} onChange={({ language: l, dialect: d }) => { setLanguage(l); setDialect(d) }} />
                   </>
                 )}
 
                 {method === "preset_instruct" && (
                   <>
-                    <TextForm text={text} onChange={setText} />
+                    <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
                     <EmotionStyleForm
                       emotion={emotion}
                       speakingStyle={speakingStyle}
@@ -268,34 +316,73 @@ function ClonageVoice({ isAuthenticated }) {
 
                 {method === "synthesize_instruct" && (
                   <>
-                    <TextForm text={text} onChange={setText} />
-                    <InstructForm instruction={instruction} onChange={setInstruction} />
+                    <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
+                    <InstructForm instruction={instruction} onChange={({ instruction: i }) => { setInstruction(i) }} />
+
+                    <button
+                      type="button"
+                      className="doc-toggle-btn"
+                      onClick={() => setShowDocToken(!showDocToken)}
+                    >
+                      {showDocToken ? "Mask tokens guide" : "📖 Show special tokens guide"}
+                    </button>
+
+                    {showDocToken && <DocToken />}
                   </>
                 )}
 
                 {/* Shared Output Controls */}
-                <SpeedForm speed={speed} onChange={setSpeed} />
+                <SpeedForm speed={speed} onChange={({ speed: s }) => { setSpeed(s) }} />
               </div>
 
               {/* ─── Step 3: Execution Controls ─── */}
               <div className="clonage-actions">
-                <button 
-                  className="button generate-btn" 
-                  onClick={sendClonage} 
+                <button
+                  className="button generate-btn"
+                  onClick={sendClonage}
                   disabled={loading}
                 >
-                  {loading ? "Processing Neural Matrix..." : "Execute CosyVoice Synthesis"}
+                  {loading ? "Processing..." : "Execute CosyVoice Synthesis"}
                 </button>
               </div>
 
-              {/* Operational Errors Display */}
               {errorclone && (
                 <div className="clonage-error-alert">
                   <p><strong>Cloning Process Interrupted:</strong> {errorclone}</p>
                 </div>
               )}
 
-              {/* Generated Audio Payload Target Display Area */}
+              {diarization && (
+                <div className="diarization-result-card">
+                  <div className="result-header">
+                    <span className="warning-icon">⚠️</span>
+                    <h3>Multiple Speakers Detected</h3>
+                  </div>
+                  <p>
+                    The audio sample contains <strong>{Object.keys(diarization).length} speakers</strong>.
+                    Voice cloning requires a single-speaker recording. Preview each speaker below
+                    and re-upload an isolated segment.
+                  </p>
+                  <div className="speakers-list">
+                    {Object.entries(diarization).map(([speakerName, speakerData]) => (
+                      <div key={speakerName} className="speaker-item">
+                        <div className="speaker-meta">
+                          <span className="speaker-label">{speakerName}</span>
+                          <span className="speaker-duration">
+                            {speakerData.duration.toFixed(1)}s
+                          </span>
+                        </div>
+                        <audio
+                          controls
+                          src={`data:audio/wav;base64,${speakerData.audio}`}
+                          className="custom-audio-player"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {clone && (
                 <div className="clone-result-card">
                   <div className="result-header">
@@ -304,6 +391,21 @@ function ClonageVoice({ isAuthenticated }) {
                   </div>
                   <p>Your target text voice clone has been successfully synthesized.</p>
                   <audio controls src={clone} className="custom-audio-player output-player" />
+
+                  {/* Similarity score against database */}
+                  {cloneScore !== null && (
+                    <div className="clone-score-info">
+                      <p>
+                        <strong>Database similarity:</strong> {parseFloat(cloneScore).toFixed(3)}
+                        {cloneName && (
+                          <> — closest match: <em>{cloneName}</em>
+                            {cloneAudioName && <> ({cloneAudioName})</>}
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  )}
+
                   <a href={clone} download="cloned_voice_output.wav" className="button download-output-btn">
                     Download Audio Waveform (.wav)
                   </a>

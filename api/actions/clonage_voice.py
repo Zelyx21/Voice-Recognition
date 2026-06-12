@@ -65,17 +65,6 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
                                     text=text, prompt_text=transcriptAudio or "",
                                     speed=speed, seed=seed
                                     )
-        return Response(
-        content=result.audio_bytes,
-        media_type="audio/wav",
-        headers={
-            "Content-Disposition": "inline; filename=clone.wav",
-            "X-Issue": "false",
-            "X-Generation-Time-Ms": str(result.generation_time_ms),
-            "X-Audio-Duration-S": str(result.audio_duration_s),
-            "X-RTF": str(result.real_time_factor),
-        }
-    )
     
     elif model_clonage == "multilingual":
         result = synthesize_cross_lingual(model=cosyvoice_model,
@@ -83,17 +72,6 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
                                     prompt_text=text,seed=seed
                                     )
 
-        return Response(
-        content=result.audio_bytes,
-        media_type="audio/wav",
-        headers={
-            "Content-Disposition": "inline; filename=clone.wav",
-            "X-Issue": "false",
-            "X-Generation-Time-Ms": str(result.generation_time_ms),
-            "X-Audio-Duration-S": str(result.audio_duration_s),
-            "X-RTF": str(result.real_time_factor),
-        }
-    )   
     elif model_clonage == "synthesize_instruct":
         result = synthesize_instruct(model=cosyvoice_model,
                             audio_bytes_reference=audio_by, language=language,
@@ -102,17 +80,6 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
                             speed=speed, seed=seed
                             )
 
-        return Response(
-        content=result.audio_bytes,
-        media_type="audio/wav",
-        headers={
-            "Content-Disposition": "inline; filename=clone.wav",
-            "X-Issue": "false",
-            "X-Generation-Time-Ms": str(result.generation_time_ms),
-            "X-Audio-Duration-S": str(result.audio_duration_s),
-            "X-RTF": str(result.real_time_factor),
-        }
-    )
     elif model_clonage == "preset_instruct":
         result = preset_instruct(model=cosyvoice_model,
                             audio_bytes_reference=audio_by, language=language,
@@ -121,7 +88,17 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
                             speed=speed, seed=seed
                             )
 
-        return Response(
+    else:
+        return
+        JSONResponse(
+            status_code=400,
+            content={"issue": "Voice Cloning unknown"}
+        )    
+    
+    return result
+"""
+
+Response(
         content=result.audio_bytes,
         media_type="audio/wav",
         headers={
@@ -131,14 +108,7 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
             "X-Audio-Duration-S": str(result.audio_duration_s),
             "X-RTF": str(result.real_time_factor),
         }
-        
     )
-    else:
-        return
-        JSONResponse(
-            status_code=400,
-            content={"issue": "Voice Cloning unknown"}
-        )    
-
+"""
 
 

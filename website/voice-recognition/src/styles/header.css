@@ -170,7 +170,7 @@
 }
 
 /* Responsive */
-@media (max-width: 860px) {
+@media (max-width: 840px) {
   .header-nav {
     display: none; /* Cache la barre centrale sur écran réduit (possibilité d'ajouter un burger plus tard) */
   }

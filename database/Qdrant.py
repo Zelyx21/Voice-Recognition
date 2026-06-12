@@ -74,6 +74,21 @@ def search_similarity_attributes(query_vector, client=CLIENT, collection_name=BA
                              })
     return list_clients
 
+def search_multi_similarity(query_vectors, client=CLIENT, collection_name=BASE):
+    
+    list_clients = []
+    for query_vector in query_vectors:
+        response = search_similarity(query_vector, client, collection_name)
+        for point in response:
+            list_clients.append({"id":point.id, 
+                                "score":point.score, 
+                                "name":point.payload.get("name"), 
+                                "email":point.payload.get("email"),
+                                "audio_name":point.payload.get("audio_name"),
+                                "issue":""
+                                })
+    return list_clients
+
 def delete_points(point_ids, client=CLIENT, collection_name=BASE): #delete points by their [IDs]
     client.delete(
         collection_name=collection_name,

@@ -34,7 +34,7 @@ def diarizations(audio_array, sample_rate=16000):
                                               return_seconds=False,
                                               threshold=0.5, #lower threshold = more speech detected (fewer missed words) but also more background noise leaking 
                                               min_speech_duration_ms=300, # ignore bursts shorter than 300 ms
-                                              min_silence_duration_ms=100 # merge segments separated by < 200 ms of silence
+                                              min_silence_duration_ms=100 # merge segments separated by < 100 ms of silence
                                               )
 
     if not speech_timestamps:
@@ -79,7 +79,8 @@ def diarizations(audio_array, sample_rate=16000):
     print(f"{len(embeddings)} embeddings extracted using sliding windows")
 
     if len(embeddings) < 3:
-        issue = [True, "Not enough valid speech chunks detected for clustering"]
+        print("Not enough valid speech chunks detected for clustering")
+        issue = [True, "One speaker"]
         return "", issue
 
     # 3. Auto-detect number of speakers (Silhouette)
@@ -107,9 +108,9 @@ def diarizations(audio_array, sample_rate=16000):
 
     print(f"Estimated number of speakers: {best_k} (score={best_score:.3f})")
 
-    min_score_multi_loc = 0.10
+    min_score_multi_loc = 0.13
     if best_score < min_score_multi_loc:
-        issue = [True, "There is likely only one speaker"]
+        issue = [True, "One speaker"]
         print(f"{issue[1]}" + f" (score={best_score:.3f} < {min_score_multi_loc})")
 
         return "", issue
@@ -136,7 +137,7 @@ def diarizations(audio_array, sample_rate=16000):
     # Total votes per sample to identify where speech actually happened
     total_votes_per_sample = np.sum(voting_grid, axis=1)
 
-    
+    """    
     # Median filter: kernel must be odd. 0.5s @ 16kHz = 8000 samples.
     # Replace each value over a duration of less than 0.5 sec with the local majority.
     kernel_size = int(0.5 * sample_rate)
@@ -147,7 +148,7 @@ def diarizations(audio_array, sample_rate=16000):
     sample_speaker_labels = medfilt(
         sample_speaker_labels.astype(np.float32), kernel_size=kernel_size
     ).astype(np.int32)
-    
+    """
 
     # 6. Reconstruct and export clean audio files
     result = {}
@@ -158,7 +159,7 @@ def diarizations(audio_array, sample_rate=16000):
         speaker_audio = audio_array[speaker_mask]
         
         # Ignore ghost/artifact clusters that are too short to be human speech (e.g. < 1s)
-        if len(speaker_audio) < int(1.0 * sample_rate):
+        if len(speaker_audio) < int(3.0 * sample_rate):
             print(f"Skipping artifact cluster SPEAKER_{lbl:02d} (too short)")
             continue
             
@@ -174,6 +175,14 @@ def diarizations(audio_array, sample_rate=16000):
             "duration": duration_sec
             
         }
+
+    if len(result)==0:
+        print("All the speeches last less than 3 seconds")
+        issue = [True, "Not enough speech by speakers detected (need at least 3s/speaker)."]
+
+    elif len(result)==1:
+        issue = [True, "One speaker"]
+
 
     return result, issue
 

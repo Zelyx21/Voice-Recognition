@@ -230,20 +230,26 @@
 
 .radio-group {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* Utilisation de auto-fit pour éviter de forcer le retour à la ligne inutile 
+     et mieux répartir l'espace vide. */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 0.75rem;
 }
 
 .radio-label {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: flex-start; /* Aligne le contenu à gauche plutôt que de l'étirer */
+  gap: 8px; /* Réduit un peu l'espace entre le bouton et le texte */
   cursor: pointer;
   background: rgba(30, 41, 59, 0.2);
   border: 1px solid #1E293B;
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 0.8rem; /* Padding réduit pour moins de vide */
   border-radius: 6px;
-  transition: all 0.2s ease;
+  /* On cible uniquement le background et border pour éviter les sauts visuels de taille liés à "all" */
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  user-select: none; /* Empeche la sélection de texte accidentelle au clic répétitif */
+  box-sizing: border-box; /* Garantit que la taille reste stable */
 }
 
 .radio-label:hover {
@@ -251,11 +257,47 @@
   border-color: #475569;
 }
 
+/* On force la taille de l'input radio pour éviter qu'il s'agrandisse bizarrement */
+.radio-label input[type="radio"] {
+  flex-shrink: 0;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: #8B5CF6; /* Ajoute la couleur violette nativement si le navigateur le supporte */
+}
+
+.radio-custom {
+  font-size: 0.85rem;
+  white-space: nowrap; /* Force le texte sur une seule ligne */
+}
+
 .radio-label input[type="radio"]:checked + .radio-custom {
   color: #8B5CF6;
   font-weight: 600;
 }
 
+/* --- BOUTON DOC TOKEN TOGGLE --- */
+.doc-toggle-btn {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px dashed rgba(139, 92, 246, 0.4);
+  color: #A78BFA;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.doc-toggle-btn:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: #8B5CF6;
+  color: #fff;
+}
 /* --- PREVIEW LAYER --- */
 .audio-preview-box {
   background: rgba(30, 41, 59, 0.4);

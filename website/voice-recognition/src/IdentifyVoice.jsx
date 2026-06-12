@@ -7,7 +7,9 @@ function IdentifyVoice() {
 
     const [mode, setMode] = useState(null)
 
+    const [resultDiarization, setResultDiarization] = useState(null)
     const [result, setResult] = useState(null)
+    const [diarization, setDiarization] = useState(null)
     const { call, loading, error, setError } = useApi()
     const { isRecording, audioURL, audioBlob, audioFile, recordingTime, fileInputRef, startRecording, stopRecording, resetRecording, handleFileChange } = useRecording()
 
@@ -16,16 +18,36 @@ function IdentifyVoice() {
     const sendRecording = async () => {
         if (!audioBlob && !audioFile) return
 
-        const formData = new FormData()
-        if (audioBlob) {
-            formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
-        } else {
-            formData.append("file", audioFile)
-        }
+        try{
+            const formData = new FormData()
+            if (audioBlob) {
+                formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
+            } else {
+                formData.append("file", audioFile)
+            }
 
-        const data = await call("/identify", { method: "POST", body: formData })
-        if (data) setResult(data)
+            const response = await call("/identify", { method: "POST", body: formData })
+
+            const data = await response.json()
+            const test = data.data
+            if (data.status === "multiple_speakers") {
+                setDiarization(data.diarization)
+                setResultDiarization(data.data)
+            } 
+            else if (data.status === "success") {
+                setResult(data.data)
+            } 
+            else {
+                throw new Error("Unexpected response format from server.")
+            }
+
+        } catch (err) {
+            setErrorclone(err.message || "An unexpected error occurred during Voice recognition.")
+        } finally {
+            setLoading(false)
+        }
     }
+
 
     return (
         <div className="box" style={{alignItems:"center"}}>
@@ -150,8 +172,38 @@ function IdentifyVoice() {
                         }
                     </button>
 
-                    {result && !result.issue && (
+                    {diarization && (
+                        <div className="diarization-result-card">
+                        <div className="result-header">
+                            <span className="warning-icon">⚠️</span>
+                            <h3>Multiple Speakers Detected</h3>
+                        </div>
+                        <p>
+                            The audio sample contains <strong>{Object.keys(diarization).length} speakers</strong>.
+                            Voice cloning requires a single-speaker recording. Preview each speaker below
+                            and re-upload an isolated segment.
+                        </p>
+                        <div className="speakers-list">
+                            {Object.entries(diarization).map(([speakerName, speakerData]) => (
+                            <div key={speakerName} className="speaker-item">
+                                <div className="speaker-meta">
+                                <span className="speaker-label">{speakerName}</span>
+                                <span className="speaker-duration">
+                                    {speakerData.duration.toFixed(1)}s
+                                </span>
+                                </div>
+                                <audio
+                                controls
+                                src={`data:audio/wav;base64,${speakerData.audio}`}
+                                className="custom-audio-player"
+                                />
+                            </div>
+                            ))}
+                        </div>
+                        </div>
+                    )}
 
+                    {result && (
                         <div className="result">
 
                             <p>

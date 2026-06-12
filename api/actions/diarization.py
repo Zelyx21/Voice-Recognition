@@ -18,10 +18,13 @@ def diarization_audio(audio_bytes:bytes):
     result, issue = diarizations(audio)
 
     if issue[0]: # if there is an issue with the audio file (no voice detected)
-        return {"issue": issue[1], "audios":""}
+        if (issue[1]=="One speaker"):
+            return {"issue": False, "issue_info":issue[1]}
+        else:
+            return {"issue": issue[0], "issue_info":issue[1]}
             
 
-    return result
+    return {"issue": False, "issue_info":"several speakers", "result": result}
 
 
 
