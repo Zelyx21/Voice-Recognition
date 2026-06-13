@@ -5,12 +5,15 @@ from qdrant_client import QdrantClient, models
 from qdrant_client.models import Distance, HnswConfigDiff, PointVectors, VectorParams, PointStruct
 import numpy as np
 import uuid
+import os
 
 
 #print(client.get_collections()) #Show the collections in the database
 
 #client = QdrantClient(url="http://localhost:6333")
-CLIENT = QdrantClient(host="localhost", port=6333)
+QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+
+CLIENT = QdrantClient(url=QDRANT_URL)
 
 BASE = "voice_data_base"
 
