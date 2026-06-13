@@ -8,18 +8,19 @@ from fastapi.responses import JSONResponse
 from typing import Optional
 
 from api.actions.clonage_voice import clonage_voice_CosyVoice
-from api.actions.voice_similarity import voice_similarity
+from api.actions.voice_similarity import voice_similarity, multi_similarity
 from api.actions.register_database import register_database, add_voice_database
 from api.actions.gestion_database import delete_voice_database, delete_compte
 from api.actions.login import authenticate_user, clean_embedding
 from api.actions.auth import verify_token
 from api.actions.AudioToSpeech import AudioToSpeech
 from api.actions.diarization import diarization_audio
+from fastapi.responses import Response
 
 from api.schemas import AddVoiceSchema, RegisterSchema, LoginSchema
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-
+import base64
 
 #Command to run univcorn
 # uvicorn api.api:app --reload
@@ -71,7 +72,30 @@ async def identify(file: UploadFile = File(...)):
 
     if not file.filename.lower().endswith(ALLOWED_EXTENSIONS):
         raise HTTPException(status_code=400, detail="Unsupported audio format")
-    return voice_similarity(audio_bytes)
+    
+    diarization = diarization_audio(audio_bytes)
+
+    if diarization["issue"]:
+        print(diarization["issue_info"])
+        raise HTTPException(status_code=422, detail=diarization["issue_info"])
+
+    elif diarization["issue_info"] == "several speakers":
+        print("\nSeveral speakers detected.")
+
+        audio_list = list(diarization["result"].values())
+        print("type audio :",str(type(audio_list[0])))
+
+        voices_score = multi_similarity(audio_list)
+
+
+        return JSONResponse(content={"status": "multiple_speakers",
+                                     "diarization": diarization["result"],
+                                     "data": voices_score
+                                     })
+
+    voice_score = voice_similarity(audio_bytes)
+    return JSONResponse(content={"status": "success", "data": voice_score})
+
 
 @app.post("/registerdb")
 async def registerdb(file: UploadFile = File(...), name:str=Form(...), email:str=Form(...), password:str=Form(...), audio_name:str=Form(...)):
@@ -130,8 +154,8 @@ async def delete_compte_route(email:str=Form(...)):
 async def login_route(
     request: Request,
     email : str = Form(...),
-    password: str = Form(None),
-    file : UploadFile = File(None)
+    password: Optional[str] = Form(None),
+    file: Optional [UploadFile] = File(None)
 ):
     try:
         LoginSchema(email=email)
@@ -186,44 +210,100 @@ async def diarization(file: UploadFile = File(...)):
 @app.post("/clonage")
 async def clonage(
     file: UploadFile = File(...),
-    model_name: str = Form(...),
     cloneText: str = Form(...),
-    
+
     textSpeed: Optional[float] = Form(1.0),
     language: Optional[str] = Form(None),
     dialect: Optional[str] = Form(None),
-
     cloneMethod: Optional[str] = Form(None),
-    transcriptAudio: Optional[str] = Form(None),    
-    instruction: Optional[str] = Form(None),    
-    emotion: Optional[str] = Form(None),          
-    speakingStyle: Optional[str] = Form(None),    
+    transcriptAudio: Optional[str] = Form(None),
+    instruction: Optional[str] = Form(None),
+    emotion: Optional[str] = Form(None),
+    speakingStyle: Optional[str] = Form(None),
 ):
     audio_bytes = await file.read()
     print(
-        f"Received file: {file.filename}, model_name: {model_name}, "
-        f"cloneText: {cloneText}, textSpeed: {textSpeed}, "
-        f"cloneNationality: {language}, textLanguage: {dialect}, "
-        f"promptText: {dialect}, emotion: {emotion}, speakingStyle: {speakingStyle}"
+        f"Received file: {file.filename}, "
+        f"cloneText: {cloneText}, textSpeed: {textSpeed}, cloneMethod: {cloneMethod},"
+        f"language: {language}, dialect: {dialect}, transcriptAudio:{transcriptAudio}"
+        f"instruction: {instruction}, emotion: {emotion}, speakingStyle: {speakingStyle}"
     )
- 
-    if (model_name == "CosyVoice"):
+    if len(audio_bytes) == 0:
+        raise HTTPException(status_code=422, detail="Audio file is empty")
+
+    diarization = diarization_audio(audio_bytes)
+
+    if diarization["issue"]:
+        print(diarization["issue_info"])
+        raise HTTPException(status_code=422, detail=diarization["issue_info"])
+
+    elif diarization["issue_info"] == "several speakers":
+        print("\nSeveral speakers detected.")
+        return JSONResponse(content={"status": "multiple_speakers",
+                                     "diarization": diarization["result"]})
+
+    else:
         print("Using CosyVoice for voice cloning")
-        return clonage_voice_CosyVoice(
+        result = clonage_voice_CosyVoice(
             audio_bytes=audio_bytes,
             model_clonage=cloneMethod,
             text=cloneText,
             speed=textSpeed,
             language=language,
             dialect=dialect,
-
             transcriptAudio=transcriptAudio,
             instruction=instruction,
             emotion=emotion,
             speaking_style=speakingStyle,
         )
-    else:
-        raise HTTPException(status_code=422, detail="model name for cloning doesn't exist !")
 
+        audio_clonage = result.audio_bytes
+        compare_database = voice_similarity(audio_clonage)
+
+        if not compare_database:
+            score_clone = "N/A"
+            score_name  = "N/A"
+            score_audio = "N/A"
+        else:
+            score_clone = str(compare_database["score"])
+            score_name  = str(compare_database["name"])
+            score_audio = str(compare_database["audio_name"])
+
+
+        audio_base64 = base64.b64encode(audio_clonage).decode('utf-8')
+
+        return JSONResponse(content={
+            "status": "success",
+            "data": {
+                "clone": {
+                    "audio": audio_base64,
+                    "duration": result.audio_duration_s
+                },
+                "metadata": {
+                    "generation_time_ms": result.generation_time_ms,
+                    "real_time_factor": result.real_time_factor,
+                    "score_clone": score_clone,
+                    "score_name": score_name,
+                    "score_audio_name": score_audio
+                }
+            }
+        })
     
+
+"""
+        return Response(
+            content=audio_clonage,
+            media_type="audio/wav",
+            headers={
+                "Content-Disposition":    "inline; filename=clone.wav",
+                "X-Issue":                "false",
+                "X-Generation-Time-Ms":   str(result.generation_time_ms),
+                "X-Audio-Duration-S":     str(result.audio_duration_s),
+                "X-RTF":                  str(result.real_time_factor),
+                "X-Score-Clone":          score_clone,
+                "X-Score-name":           score_name,
+                "X-Score-audio_name":     score_audio,
+            }
+        )  
+    """
     

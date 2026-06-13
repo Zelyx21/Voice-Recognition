@@ -1,0 +1,448 @@
+/* ==========================================================================
+   VOICE CLONING PIPELINE DASHBOARD STYLES
+   ========================================================================== */
+
+.clonage-box {
+  width: 55%;
+  margin: 2rem auto !important;
+  background: #0F172A !important; /* Matches --hm-surface */
+  border: 1px solid #1E293B !important; /* Matches --hm-border */
+  border-radius: 16px !important;
+  padding: 2.5rem !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+.clonage-header h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #F8FAFC;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.4rem;
+}
+
+.clonage-subtitle {
+  font-size: 0.9rem;
+  color: #94A3B8;
+  line-height: 1.5;
+}
+
+/* --- LOCKED ACCESSIBILITY VIEW --- */
+.clonage-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: rgba(8, 12, 20, 0.4);
+  border: 1px dashed #334155;
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.clonage-locked .lock-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.clonage-locked h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  color: #F1F5F9;
+  margin-bottom: 0.5rem;
+}
+
+.clonage-locked p {
+  color: #64748B;
+  font-size: 0.9rem;
+}
+
+/* --- ACTIVE ENGINE BRANDING BANNER --- */
+.engine-banner {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.engine-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, #3B82F6, #8B5CF6);
+}
+
+.engine-badge {
+  display: inline-block;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.engine-info h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.15rem;
+  color: #F1F5F9;
+  margin-bottom: 0.25rem;
+}
+
+.engine-info p {
+  font-size: 0.85rem;
+  color: #94A3B8;
+}
+
+/* --- LINEAR STEPS --- */
+.clonage-step {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.step-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #CBD5E1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #1E293B;
+  padding-bottom: 0.6rem;
+}
+
+/* --- INPUT SELECTION MODES --- */
+.clonage-mode-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.btn-mode {
+  background: rgba(30, 41, 59, 0.4) !important;
+  border: 1px solid #1E293B !important;
+  color: #94A3B8 !important;
+  padding: 1.25rem !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  box-shadow: none !important;
+}
+
+.btn-mode:hover {
+  border-color: #3B82F6 !important;
+  color: #F1F5F9 !important;
+  background: rgba(59, 130, 246, 0.05) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* --- CAPTURE CONTAINERS --- */
+.record-area, .import-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem;
+  background: rgba(8, 12, 20, 0.3);
+  border: 1px dashed #334155;
+  border-radius: 10px;
+}
+
+.record-btn {
+  background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3) !important;
+}
+
+.record-btn:hover {
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5) !important;
+}
+
+.recording-live {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  padding: 0.6rem 1.5rem;
+  border-radius: 30px;
+}
+
+.rec-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #EF4444;
+  border-radius: 50%;
+  animation: recPulse 1.5s infinite ease-in-out;
+}
+
+.rec-time {
+  font-family: monospace;
+  font-size: 1rem;
+  color: #F1F5F9;
+}
+
+.remove-btn-action {
+  background: transparent;
+  border: none;
+  color: #EF4444;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@keyframes recPulse {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px #EF4444; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+/* --- FIELDSETS AND METRIC RADIOS --- */
+.clonage-fieldset {
+  border: 1px solid #1E293B;
+  border-radius: 8px;
+  padding: 1.25rem;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.clonage-fieldset legend {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748B;
+  padding: 0 0.5rem;
+}
+
+.radio-group {
+  display: grid;
+  /* Utilisation de auto-fit pour éviter de forcer le retour à la ligne inutile 
+     et mieux répartir l'espace vide. */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Aligne le contenu à gauche plutôt que de l'étirer */
+  gap: 8px; /* Réduit un peu l'espace entre le bouton et le texte */
+  cursor: pointer;
+  background: rgba(30, 41, 59, 0.2);
+  border: 1px solid #1E293B;
+  padding: 0.6rem 0.8rem; /* Padding réduit pour moins de vide */
+  border-radius: 6px;
+  /* On cible uniquement le background et border pour éviter les sauts visuels de taille liés à "all" */
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  user-select: none; /* Empeche la sélection de texte accidentelle au clic répétitif */
+  box-sizing: border-box; /* Garantit que la taille reste stable */
+}
+
+.radio-label:hover {
+  background: rgba(30, 41, 59, 0.5);
+  border-color: #475569;
+}
+
+/* On force la taille de l'input radio pour éviter qu'il s'agrandisse bizarrement */
+.radio-label input[type="radio"] {
+  flex-shrink: 0;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: #8B5CF6; /* Ajoute la couleur violette nativement si le navigateur le supporte */
+}
+
+.radio-custom {
+  font-size: 0.85rem;
+  white-space: nowrap; /* Force le texte sur une seule ligne */
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom {
+  color: #8B5CF6;
+  font-weight: 600;
+}
+
+/* --- BOUTON DOC TOKEN TOGGLE --- */
+.doc-toggle-btn {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px dashed rgba(139, 92, 246, 0.4);
+  color: #A78BFA;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.doc-toggle-btn:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: #8B5CF6;
+  color: #fff;
+}
+/* --- PREVIEW LAYER --- */
+.audio-preview-box {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid #1E293B;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.audio-preview-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.audio-ready-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.remove-btn:hover {
+  color: #EF4444;
+}
+
+.custom-audio-player {
+  width: 100%;
+  height: 40px;
+  filter: invert(0.92) hue-rotate(180deg); /* Modern dark mode filter for native players */
+  outline: none;
+}
+
+/* --- GRID FOR FORMS INSIDE PARAMETERS --- */
+.form-parameters-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: rgba(15, 23, 42, 0.3);
+}
+
+/* --- OUTPUT ACTIONS --- */
+.clonage-actions {
+  margin-top: 1.5rem;
+}
+
+.generate-btn {
+  width: 100%;
+  padding: 1.1rem !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%) !important; /* Premium Violet gradient */
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3) !important;
+  color: white !important;
+}
+
+.generate-btn:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 22px rgba(139, 92, 246, 0.5) !important;
+}
+
+.generate-btn:disabled {
+  background: #334155 !important;
+  color: #64748B !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+
+/* --- ERRORS & RESULTS --- */
+.clonage-error-alert {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #F87171;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.clone-result-card {
+  margin-top: 2rem;
+  background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.success-pulse {
+  width: 8px;
+  height: 8px;
+  background-color: #10B981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10B981;
+}
+
+.result-header h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  color: #F1F5F9;
+  font-size: 1.1rem;
+}
+
+.clone-result-card p {
+  font-size: 0.85rem;
+  color: #94A3B8;
+}
+
+.download-output-btn {
+  align-self: center;
+  background: rgba(16, 185, 129, 0.15) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  color: #34D399 !important;
+  padding: 10px 24px !important;
+  font-size: 0.85rem !important;
+  text-decoration: none;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.download-output-btn:hover {
+  background: #10B981 !important;
+  color: white !important;
+}
+
+.error-text {
+  color: #F87171;
+  font-size: 0.85rem;
+}

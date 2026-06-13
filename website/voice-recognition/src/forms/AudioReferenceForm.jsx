@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 const TRANSCRIBE_URL = "http://localhost:8000/ASR"
 
-export default function AudioReferenceForm({ promptText, onChange, audioBlob }) {
+export default function AudioReferenceForm({ transcriptAudio, onChange, audioBlob }) {
   const [suggestion,   setSuggestion]   = useState(null)
   const [transcribing, setTranscribing] = useState(false)
   const [error,        setError]        = useState(null)
@@ -12,7 +12,7 @@ export default function AudioReferenceForm({ promptText, onChange, audioBlob }) 
     setTranscribing(true)
     setError(null)
     setSuggestion(null)
-
+    onChange("tete<f sef")
     try{
     const formData = new FormData()
     formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
@@ -42,7 +42,7 @@ export default function AudioReferenceForm({ promptText, onChange, audioBlob }) 
       <input
         id="promptText"
         type="text"
-        value={promptText}
+        value={transcriptAudio}
         placeholder="e.g. Hello, my name is Alice and I am recording this sample."
         onChange={(e) => onChange(e.target.value)}
       />
@@ -77,7 +77,7 @@ export default function AudioReferenceForm({ promptText, onChange, audioBlob }) 
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {!promptText && !suggestion && (
+      {!transcriptAudio && !suggestion && (
         <p>
           Leaving this empty will reduce clone quality.
         </p>

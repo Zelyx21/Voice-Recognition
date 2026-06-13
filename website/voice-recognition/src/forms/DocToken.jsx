@@ -1,5 +1,5 @@
 // DocToken.jsx
-import './styleDoc.css';
+import './../styles/styleDoc.css';
 
 export default function DocToken() {
   const vocalBursts = [

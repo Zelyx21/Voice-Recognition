@@ -1,14 +1,3 @@
-"""
-cosyvoice_engine.py (OPTIMISÉ POUR LA RAM)
-===================
-Pure business logic for CosyVoice TTS — no FastAPI, no HTTP layer.
-MEMORY-OPTIMIZED: gestion automatique de la RAM, détachement des tensors, nettoyage GPU.
-
-Usage example (identique à avant) :
-    from cosyvoice_engine import load_model, synthesize_zero_shot
-    model = load_model("pretrained_models/Fun-CosyVoice3-0.5B")
-    audio_bytes, metrics = synthesize_zero_shot(model, "Hello!", "This is the reference", reference_audio)
-"""
 
 import os
 import sys
@@ -118,7 +107,6 @@ class SpeakingStyle(str, Enum):
     WARM          = "warm"
     LIVELY        = "lively"
 
-
 class Language(str, Enum):
     CHINESE   = "zh"
     ENGLISH   = "en"
@@ -132,24 +120,16 @@ class OutputFormat(str, Enum):
     MP3 = "mp3"
 
 
-# ══════════════════════════════════════════════════════════════════════════
-# RETURN TYPE (inchangé)
-# ══════════════════════════════════════════════════════════════════════════
-
 @dataclass
 class TTSResult:
     audio_bytes: bytes
     generation_time_ms: float
     audio_duration_s: float
-    real_time_factor: float
+    real_time_factor: float   
     sample_rate: int
     num_chunks: int
     model_used: str
 
-
-# ══════════════════════════════════════════════════════════════════════════
-# INSTRUCTION TEMPLATES (inchangés)
-# ══════════════════════════════════════════════════════════════════════════
 
 EMOTION_PROMPTS: dict = {
     Emotion.HAPPY:      "Speak with a joyful, light, and enthusiastic voice",
@@ -183,9 +163,6 @@ STYLE_PROMPTS: dict = {
 }
 
 
-# ══════════════════════════════════════════════════════════════════════════
-# INTERNAL HELPERS OPTIMISÉS
-# ══════════════════════════════════════════════════════════════════════════
 
 def _set_seed(seed: Optional[int]) -> None:
     if seed is not None:
@@ -249,6 +226,7 @@ def _build_result(audio_bytes, sample_rate, n_chunks, model_dir, start_time) -> 
     )
 
 
+
 def create_audio_path(audio_bytes: bytes) -> str:
     """Crée un fichier temp et le suit pour nettoyage."""
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
@@ -268,6 +246,8 @@ def prompt_text_adapt(text: str) -> str:
 initial_instruction = "You are a helpful assistant."
 
 
+# ── 1. Zero-Shot Voice Cloning ─────────────────────────────────────────────
+
 # ══════════════════════════════════════════════════════════════════════════
 # PUBLIC API — TOUTES LES FONCTIONNALITÉS CONSERVÉES
 # ══════════════════════════════════════════════════════════════════════════
@@ -283,9 +263,18 @@ def synthesize_zero_shot(
     seed: Optional[int] = None,
 ) -> TTSResult:
     """
-    Clone une voix depuis un échantillon audio de référence.
-    ✓ Gestion optimisée de la mémoire GPU/CPU
-    ✓ Nettoyage automatique après synthèse
+    Clone a voice from a reference audio sample and synthesize new speech.
+
+    Args:
+        text:              Text to synthesize.
+        prompt_text:       Exact transcript of the reference audio clip.
+                           MUST match the audio or quality degrades badly.
+        audio_bytes:       Raw audio bytes of the reference clip.
+        speed:             Speech rate multiplier (0.5=slow, 1.0=normal, 2.0=fast).
+        output_format:     WAV or MP3.
+        seed:              Fixed seed for reproducible output.
+    Returns:
+        TTSResult with audio bytes and performance metrics.
     """
     _set_seed(seed)
     start = time.time()
@@ -333,9 +322,15 @@ def synthesize_instruct(
     seed: Optional[int] = None,
 ) -> TTSResult:
     """
-    Synthèse avec instruction naturelle libre.
-    ✓ Gestion optimisée de la mémoire
+    Synthesize speech guided by a free natural-language instruction.
+
+    Args:
+        instruction: Any natural-language directive, e.g.
+                     "Speak cheerfully but slow down on key words."
+    Returns:
+        TTSResult with audio bytes and performance metrics.
     """
+
     _set_seed(seed)
     start = time.time()
     
@@ -379,9 +374,13 @@ def synthesize_cross_lingual(
     seed: Optional[int] = None,
 ) -> TTSResult:
     """
-    Synthèse cross-lingual avec tags paralinguistiques [breath], [laughter].
-    ✓ Gestion optimisée de la mémoire
+    Synthesize speech with inline paralinguistic tags: [breath], [laughter].
+    Args:
+        text: Text with optional [breath] and [laughter] tags inline.
+    Returns:
+        TTSResult with audio bytes and performance metrics.
     """
+
     _set_seed(seed)
     start = time.time()
     
@@ -423,8 +422,17 @@ def preset_instruct(
     seed: Optional[int] = None,
 ) -> TTSResult:
     """
-    Synthèse multilingue avec dialecte, émotion et style.
-    ✓ Gestion optimisée de la mémoire
+    Synthesize speech in a specific language and optional regional dialect.
+
+    Args:
+        language: Target output language (Language enum).
+        dialect:  Optional dialect string, e.g. "Cantonese", "Sichuanese",
+                  "Shanghainese". Only meaningful for Language.CHINESE.
+        emotion:           Emotional tone to apply.
+        speaking_style:    Delivery style (whisper, news anchor, etc.).
+
+    Returns:
+        TTSResult with audio bytes and performance metrics.
     """
     _set_seed(seed)
     start = time.time()

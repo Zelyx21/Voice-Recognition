@@ -1,22 +1,21 @@
 import { useState } from 'react'
-import './ClonageVoice.css'
+import './styles/ClonageVoice.css'
 import { useRecording } from './hooks/useRecording'
-import ClonageButtonsCosyVoice from './ClonageButtonsCosyVoice.jsx'
 
-// Available cloning models — add new entries here to extend the model picker
-const MODELS = [
-  {
-    id: 'CosyVoice',
-    label: 'CosyVoice',
-    badge: 'Precise',
-    desc: 'Takes longer but better',
-  },
-]
+// Import sub-forms used by the CosyVoice configuration layout
+import AudioReferenceForm from './forms/AudioReferenceForm'
+import TextForm from './forms/TextForm'
+import EmotionStyleForm from './forms/EmotionStyleForm'
+import LanguageForm from './forms/LanguageForm'
+import InstructForm from './forms/InstructForm'
+import SpeedForm from './forms/SpeedForm'
+import DocToken from './forms/DocToken'
+
+const API_URL = "http://localhost:8000/clonage"
 
 function ClonageVoice({ isAuthenticated }) {
-  const [cloningMode, setCloningMode] = useState(null)
-  const [inputMode, setInputMode]     = useState(null)
-
+  // ─── Input & Recording States ───
+  const [inputMode, setInputMode] = useState(null)
   const {
     isRecording, audioURL, audioBlob, audioFile,
     recordingTime, fileInputRef,
@@ -24,133 +23,395 @@ function ClonageVoice({ isAuthenticated }) {
     error, setError,
   } = useRecording()
 
-  // Reset audio and input mode when switching model or removing audio
+  // ─── CosyVoice Generation States ───
+  const [clone, setClone] = useState(null)
+  const [cloneScore, setCloneScore] = useState(null)    // X-Score-Clone
+  const [cloneName, setCloneName] = useState(null)      // X-Score-name
+  const [cloneAudioName, setCloneAudioName] = useState(null) // X-Score-audio_name
+  const [loading, setLoading] = useState(false)
+  const [errorclone, setErrorclone] = useState(null)
+
+  // ─── Diarization (several speakers) State ───
+  // Shape: { SPEAKER_00: { audio: "<base64>", duration: float }, ... }
+  const [diarization, setDiarization] = useState(null)
+
+  // ─── CosyVoice Parameter States ───
+  const [method, setMethod] = useState("zero_shot")
+  const [text, setText] = useState("You are testing a student project on voice recognition and voice cloning.")
+  const [textMultilingual, setTextMultilingual] = useState("You can enter text directly in the language of your choice, with specific performance instructions.")
+  const [emotion, setEmotion] = useState("Neutral")
+  const [speakingStyle, setSpeakingStyle] = useState("Normal")
+  const [instruction, setInstruction] = useState("")
+  const [language, setLanguage] = useState("en")
+  const [dialect, setDialect] = useState("")
+  const [speed, setSpeed] = useState(1.0)
+  const [transcriptAudio, setTranscriptAudio] = useState("")
+
+  // ─── UI States ───
+  const [showDocToken, setShowDocToken] = useState(false)
+
+  // Full reset of audio inputs and generation results
   const handleReset = () => {
     resetRecording()
     setInputMode(null)
+    setClone(null)
+    setCloneScore(null)
+    setCloneName(null)
+    setCloneAudioName(null)
+    setDiarization(null)
+    setErrorclone(null)
   }
+
+  // API Call to trigger voice cloning process
+  const sendClonage = async () => {
+    setLoading(true)
+    setErrorclone(null)
+    setClone(null)
+    setCloneScore(null)
+    setCloneName(null)
+    setCloneAudioName(null)
+    setDiarization(null)
+
+    try {
+      const targetAudio = audioBlob || audioFile
+      if (!targetAudio) {
+        throw new Error("Please provide a voice sample before generating.")
+      }
+
+      const formData = new FormData()
+      formData.append("file", targetAudio)
+      formData.append("cloneMethod", method)
+      formData.append("cloneText", method === "textMultilingual" ? textMultilingual : text)
+      formData.append("emotion", emotion)
+      formData.append("speakingStyle", speakingStyle)
+      formData.append("instruction", instruction)
+      formData.append("language", language)
+      formData.append("dialect", dialect)
+      formData.append("textSpeed", speed)
+      formData.append("transcriptAudio", transcriptAudio)
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        let detail = `Server error: ${response.status}`
+        try {
+          const errData = await response.json()
+          detail = errData.detail || detail
+        } catch {
+        }
+        throw new Error(detail)
+      }
+
+      const data = await response.json()
+
+      if (data.status === "multiple_speakers") {
+        setDiarization(data.diarization)
+      } 
+      else if (data.status === "success") {
+        const cloneData = data.data.clone
+        const metadata = data.data.metadata
+
+        const base64Response = await fetch(`data:audio/wav;base64,${cloneData.audio}`)
+        const blob = await base64Response.blob()
+        setClone(URL.createObjectURL(blob))
+
+        setCloneScore(metadata.score_clone !== "N/A" ? metadata.score_clone : null)
+        setCloneName(metadata.score_name !== "N/A" ? metadata.score_name : null)
+        setCloneAudioName(metadata.score_audio_name !== "N/A" ? metadata.score_audio_name : null)
+      } 
+      else {
+        throw new Error("Unexpected response format from server.")
+      }
+
+    } catch (err) {
+      setErrorclone(err.message || "An unexpected error occurred during cloning.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
 
   return (
     <div className="box clonage-box">
-
       <div className="clonage-header">
-        <h2>Clone a voice</h2>
+        <h2>AI Voice Cloning</h2>
+        <p className="clonage-subtitle">Create a digital replica of any target voice sample.</p>
       </div>
 
-      {/* ── Locked state ── */}
+      {/* ─── Locked State (Unauthenticated Users) ─── */}
       {!isAuthenticated ? (
         <div className="clonage-locked">
           <span className="lock-icon">🔒</span>
-          <p>Please log in to use voice cloning</p>
+          <h3>Feature Restricted</h3>
+          <p>Please log in to your account to unlock voice cloning tools.</p>
         </div>
       ) : (
         <>
-
-          {/* ── Step 1 : model selection ── */}
-          <div className="clonage-step">
-            <span className="step-label">Choose a model</span>
-            <div className="model-cards">
-              {MODELS.map((m) => (
-                <button
-                  key={m.id}
-                  className={`model-card ${cloningMode === m.id ? 'model-card--active' : ''}`}
-                  onClick={() => { setCloningMode(m.id); handleReset() }}
-                >
-                  <span className="model-label">{m.label}</span>
-                  <span className="model-badge">{m.badge}</span>
-                  <span className="model-desc">{m.desc}</span>
-                </button>
-              ))}
+          {/* Active Pipeline Status Card */}
+          <div className="engine-banner">
+            <div className="engine-info">
+              <span className="engine-badge">Active Engine</span>
+              <h3>CosyVoice v3</h3>
+              <p>Zero-shot cross-lingual voice synthesis with accuracy controls.</p>
             </div>
           </div>
 
-          {cloningMode && (
-            <>
+          {/* ─── Step 1: Target Voice Sample Input ─── */}
+          <div className="clonage-step">
+            <span className="step-label">1. Reference Voice Sample</span>
 
-              {/* ── Step 2 : audio input ── */}
-              <div className="clonage-step">
-                <span className="step-label">Provide a voice sample</span>
+            {/* Input Selection Trigger Buttons */}
+            {!audioURL && (
+              <div className="clonage-mode-selector">
+                <button
+                  className={`btn-mode ${inputMode === 'record' ? 'active' : ''}`}
+                  onClick={() => { setInputMode('record'); resetRecording() }}
+                >
+                  🎙️ Record Sample Live
+                </button>
+                <button
+                  className={`btn-mode ${inputMode === 'import' ? 'active' : ''}`}
+                  onClick={() => { setInputMode('import'); resetRecording() }}
+                >
+                  📁 Import Audio File
+                </button>
+              </div>
+            )}
 
-                {/* Input mode selector — hidden once audio is ready */}
-                {!audioURL && (
-                  <div className="button-group">
-                    <button onClick={() => { setInputMode('record'); resetRecording() }}>
-                      Record
+            {/* Microphone Recording Layout */}
+            {inputMode === 'record' && !audioURL && (
+              <div className="record-area">
+                {!isRecording ? (
+                  <button
+                    className="button record-btn"
+                    onClick={() => { setError(null); startRecording() }}
+                  >
+                    Start Recording
+                  </button>
+                ) : (
+                  <div className="recording-live">
+                    <span className="rec-dot" />
+                    <span className="rec-time">
+                      {Math.floor(recordingTime / 60)}m {recordingTime % 60}s
+                    </span>
+                    <button className="remove-btn-action" onClick={() => stopRecording(setError)}>
+                      Stop
                     </button>
-                    <button onClick={() => { setInputMode('import'); resetRecording() }}>
-                      Import file
-                    </button>
-                  </div>
-                )}
-
-                {/* Record mode */}
-                {inputMode === 'record' && !audioURL && (
-                  <div className="record-area">
-                    {!isRecording ? (
-                      <button
-                        className="button record-btn"
-                        onClick={() => { setError(null); startRecording() }}
-                      >
-                        Start recording
-                      </button>
-                    ) : (
-                      <div className="recording-live">
-                        <span className="rec-dot" />
-                        <span className="rec-time">
-                          {Math.floor(recordingTime / 60)}m {recordingTime % 60}s
-                        </span>
-                        <button className="remove" onClick={() => stopRecording(setError)}>
-                          Stop
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Import mode */}
-                {inputMode === 'import' && !audioURL && (
-                  <div>
-                    <input
-                      ref={fileInputRef}
-                      id="audio-upload-clonage"
-                      type="file"
-                      accept="audio/*"
-                      onChange={(e) => handleFileChange(e, setError)}
-                    />
-                    <label htmlFor="audio-upload-clonage" className="button">
-                      Choose an audio file
-                    </label>
-                  </div>
-                )}
-
-                {error && <p className="error-text">{error}</p>}
-
-                {/* Audio preview */}
-                {audioURL && (
-                  <div className="audio-preview">
-                    <div className="audio-preview-top">
-                      <span className="audio-ready-badge">Audio ready</span>
-                      <button className="remove" onClick={handleReset}>Remove</button>
-                    </div>
-                    <audio controls src={audioURL} />
                   </div>
                 )}
               </div>
+            )}
 
-              {/* ── Step 3 : cloning form — routed by model ── */}
-              {audioURL && (
-                <div className="clonage-step">
-                  <span className="step-label">Configure &amp; clone</span>
+            {/* Local System File Upload Layout */}
+            {inputMode === 'import' && !audioURL && (
+              <div className="import-area">
+                <input
+                  ref={fileInputRef}
+                  id="audio-upload-clonage"
+                  type="file"
+                  accept="audio/*"
+                  onChange={(e) => handleFileChange(e, setError)}
+                />
+                <label htmlFor="audio-upload-clonage" className="button upload-btn">
+                  Browse Audio Files
+                </label>
+              </div>
+            )}
 
-                  {cloningMode === 'CosyVoice' && (
-                    <ClonageButtonsCosyVoice
-                      audioBlob={audioBlob || audioFile}
+            {error && <p className="error-text">⚠️ {error}</p>}
+
+            {/* Live Audio Source Preview Component */}
+            {audioURL && (
+              <div className="audio-preview-box">
+                <div className="audio-preview-top">
+                  <span className="audio-ready-badge">✓ Sample Loaded</span>
+                  <button className="remove-btn" onClick={handleReset}>Change Sample</button>
+                </div>
+                <audio controls src={audioURL} className="custom-audio-player" />
+              </div>
+            )}
+          </div>
+
+          {/* ─── Step 2: Advanced Parameters Configuration ─── */}
+          {audioURL && (
+            <div className="clonage-step">
+              <span className="step-label">2. Synthesis Parameters</span>
+
+              {/* Inference Generation Engine Method Selectors */}
+              <fieldset className="clonage-fieldset">
+                <legend>All Distinct Cloning Method</legend>
+                <div className="radio-group">
+                  <label className="radio-label">
+                    <input
+                      type="radio" name="method" value="zero_shot"
+                      checked={method === "zero_shot"}
+                      onChange={() => setMethod("zero_shot")}
                     />
-                  )}
+                    <span className="radio-custom">Zero-Shot</span>
+                  </label>
+
+                  <label className="radio-label">
+                    <input
+                      type="radio" name="method" value="cross_lingual"
+                      checked={method === "cross_lingual"}
+                      onChange={() => setMethod("cross_lingual")}
+                    />
+                    <span className="radio-custom">Cross-Lingual</span>
+                  </label>
+
+                  <label className="radio-label">
+                    <input
+                      type="radio" name="method" value="preset_instruct"
+                      checked={method === "preset_instruct"}
+                      onChange={() => setMethod("preset_instruct")}
+                    />
+                    <span className="radio-custom">Preset Instruct</span>
+                  </label>
+
+                  <label className="radio-label">
+                    <input
+                      type="radio" name="method" value="synthesize_instruct"
+                      checked={method === "synthesize_instruct"}
+                      onChange={() => setMethod("synthesize_instruct")}
+                    />
+                    <span className="radio-custom">Custom Instruction</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              {/* Dynamic Contextual Inputs Based on Selected Method */}
+              <div className="form-parameters-grid">
+                {method === "zero_shot" && (
+                  <>
+                    <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
+                    <AudioReferenceForm
+                      transcriptAudio={transcriptAudio}
+                      onChange={setTranscriptAudio}
+                      audioBlob={audioBlob}
+                    />
+                  </>
+                )}
+
+                {method === "cross_lingual" && (
+                  <>
+                    <TextForm text={textMultilingual} onChange={({ textMultilingual: tM }) => { setTextMultilingual(tM) }} />
+                    <LanguageForm language={language} onChange={({ language: l, dialect: d }) => { setLanguage(l); setDialect(d) }} />
+                  </>
+                )}
+
+                {method === "preset_instruct" && (
+                  <>
+                    <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
+                    <EmotionStyleForm
+                      emotion={emotion}
+                      speakingStyle={speakingStyle}
+                      showStyle={true}
+                      onChange={({ emotion: e, speakingStyle: s }) => { setEmotion(e); setSpeakingStyle(s); }}
+                    />
+                  </>
+                )}
+
+                {method === "synthesize_instruct" && (
+                  <>
+                    <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
+                    <InstructForm instruction={instruction} onChange={({ instruction: i }) => { setInstruction(i) }} />
+
+                    <button
+                      type="button"
+                      className="doc-toggle-btn"
+                      onClick={() => setShowDocToken(!showDocToken)}
+                    >
+                      {showDocToken ? "Mask tokens guide" : "📖 Show special tokens guide"}
+                    </button>
+
+                    {showDocToken && <DocToken />}
+                  </>
+                )}
+
+                {/* Shared Output Controls */}
+                <SpeedForm speed={speed} onChange={({ speed: s }) => { setSpeed(s) }} />
+              </div>
+
+              {/* ─── Step 3: Execution Controls ─── */}
+              <div className="clonage-actions">
+                <button
+                  className="button generate-btn"
+                  onClick={sendClonage}
+                  disabled={loading}
+                >
+                  {loading ? "Processing..." : "Execute CosyVoice Synthesis"}
+                </button>
+              </div>
+
+              {errorclone && (
+                <div className="clonage-error-alert">
+                  <p><strong>Cloning Process Interrupted:</strong> {errorclone}</p>
                 </div>
               )}
 
-            </>
+              {diarization && (
+                <div className="diarization-result-card">
+                  <div className="result-header">
+                    <span className="warning-icon">⚠️</span>
+                    <h3>Multiple Speakers Detected</h3>
+                  </div>
+                  <p>
+                    The audio sample contains <strong>{Object.keys(diarization).length} speakers</strong>.
+                    Voice cloning requires a single-speaker recording. Preview each speaker below
+                    and re-upload an isolated segment.
+                  </p>
+                  <div className="speakers-list">
+                    {Object.entries(diarization).map(([speakerName, speakerData]) => (
+                      <div key={speakerName} className="speaker-item">
+                        <div className="speaker-meta">
+                          <span className="speaker-label">{speakerName}</span>
+                          <span className="speaker-duration">
+                            {speakerData.duration.toFixed(1)}s
+                          </span>
+                        </div>
+                        <audio
+                          controls
+                          src={`data:audio/wav;base64,${speakerData.audio}`}
+                          className="custom-audio-player"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {clone && (
+                <div className="clone-result-card">
+                  <div className="result-header">
+                    <span className="success-pulse"></span>
+                    <h3>Successfully Cloned Audio Stream</h3>
+                  </div>
+                  <p>Your target text voice clone has been successfully synthesized.</p>
+                  <audio controls src={clone} className="custom-audio-player output-player" />
+
+                  {/* Similarity score against database */}
+                  {cloneScore !== null && (
+                    <div className="clone-score-info">
+                      <p>
+                        <strong>Database similarity:</strong> {parseFloat(cloneScore).toFixed(3)}
+                        {cloneName && (
+                          <> — closest match: <em>{cloneName}</em>
+                            {cloneAudioName && <> ({cloneAudioName})</>}
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  )}
+
+                  <a href={clone} download="cloned_voice_output.wav" className="button download-output-btn">
+                    Download Audio Waveform (.wav)
+                  </a>
+                </div>
+              )}
+            </div>
           )}
         </>
       )}

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useRecording } from './hooks/useRecording'
 import { useApi } from './hooks/useAPI'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import './styles/AuthAccount.css'
 
 function Login({ setIsAuthenticated, setUser, setToken }) {
     const [email, setEmail] = useState("")
@@ -16,8 +17,8 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
     const navigate = useNavigate()
 
     const validate = () => {
-        if (!email) return "Please enter an email"
-        if (!password && !audioBlob) return "Please enter a password or record your voice"
+        if (!email) return "Please enter an email address."
+        if (!password && !audioBlob) return "Please enter a password or record your voice."
         return null
     }
 
@@ -44,7 +45,7 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
             setIsAuthenticated(true)
             setUser(data)
             setToken(data.token)
-            setSuccess(`Welcome back, ${data.name} !`)
+            setSuccess(`Welcome back, ${data.name}!`)
         }
 
         if (data && data.issue) {
@@ -52,75 +53,93 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
         }
     }
 
-
     return (
-        <div className="box" style={{ flex: 1 }}>
-
-            <h2>Login</h2>
-
-            <label htmlFor="mail-login">Email</label>
-            <input
-                type="text"
-                id="mail-login"
-                onChange={(e) => setEmail(e.target.value)} />
-
-            <label htmlFor="password-login">Put your password or record your voice</label>
-
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <button onClick={() => setRecordingOption(false)}>Enter a password</button>
-                <button onClick={() => { setRecordingOption(true) }}>Record your voice</button>
+        <div className="box auth-box">
+            <div className="auth-header">
+                <h2>Account Login</h2>
             </div>
-            <div>
+            
+            <div className="form-group">
+                <label htmlFor="mail-login">Email Address</label>
+                <input
+                    type="email"
+                    id="mail-login"
+                    placeholder="Enter your email"
+                    onChange={(e) => setEmail(e.target.value)} 
+                />
+            </div>
 
-                {!recordingOption && (
+            <div className="form-group">
+                <label>Authentication Method</label>
+                <div className="mode-selector">
+                    <button 
+                        className={`btn-mode ${!recordingOption ? 'active' : ''}`} 
+                        onClick={() => {setRecordingOption(false)}}
+                    >
+                        🔑 Password
+                    </button>
+                    <button 
+                        className={`btn-mode ${recordingOption ? 'active' : ''}`} 
+                        onClick={() => {setRecordingOption(true), setPassword("")}}
+                    >
+                        🎙️ Voice Biometrics
+                    </button>
+                </div>
+            </div>
+
+            <div className="auth-input-area">
+                {!recordingOption ? (
                     <input
                         type="password"
                         id="password-login"
-                        style={{ width: "50%" }}
+                        placeholder="Enter your password"
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                )}
-
-                {recordingOption && (
-                    <div>
+                ) : (
+                    <div className="record-area">
                         {!isRecording && !audioURL && (
-                            <div>
-                                <button onClick={() => { setError(null); startRecording() }}>Start recording</button>
-                            </div>
+                            <button className="button record-btn" onClick={() => { setError(null); startRecording() }}>
+                                Start Recording
+                            </button>
                         )}
 
                         {isRecording && (
-                            <div>
-                                <p>{Math.floor(recordingTime / 60)}m {recordingTime % 60}s / 10m</p>
-                                <button onClick={() => stopRecording(setError)}>Stop recording</button>
+                            <div className="recording-live">
+                                <span className="rec-dot" />
+                                <span className="rec-time">
+                                    {Math.floor(recordingTime / 60)}m {recordingTime % 60}s
+                                </span>
+                                <button className="remove-btn-action" onClick={() => stopRecording(setError)}>
+                                    Stop
+                                </button>
                             </div>
-                        )
-                        }
+                        )}
 
                         {audioURL && (
-                            <div className="file-info">
-                                <p>Finished recording</p>
-                                <audio controls src={audioURL} />
-                                <button className="remove" onClick={resetRecording}>
-                                    Record again
-                                </button>
+                            <div className="audio-preview-box">
+                                <div className="audio-preview-top">
+                                    <span className="audio-ready-badge">✓ Voice captured</span>
+                                    <button className="remove-btn-action" onClick={resetRecording}>
+                                        Record again
+                                    </button>
+                                </div>
+                                <audio controls src={audioURL} className="custom-audio-player" />
+                                
                             </div>
                         )}
                     </div>
                 )}
-
             </div>
 
-            <button onClick={login}>Login</button>
+            <button className="button auth-submit-btn" onClick={login} disabled={loading}>
+                {loading ? "Authenticating..." : "Login"}
+            </button>
 
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            {expired && (
-                <p style={{ color: "red" }}>Your session has expired, please login again</p>
-            )}
-            {success && (
-                <p style={{ color: "green" }}>{success}</p>
-            )}
-
+            <div className="auth-feedback">
+                {error && <p className="error-text">⚠️ {error}</p>}
+                {expired && <p className="error-text">⚠️ Your session has expired, please login again.</p>}
+                {success && <p className="success-text">✓ {success}</p>}
+            </div>
         </div>
     )
 }
