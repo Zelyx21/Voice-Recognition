@@ -74,13 +74,13 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
                 <div className="mode-selector">
                     <button 
                         className={`btn-mode ${!recordingOption ? 'active' : ''}`} 
-                        onClick={() => setRecordingOption(false)}
+                        onClick={() => {setRecordingOption(false)}}
                     >
                         🔑 Password
                     </button>
                     <button 
                         className={`btn-mode ${recordingOption ? 'active' : ''}`} 
-                        onClick={() => setRecordingOption(true)}
+                        onClick={() => {setRecordingOption(true), setPassword("")}}
                     >
                         🎙️ Voice Biometrics
                     </button>
@@ -124,6 +124,7 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
                                     </button>
                                 </div>
                                 <audio controls src={audioURL} className="custom-audio-player" />
+                                
                             </div>
                         )}
                     </div>

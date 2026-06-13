@@ -38,7 +38,7 @@ const FEATURES = [
     color: 'blue',
     d: 'M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm0 16v4m-4 0h8M19 10v2a7 7 0 0 1-14 0v-2',
     title: 'Voice Recognition',
-    desc: 'Submit any audio clip and match it against every registered profile in the database using neural speaker embeddings.',
+    desc: 'Submit any audio clip and match it against every registered profile in the database using speaker embeddings.',
     link: '/identify',
     cta: 'Try recognition',
     locked: false,

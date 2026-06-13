@@ -154,8 +154,8 @@ async def delete_compte_route(email:str=Form(...)):
 async def login_route(
     request: Request,
     email : str = Form(...),
-    password: str = Form(None),
-    file : UploadFile = File(None)
+    password: Optional[str] = Form(None),
+    file: Optional [UploadFile] = File(None)
 ):
     try:
         LoginSchema(email=email)

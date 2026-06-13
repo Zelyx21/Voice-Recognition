@@ -1,24 +1,4 @@
 
-"""
-cosyvoice_engine.py
-===================
-Pure business logic for CosyVoice TTS — no FastAPI, no HTTP layer.
-Import this module from your FastAPI router and call functions directly.
-
-Usage example:
-    from cosyvoice_engine import load_model, synthesize_zero_shot, synthesize_emotion_preset
-
-    model = load_model("pretrained_models/Fun-CosyVoice3-0.5B")
-    audio_bytes, metrics = synthesize_zero_shot(
-        model=model,
-        text="Hello, how are you?",
-        prompt_text="This is the reference transcript.",
-        prompt_audio_path="reference.wav",
-        emotion=Emotion.HAPPY,
-        speaking_style=SpeakingStyle.WARM,
-    )
-"""
-
 import os
 import sys
 import io
@@ -93,17 +73,6 @@ class SpeakingStyle(str, Enum):
     WARM          = "warm"
     LIVELY        = "lively"
 
-"""
-                '[breath]', '<strong>', '</strong>', '[noise]',
-                '[laughter]', '[cough]', '[clucking]', '[accent]',
-                '[quick_breath]',
-                "<laughter>", "</laughter>",
-                "[hissing]", "[sigh]", 
-                "[lipsmack]"
-
-"""
-
-
 class Language(str, Enum):
     """Target output language for multilingual synthesis."""
     CHINESE   = "zh"
@@ -118,10 +87,6 @@ class OutputFormat(str, Enum):
     MP3 = "mp3"
 
 
-# ══════════════════════════════════════════════════════════════════════════
-# RETURN TYPE
-# ══════════════════════════════════════════════════════════════════════════
-
 @dataclass
 class TTSResult:
     """
@@ -132,15 +97,11 @@ class TTSResult:
     audio_bytes: bytes
     generation_time_ms: float
     audio_duration_s: float
-    real_time_factor: float   # < 1.0 means faster than real-time
+    real_time_factor: float   
     sample_rate: int
     num_chunks: int
     model_used: str
 
-
-# ══════════════════════════════════════════════════════════════════════════
-# INSTRUCTION TEMPLATES
-# ══════════════════════════════════════════════════════════════════════════
 
 EMOTION_PROMPTS: dict = {
     Emotion.HAPPY:      "Speak with a joyful, light, and enthusiastic voice",
@@ -174,9 +135,6 @@ STYLE_PROMPTS: dict = {
 }
 
 
-# ══════════════════════════════════════════════════════════════════════════
-# INTERNAL HELPERS  (private — not exported)
-# ══════════════════════════════════════════════════════════════════════════
 
 def _set_seed(seed: Optional[int]) -> None:
     if seed is not None:
@@ -210,9 +168,7 @@ def _build_result(audio_bytes, sample_rate, n_chunks, model_dir, start_time) -> 
         model_used=model_dir,
     )
 
-# ══════════════════════════════════════════════════════════════════════════
-# PUBLIC API
-# ══════════════════════════════════════════════════════════════════════════
+
 
 def create_audio_path(audio_bytes:bytes):
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
@@ -227,6 +183,7 @@ def prompt_text_adapt(text):
 
 initial_instruction = "You are a helpful assistant."
 
+
 # ── 1. Zero-Shot Voice Cloning ─────────────────────────────────────────────
 
 def synthesize_zero_shot(
@@ -240,10 +197,6 @@ def synthesize_zero_shot(
 ) -> TTSResult:
     """
     Clone a voice from a reference audio sample and synthesize new speech.
-
-    Zero-shot cloning replicates the *timbre and identity* of a reference
-    speaker. The model listens to a short WAV clip
-    (5-30s) and reproduces that exact voice on new text.
 
     Args:
         text:              Text to synthesize.
@@ -297,15 +250,13 @@ def synthesize_instruct(
     """
     Synthesize speech guided by a free natural-language instruction.
 
-    Permit to precise unconventional control: "Speak like you're reading a bedtime story to a
-    3-year-old while slightly out of breath." 
-
     Args:
         instruction: Any natural-language directive, e.g.
                      "Speak cheerfully but slow down on key words."
     Returns:
         TTSResult with audio bytes and performance metrics.
     """
+
     _set_seed(seed)
     start = time.time()
     audio_path = create_audio_path(audio_bytes_reference)
@@ -335,22 +286,12 @@ def synthesize_cross_lingual(
 ) -> TTSResult:
     """
     Synthesize speech with inline paralinguistic tags: [breath], [laughter].
-
-    Cross-lingual inference works at the *token level*: you insert [breath] or
-    [laughter] at exact positions in the sentence, producing hyper-realistic,
-    human-sounding speech with natural hesitations and reactions.
-
-    Use for podcasts, audiobooks, dialogue systems, or any output where
-    naturalness matters more than emotion control.
-
-    Text example:
-        "Well [breath] I wasn't expecting that. [laughter] What a surprise!"
-
     Args:
         text: Text with optional [breath] and [laughter] tags inline.
     Returns:
         TTSResult with audio bytes and performance metrics.
     """
+
     _set_seed(seed)
     start = time.time()
     audio_path = create_audio_path(audio_bytes_reference)
@@ -385,11 +326,6 @@ def preset_instruct(
 ) -> TTSResult:
     """
     Synthesize speech in a specific language and optional regional dialect.
-
-    CosyVoice2 supports Chinese, English, Japanese, Korean, and Cantonese —
-    but defaults to Mandarin even for dialectal text unless explicitly told
-    otherwise. This function handles the language/dialect instruction and simplify 
-    instruction with preset emotions and speaker style sentences. 
 
     Args:
         language: Target output language (Language enum).
