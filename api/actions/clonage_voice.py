@@ -95,7 +95,8 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
             content={"issue": "Voice Cloning unknown"}
         )    
     
-    return result
+    return 
+
 """
 
 Response(
