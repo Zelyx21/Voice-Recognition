@@ -288,7 +288,7 @@ export default function Home({ isAuthenticated, user }) {
         <p>
           VoiceID &nbsp;·&nbsp; L3 MIASHS &nbsp;·&nbsp;
           Université Paul Valéry Montpellier &nbsp;·&nbsp;
-          Dell Technologies Internship 2025
+          Dell Technologies Internship 2026
         </p>
       </footer>
 

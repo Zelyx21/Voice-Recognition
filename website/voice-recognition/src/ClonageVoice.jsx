@@ -299,6 +299,16 @@ function ClonageVoice({ isAuthenticated }) {
                   <>
                     <TextForm text={textMultilingual} onChange={({ textMultilingual: tM }) => { setTextMultilingual(tM) }} />
                     <LanguageForm language={language} onChange={({ language: l, dialect: d }) => { setLanguage(l); setDialect(d) }} />
+                    <button
+                      type="button"
+                      className="doc-toggle-btn"
+                      onClick={() => setShowDocToken(!showDocToken)}
+                    >
+                      {showDocToken ? "Mask tokens guide" : "📖 Show special tokens guide"}
+                    </button>
+
+                    {showDocToken && <DocToken />}
+
                   </>
                 )}
 
@@ -319,15 +329,6 @@ function ClonageVoice({ isAuthenticated }) {
                     <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
                     <InstructForm instruction={instruction} onChange={({ instruction: i }) => { setInstruction(i) }} />
 
-                    <button
-                      type="button"
-                      className="doc-toggle-btn"
-                      onClick={() => setShowDocToken(!showDocToken)}
-                    >
-                      {showDocToken ? "Mask tokens guide" : "📖 Show special tokens guide"}
-                    </button>
-
-                    {showDocToken && <DocToken />}
                   </>
                 )}
 

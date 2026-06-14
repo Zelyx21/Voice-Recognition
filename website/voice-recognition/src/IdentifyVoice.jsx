@@ -221,10 +221,6 @@ const EXAMPLE_SENTENCES = {
                         {Object.entries(diarization).map(([speakerName, speakerData], idx) => (
                         <div key={speakerName} className="speaker-item">
                             <div className="speaker-meta">
-                            <span className="speaker-label">{speakerName}</span>
-                            <span className="speaker-duration">
-                                {speakerData.duration.toFixed(1)}s
-                            </span>
                             </div>
                             <audio
                             controls
