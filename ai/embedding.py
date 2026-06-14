@@ -11,7 +11,7 @@ Memory optimizations:
 - Model lazy-loading with singleton pattern
 """
 
-from speechbrain.inference.classifiers import EncoderClassifier as sb
+from speechbrain.pretrained import EncoderClassifier as sb
 import soundfile as sf
 import torch
 import numpy as np

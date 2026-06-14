@@ -1,243 +1,45 @@
-version: '3.8'
-
-# ══════════════════════════════════════════════════════════════════════════
-# DOCKER COMPOSE — OPTIMISÉ POUR COSYVOICE + ECAPA-TDNN
-# ══════════════════════════════════════════════════════════════════════════
-# 
-# FIX FOR CODE 137 (OUT OF MEMORY):
-# - mem_limit: 8g         → Allocate 8 GB RAM to container
-# - memswap_limit: 8g     → Disable swap (use RAM only, no slowdown)
-# - shm_size: 2g          → Shared memory for GPU/multiprocessing
-# 
-# Launch:
-#   docker-compose up --build
-#
-# Monitor:
-#   docker stats voice_backend
+version: "3.9"
 
 services:
-  # ────────────────────────────────────────────────────────────────────
-  # VOICE BACKEND: FastAPI + CosyVoice TTS + ECAPA Speaker Embedding
-  # ────────────────────────────────────────────────────────────────────
-  
-  voice_backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    
-    # Ports
-    ports:
-      - "8000:8000"  # FastAPI on 0.0.0.0:8000
-    
-    # Volumes
-    volumes:
-      - ./:/app                    # Mount current dir for hot-reload (dev only)
-      # - /path/to/models:/app/models  # Optional: if models are large, mount separately
-    
-    # Environment variables
-    environment:
-      - PYTHONUNBUFFERED=1         # Real-time logs in Docker
-      - CUDA_VISIBLE_DEVICES=0     # Use first GPU if available
-      - TORCH_HOME=/tmp/torch      # Cache models in /tmp (faster, auto-cleaned)
-    
-    # ⭐ MEMORY LIMITS (FIX FOR CODE 137)
-    mem_limit: 8g                  # Max 8 GB RAM
-    memswap_limit: 8g              # No swap (RAM only, prevents slowdown)
-    shm_size: 2g                   # Shared memory for CUDA/torch/multiprocessing
-    
-    # Optional: CPU limits (prevent 1 container eating all CPUs)
-    cpus: '4.0'                    # Max 4 CPU cores
-    
-    # Container restart policy
-    restart: unless-stopped        # Auto-restart on crash, but not if manually stopped
-    
-    # Logging
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "100m"           # Rotate logs every 100MB
-        max-file: "3"              # Keep max 3 old log files
-    
-    # Health check (optional, for production)
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s            # Wait 40s before first check (models loading)
-    
-    depends_on:
-      - qdrant                     # Wait for Qdrant to be up
-  
-  
-  # ────────────────────────────────────────────────────────────────────
-  # QDRANT: Vector database for speaker embeddings
-  # ────────────────────────────────────────────────────────────────────
-  
+
+  # VECTOR DATABASE
   qdrant:
-    image: qdrant/qdrant:v1.7.0    # Use specific version (stable)
-    
+    image: qdrant/qdrant
+    container_name: qdrant
     ports:
-      - "6333:6333"                # Qdrant HTTP API
-      - "6334:6334"                # Qdrant gRPC (optional)
-    
+      - "6333:6333"
+      - "6334:6334"
     volumes:
-      - qdrant_data:/qdrant/storage # Persist vector data
-      - qdrant_snapshots:/qdrant/snapshots  # Snapshots for backup
-    
-    # Memory limits (Qdrant is less demanding)
-    mem_limit: 2g
-    memswap_limit: 2g
-    
-    # Restart policy
-    restart: unless-stopped
-    
-    # Logging
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-        max-file: "2"
-    
+      - ./qdrant_storage:/qdrant/storage
+
+  # BACKEND FASTAPI
+  backend:
+    mem_limit: 20g
+    build: .
+    container_name: voice_backend
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
     environment:
-      - QDRANT_API_KEY=                  # Set a password if exposed to internet
-      - QDRANT_SNAPSHOT_EVERY_GB=100    # Auto-snapshot every 100GB written
-  
-  
-  # ────────────────────────────────────────────────────────────────────
-  # OPTIONAL: PGADMIN for monitoring (development only)
-  # ────────────────────────────────────────────────────────────────────
-  # Uncomment if you want to inspect Qdrant data visually
-  
-  # qdrant_ui:
-  #   image: qdrant/qdrant-ui:latest
-  #   ports:
-  #     - "6335:80"
-  #   environment:
-  #     - API_URL=http://qdrant:6333
-  #   depends_on:
-  #     - qdrant
-  #   restart: unless-stopped
+      - QDRANT_URL=http://qdrant:6333
+    command: uvicorn api.api:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - qdrant
 
-
-# ══════════════════════════════════════════════════════════════════════════
-# VOLUMES: Persistent storage
-# ══════════════════════════════════════════════════════════════════════════
-
-volumes:
-  qdrant_data:
-    driver: local
-  
-  qdrant_snapshots:
-    driver: local
-
-
-# ══════════════════════════════════════════════════════════════════════════
-# NETWORKS: Custom network for service communication
-# ══════════════════════════════════════════════════════════════════════════
-# Default bridge network is used (auto-created)
-# Services can communicate by container name (e.g., http://qdrant:6333)
-
-
-# ══════════════════════════════════════════════════════════════════════════
-# USAGE COMMANDS
-# ══════════════════════════════════════════════════════════════════════════
-
-# 1. Build and start all services:
-#    docker-compose up --build
-#
-# 2. Start in detached mode (background):
-#    docker-compose up -d --build
-#
-# 3. View logs:
-#    docker-compose logs -f voice_backend
-#    docker-compose logs -f qdrant
-#
-# 4. Stop all services:
-#    docker-compose down
-#
-# 5. Remove all data (volumes):
-#    docker-compose down -v
-#
-# 6. Monitor resources:
-#    docker stats
-#
-# 7. Shell into container:
-#    docker-compose exec voice_backend bash
-#
-# 8. Rebuild only voice_backend:
-#    docker-compose build voice_backend
-#    docker-compose up voice_backend
-#
-# 9. Check service status:
-#    docker-compose ps
-#
-# 10. View Qdrant data (via REST API):
-#    curl -X GET "http://localhost:6333/collections"
-
-# ══════════════════════════════════════════════════════════════════════════
-# TROUBLESHOOTING
-# ══════════════════════════════════════════════════════════════════════════
-
-# ❌ Exit code 137 (OUT OF MEMORY):
-#    → Increase mem_limit (currently 8g)
-#    → Check docker stats: "docker stats voice_backend"
-#    → Solution: mem_limit: 12g or mem_limit: 16g
-#
-# ❌ Connection refused (Qdrant):
-#    → Check if qdrant is running: docker-compose ps
-#    → Check Qdrant logs: docker-compose logs qdrant
-#    → Wait a few seconds (Qdrant needs time to start)
-#
-# ❌ "Cannot allocate memory" in FastAPI:
-#    → Same as code 137, increase mem_limit
-#    → Or use lazy-loading in FastAPI (load models on first request)
-#
-# ❌ Models not found:
-#    → Check VOLUME mounts
-#    → Ensure model files are in ./model/ directory
-#    → Or mount from external path (uncomment volume in voice_backend)
-#
-# ✅ Everything works:
-#    → Test API: curl http://localhost:8000/docs
-#    → Monitor RAM: docker stats voice_backend
-#    → Check logs: docker-compose logs -f voice_backend
-
-# ══════════════════════════════════════════════════════════════════════════
-# PERFORMANCE TIPS
-# ══════════════════════════════════════════════════════════════════════════
-
-# 1. Use GPU if available:
-#    - Add to voice_backend services:
-#    deploy:
-#      resources:
-#        reservations:
-#          devices:
-#            - driver: nvidia
-#              count: 1
-#              capabilities: [gpu]
-#
-# 2. For production, remove volumes mount (no hot-reload):
-#    - Delete: volumes: - ./:/app
-#    - Rebuild image with COPY instead of mount
-#
-# 3. Pre-download models:
-#    - Build Docker image locally first (takes 5-10 min on first run)
-#    - Models are cached inside container image
-#    - Startup is faster on second run
-#
-# 4. Use specific image versions (not 'latest'):
-#    - qdrant/qdrant:v1.7.0 ✓ (locked, reproducible)
-#    - qdrant/qdrant:latest ✗ (changes, unpredictable)
-
-# ══════════════════════════════════════════════════════════════════════════
-# Dell INTERNSHIP CHECKLIST
-# ══════════════════════════════════════════════════════════════════════════
-
-# Before pushing to production:
-# ☐ Set mem_limit to match your hardware (8g recommended minimum)
-# ☐ Use cosyvoice_engine_optimized.py
-# ☐ Use embedding_optimized.py
-# ☐ Test with: docker-compose up && docker stats voice_backend
-# ☐ Run 20-50 requests, check RAM doesn't crash
-# ☐ Document in report: "Memory optimization & Docker resource management"
+  # FRONTEND REACT
+  frontend:
+    build: ./website/voice-recognition
+    container_name: voice_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./website/voice-recognition:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run dev -- --host
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
