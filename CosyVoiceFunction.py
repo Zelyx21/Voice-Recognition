@@ -5,79 +5,40 @@ import io
 import tempfile
 import time
 import logging
-import gc
-import weakref
-import atexit
 from enum import Enum
-from typing import Optional, List, Generator
+from typing import Optional
 from dataclasses import dataclass
-from contextlib import contextmanager
 
 import torch
 import torchaudio
 import numpy as np
+
 import re
 
-_BASE = os.path.dirname(os.path.abspath(__file__))
+_BASE = os.path.dirname(os.path.abspath(__file__))  # Voice-Recognition/
 sys.path.insert(0, os.path.join(_BASE, 'CosyVoice'))
 sys.path.insert(0, os.path.join(_BASE, 'CosyVoice', 'third_party', 'Matcha-TTS'))
 
+#sys.path.append("CosyVoice/third_party/Matcha-TTS")
+
 from cosyvoice.cli.cosyvoice import AutoModel
+
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# GESTION MÉMOIRE GLOBALE
-# ══════════════════════════════════════════════════════════════════════════
-
-class MemoryManager:
-    """Singleton gérant la mémoire: GPU cache, garbage collection, fichiers temp."""
-    
-    _instance = None
-    _temp_files = []
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-    
-    def __init__(self):
-        atexit.register(self.cleanup_all)
-    
-    @staticmethod
-    def cleanup_tensors():
-        """Force la libération des tensors inutilisés."""
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-    
-    @staticmethod
-    def track_temp_file(path: str):
-        """Enregistre un fichier temporaire pour nettoyage à la sortie."""
-        MemoryManager._temp_files.append(path)
-    
-    @staticmethod
-    def cleanup_all():
-        """Nettoie TOUS les fichiers temp et la mémoire GPU."""
-        for path in MemoryManager._temp_files:
-            try:
-                if os.path.exists(path):
-                    os.remove(path)
-            except Exception as e:
-                logger.warning(f"Impossible de supprimer {path}: {e}")
-        MemoryManager._temp_files.clear()
-        MemoryManager.cleanup_tensors()
-
-memory_manager = MemoryManager()
-
-
-# ══════════════════════════════════════════════════════════════════════════
-# ENUMERATIONS (inchangées)
+# ENUMERATIONS
 # ══════════════════════════════════════════════════════════════════════════
 
 class Emotion(str, Enum):
+    """
+    Emotions natively supported by CosyVoice2 (tokenizer.py#EMOTION).
+    HAPPY / SAD / ANGRY / NEUTRAL are hard-coded tokens in the model.
+    The rest are passed as natural-language instructions to instruct2,
+    which the LLM interprets contextually — slightly less precise but still effective.
+    """
     HAPPY      = "happy"
     SAD        = "sad"
     ANGRY      = "angry"
@@ -93,6 +54,11 @@ class Emotion(str, Enum):
 
 
 class SpeakingStyle(str, Enum):
+    """
+    Vocal delivery styles passed as natural-language instructions.
+    These modify *how* the voice sounds, independently of emotion.
+    Example: ANGRY + WHISPER = furious but whispered (e.g. a tense argument).
+    """
     NORMAL        = "normal"
     WHISPER       = "whisper"
     SHOUT         = "shout"
@@ -108,6 +74,7 @@ class SpeakingStyle(str, Enum):
     LIVELY        = "lively"
 
 class Language(str, Enum):
+    """Target output language for multilingual synthesis."""
     CHINESE   = "zh"
     ENGLISH   = "en"
     JAPANESE  = "ja"
@@ -122,6 +89,11 @@ class OutputFormat(str, Enum):
 
 @dataclass
 class TTSResult:
+    """
+    Returned by every synthesis function.
+    audio_bytes : raw WAV or MP3 bytes — write directly to disk or stream via FastAPI.
+    metrics     : performance metadata for logging / response headers.
+    """
     audio_bytes: bytes
     generation_time_ms: float
     audio_duration_s: float
@@ -170,47 +142,18 @@ def _set_seed(seed: Optional[int]) -> None:
         np.random.seed(seed)
 
 
-def _audio_to_bytes(chunks: List[dict], sample_rate: int, fmt: OutputFormat) -> bytes:
-    """
-    OPTIMISÉ: traite les chunks sans les garder tous en mémoire.
-    Concatène directement et nettoie les références.
-    """
+def _audio_to_bytes(chunks: list, sample_rate: int, fmt: OutputFormat) -> bytes:
+    """Concatenate raw model output chunks and encode to WAV or MP3."""
+    combined = torch.cat([c["tts_speech"] for c in chunks], dim=-1)
+    buf = io.BytesIO()
     try:
-        with torch.no_grad():
-            # Extraction et nettoyage immédiat
-            audio_tensors = []
-            for chunk in chunks:
-                tensor = chunk["tts_speech"]
-                if isinstance(tensor, torch.Tensor):
-                    audio_tensors.append(tensor.cpu())  # Force CPU pour éviter GPU fragmentation
-                del chunk["tts_speech"]  # Supprimer la référence originale
-            
-            # Concaténation en une seule opération
-            combined = torch.cat(audio_tensors, dim=-1)
-            
-            # Nettoyage immédiat des tensors temporaires
-            del audio_tensors
-            memory_manager.cleanup_tensors()
-            
-            # Encodage
-            buf = io.BytesIO()
-            try:
-                torchaudio.save(buf, combined, sample_rate, format=fmt.value)
-            except Exception:
-                torchaudio.save(buf, combined, sample_rate, format="wav")
-            
-            # Nettoyage final
-            del combined
-            memory_manager.cleanup_tensors()
-            
-            return buf.getvalue()
-    except Exception as e:
-        logger.error(f"Erreur dans _audio_to_bytes: {e}")
-        raise
+        torchaudio.save(buf, combined, sample_rate, format=fmt.value)
+    except Exception:
+        torchaudio.save(buf, combined, sample_rate, format="wav")
+    return buf.getvalue()
 
 
 def _build_result(audio_bytes, sample_rate, n_chunks, model_dir, start_time) -> TTSResult:
-    """Construit les métriques de résultat."""
     gen_ms = (time.time() - start_time) * 1000
     n_samples = max(1, (len(audio_bytes) - 44) / 2)
     duration = n_samples / sample_rate
@@ -227,32 +170,22 @@ def _build_result(audio_bytes, sample_rate, n_chunks, model_dir, start_time) -> 
 
 
 
-def create_audio_path(audio_bytes: bytes) -> str:
-    """Crée un fichier temp et le suit pour nettoyage."""
+def create_audio_path(audio_bytes:bytes):
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         tmp.write(audio_bytes)
         tmp.close()
-        memory_manager.track_temp_file(tmp.name)
         return tmp.name
 
-
-def prompt_text_adapt(text: str) -> str:
-    """Adaptation du texte prompt."""
+def prompt_text_adapt(text):
     text_adapt = re.sub(r"\s*,\s*", ". ", text)
-    text_adapt = re.sub(r"\s+", " ", text_adapt)
+    text_adapt = re.sub(r"\s+", " ", text)
     return text_adapt
-
 
 initial_instruction = "You are a helpful assistant."
 
 
 # ── 1. Zero-Shot Voice Cloning ─────────────────────────────────────────────
 
-# ══════════════════════════════════════════════════════════════════════════
-# PUBLIC API — TOUTES LES FONCTIONNALITÉS CONSERVÉES
-# ══════════════════════════════════════════════════════════════════════════
-
-@torch.no_grad()  # ⭐ CRITIQUE: désactive le backprop, réduit la RAM
 def synthesize_zero_shot(
     model: AutoModel,
     text: str,
@@ -276,47 +209,40 @@ def synthesize_zero_shot(
     Returns:
         TTSResult with audio bytes and performance metrics.
     """
+
     _set_seed(seed)
     start = time.time()
 
-    try:
-        audio_path = create_audio_path(audio_bytes_reference)
+    audio_path = create_audio_path(audio_bytes_reference)
 
-        prompt_text = (prompt_text or "").strip()
-        prompt_text = prompt_text_adapt(prompt_text)
-        clean_text = text.strip()
+    prompt_text = prompt_text or "" 
+    prompt_text = prompt_text.strip()
+    prompt_text = prompt_text_adapt(prompt_text)
+    
+    clean_text = text.strip()
 
-        augmented_prompt = f"{initial_instruction}<|endofprompt|>{prompt_text}"
+    augmented_prompt = f"{initial_instruction}<|endofprompt|>{prompt_text}"     
 
-        # ⭐ Synthèse en single pass, pas d'accumulation
-        chunks = []
-        for chunk in model.inference_zero_shot(
-            clean_text, augmented_prompt, audio_path, speed=speed, stream=False
-        ):
-            chunks.append(chunk)
+    chunks = list(model.inference_zero_shot(
+        clean_text, augmented_prompt, audio_path, speed=speed, stream=False
+    ))
+    audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
 
-        audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
-        
-        # Nettoyage
-        del chunks
-        memory_manager.cleanup_tensors()
+    if audio_path and os.path.exists(audio_path):
+        os.remove(audio_path)
 
-        return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
-
-    finally:
-        if audio_path and os.path.exists(audio_path):
-            os.remove(audio_path)
-        memory_manager.cleanup_tensors()
+    return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
 
-@torch.no_grad()
+# ── 2. Free-Form Instruction ───────────────────────────────────────────────
+
 def synthesize_instruct(
     model: AutoModel,
     text: str,
     instruction: str,
     audio_bytes_reference: bytes,
-    language: str,
-    dialect: str,
+    language : str,
+    dialect : str,
     output_format: OutputFormat = OutputFormat.WAV,
     speed: float = 1.0,
     seed: Optional[int] = None,
@@ -333,39 +259,24 @@ def synthesize_instruct(
 
     _set_seed(seed)
     start = time.time()
-    
-    try:
-        audio_path = create_audio_path(audio_bytes_reference)
-        init_instruction = initial_instruction
+    audio_path = create_audio_path(audio_bytes_reference)
+    init_instruction = initial_instruction
 
-        if language is not None and language != "None":
-            lang_instr = f"Speak in {language}. "
-            if dialect:
-                lang_instr = lang_instr.replace(". ", f" with a {dialect} accent. ")
-            init_instruction += lang_instr
+    if language is not None and language != "None":
+        lang_instr = f"Speak in {language}. "
+        if dialect:
+            lang_instr = lang_instr.replace(". ",f" with a {dialect} accent. ") 
+        init_instruction += lang_instr 
 
-        final_instruction = init_instruction + instruction + "<|endofprompt|>"
-        
-        chunks = []
-        for chunk in model.inference_instruct2(
-            text, final_instruction, audio_path, speed=speed, stream=False
-        ):
-            chunks.append(chunk)
+    instruction = initial_instruction + instruction + "<|endofprompt|>"
+    chunks = list(model.inference_instruct2(text, instruction, audio_path, speed=speed, stream=False))
 
-        audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
-        
-        del chunks
-        memory_manager.cleanup_tensors()
-        
-        return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
-        
-    finally:
-        if audio_path and os.path.exists(audio_path):
-            os.remove(audio_path)
-        memory_manager.cleanup_tensors()
+    audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
+    return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
 
-@torch.no_grad()
+# ── 3. Cross-Lingual with Paralinguistic Tags ──────────────────────────────
+
 def synthesize_cross_lingual(
     model: AutoModel,
     prompt_text: str,
@@ -383,32 +294,24 @@ def synthesize_cross_lingual(
 
     _set_seed(seed)
     start = time.time()
+    audio_path = create_audio_path(audio_bytes_reference)
+
+
+    prompt_text = prompt_text or "" 
+    prompt_text = prompt_text.strip()
+    #prompt_text = prompt_text_adapt(prompt_text)
     
-    try:
-        audio_path = create_audio_path(audio_bytes_reference)
+    instruction = "You are a helpful assistant."
+    
+    augmented_prompt = f"{instruction}<|endofprompt|>{prompt_text}"     
 
-        prompt_text = (prompt_text or "").strip()
-        instruction = "You are a helpful assistant."
-        augmented_prompt = f"{instruction}<|endofprompt|>{prompt_text}"
+    print(f"augmented_prompt = {augmented_prompt}")
+    chunks = list(model.inference_cross_lingual(augmented_prompt, audio_path, stream=False))
+    audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
+    return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
-        chunks = []
-        for chunk in model.inference_cross_lingual(augmented_prompt, audio_path, stream=False):
-            chunks.append(chunk)
+# ── 4. Multilingual + Dialect ──────────────────────────────────────────────
 
-        audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
-        
-        del chunks
-        memory_manager.cleanup_tensors()
-        
-        return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
-        
-    finally:
-        if audio_path and os.path.exists(audio_path):
-            os.remove(audio_path)
-        memory_manager.cleanup_tensors()
-
-
-@torch.no_grad()
 def preset_instruct(
     model: AutoModel,
     text: str,
@@ -436,60 +339,25 @@ def preset_instruct(
     """
     _set_seed(seed)
     start = time.time()
+    audio_path = create_audio_path(audio_bytes_reference)
+
+    instruction = initial_instruction
     
-    try:
-        audio_path = create_audio_path(audio_bytes_reference)
+    if language is not None and language != "None": 
+        lang_instr = f"Speak in {language}. "
+        if dialect:
+            lang_instr = lang_instr.replace(". ",f" with a {dialect} accent. ") 
+        instruction += lang_instr 
 
-        instruction = initial_instruction
+    emotion_instr = EMOTION_PROMPTS.get(emotion, "")
+    speaker_instr = STYLE_PROMPTS.get(speaker_style, "")
 
-        if language is not None and language != "None":
-            lang_instr = f"Speak in {language}. "
-            if dialect:
-                lang_instr = lang_instr.replace(". ", f" with a {dialect} accent. ")
-            instruction += lang_instr
-
-        emotion_instr = EMOTION_PROMPTS.get(emotion, "")
-        speaker_instr = STYLE_PROMPTS.get(speaker_style, "")
-
-        instruction_final = f"{instruction} {emotion_instr} {speaker_instr}".strip() + "<|endofprompt|>"
-
-        chunks = []
-        for chunk in model.inference_instruct2(text, instruction_final, audio_path, speed=speed, stream=False):
-            chunks.append(chunk)
-
-        audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
-        
-        del chunks
-        memory_manager.cleanup_tensors()
-        
-        return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
-        
-    finally:
-        if audio_path and os.path.exists(audio_path):
-            os.remove(audio_path)
-        memory_manager.cleanup_tensors()
+    instruction_final = f"{instruction} {emotion_instr} {speaker_instr}".strip() + "<|endofprompt|>"
 
 
-# ══════════════════════════════════════════════════════════════════════════
-# BONUS: UNLOAD DU MODÈLE (optionnel pour vraiment libérer la RAM)
-# ══════════════════════════════════════════════════════════════════════════
+    chunks = list(model.inference_instruct2(text, instruction_final, audio_path, speed=speed, stream=False))
+    audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
+    return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
-def unload_model(model: AutoModel) -> None:
-    """
-    Décharge le modèle de la mémoire GPU/CPU.
-    À appeler après plusieurs synthèses pour libérer de la RAM.
-    
-    Usage:
-        unload_model(model)
-        memory_manager.cleanup_all()
-    """
-    try:
-        if hasattr(model, 'model'):
-            del model.model
-        if hasattr(model, 'tts_model'):
-            del model.tts_model
-        del model
-        memory_manager.cleanup_tensors()
-        logger.info("Modèle déchargé de la mémoire")
-    except Exception as e:
-        logger.warning(f"Erreur lors du déchargement: {e}")
+
+
