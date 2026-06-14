@@ -155,7 +155,7 @@ function ClonageVoice({ isAuthenticated }) {
             <div className="engine-info">
               <span className="engine-badge">Active Engine</span>
               <h3>CosyVoice v3</h3>
-              <p>Zero-shot cross-lingual voice synthesis with accuracy controls.</p>
+              <p>Fun-CosyVoice 3.0 is an advanced text-to-speech (TTS) system based on large language models (LLM), surpassing its predecessor (CosyVoice 2.0) in content consistency, speaker similarity, and prosody naturalness. It is designed for zero-shot multilingual speech synthesis in the wild.</p>
             </div>
           </div>
 
