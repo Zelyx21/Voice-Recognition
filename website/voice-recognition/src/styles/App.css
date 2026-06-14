@@ -169,3 +169,16 @@ button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):active
   max-width: 60%;
   text-align: center;
 }
+
+.speaker-item{
+  margin-top: 5px;
+}
+
+.speakers-list{
+  margin-top: 15px;
+  
+}
+
+.speaker-meta{
+  margin-top: 15px;
+}

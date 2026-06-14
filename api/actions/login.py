@@ -39,7 +39,7 @@ def authenticate_user(email, password=None, vector=None):
 
         if (results 
             and results[0]["email"] == email 
-            and results[0]["score"] > 0.5
+            and results[0]["score"] > 0.6
             ):
             token = create_token(results[0]["email"], results[0]["name"])
 
