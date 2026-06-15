@@ -40,7 +40,7 @@ def diarizations(audio_array, sample_rate=16000):
 
     # Check total speech duration 
     total_speech_samples = sum(s["end"] - s["start"] for s in speech_timestamps)
-    MIN_TOTAL_SPEECH_SEC = 4.0
+    MIN_TOTAL_SPEECH_SEC = 5.0
     if total_speech_samples < int(MIN_TOTAL_SPEECH_SEC * sample_rate):
         issue = [True, f"Not enough speech detected (need at least {MIN_TOTAL_SPEECH_SEC}s)."]
         return "", issue
@@ -48,8 +48,8 @@ def diarizations(audio_array, sample_rate=16000):
     # 2. Extract embeddings using larger Sliding Windows
     # Increased window_duration to 3.0s so SpeechBrain gets enough context to be accurate
     
-    window_samples = int(3.0 * sample_rate) # 3.0s -> 48 000 samples at 16kHz
-    step_samples = int(1.0  * sample_rate)
+    window_samples = int(3 * sample_rate) # 3.0s -> 48 000 samples at 16kHz
+    step_samples = int(1.5  * sample_rate)
     min_samples = int(1.5 * sample_rate) # Minimum context to accept a chunk, reject chunks shorter than 1.5s
 
 
