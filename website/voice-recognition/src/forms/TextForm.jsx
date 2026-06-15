@@ -1,9 +1,4 @@
- /** 
- * Props:
- *   text      {string}    Text to synthesize
- *   speed     {number}    Speed multiplier (0.5 – 2.0)
- *   onChange  {function}  Called with { text, speed } on any change
- */
+
 
 export default function TextForm({ text, placeholder, onChange }) {
   return (

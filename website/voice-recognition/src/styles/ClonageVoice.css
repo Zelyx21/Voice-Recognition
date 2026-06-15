@@ -1,6 +1,3 @@
-/* ==========================================================================
-   VOICE CLONING PIPELINE DASHBOARD STYLES
-   ========================================================================== */
 
 .clonage-box {
   width: 55%;
@@ -27,7 +24,7 @@
   line-height: 1.5;
 }
 
-/* --- LOCKED ACCESSIBILITY VIEW --- */
+/*  LOCKED ACCESSIBILITY VIEW  */
 .clonage-locked {
   display: flex;
   flex-direction: column;
@@ -57,7 +54,7 @@
   font-size: 0.9rem;
 }
 
-/* --- ACTIVE ENGINE BRANDING BANNER --- */
+/*  ACTIVE ENGINE BRANDING BANNER  */
 .engine-banner {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
   border: 1px solid rgba(139, 92, 246, 0.2);
@@ -103,7 +100,7 @@
   color: #94A3B8;
 }
 
-/* --- LINEAR STEPS --- */
+/* LINEAR STEPS  */
 .clonage-step {
   margin-top: 2.5rem;
   display: flex;
@@ -122,7 +119,7 @@
   padding-bottom: 0.6rem;
 }
 
-/* --- INPUT SELECTION MODES --- */
+/*  INPUT SELECTION MODES  */
 .clonage-mode-selector {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -153,7 +150,7 @@
   transform: translateY(-2px) !important;
 }
 
-/* --- CAPTURE CONTAINERS --- */
+/*  CAPTURE CONTAINERS  */
 .record-area, .import-area {
   display: flex;
   justify-content: center;
@@ -212,7 +209,7 @@
   100% { transform: scale(0.9); opacity: 0.6; }
 }
 
-/* --- FIELDSETS AND METRIC RADIOS --- */
+/*  FIELDSETS AND METRIC RADIOS  */
 .clonage-fieldset {
   border: 1px solid #1E293B;
   border-radius: 8px;
@@ -230,8 +227,7 @@
 
 .radio-group {
   display: grid;
-  /* Utilisation de auto-fit pour éviter de forcer le retour à la ligne inutile 
-     et mieux répartir l'espace vide. */
+
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 0.75rem;
 }
@@ -239,17 +235,16 @@
 .radio-label {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Aligne le contenu à gauche plutôt que de l'étirer */
-  gap: 8px; /* Réduit un peu l'espace entre le bouton et le texte */
+  justify-content: flex-start; 
+  gap: 8px; 
   cursor: pointer;
   background: rgba(30, 41, 59, 0.2);
   border: 1px solid #1E293B;
-  padding: 0.6rem 0.8rem; /* Padding réduit pour moins de vide */
+  padding: 0.6rem 0.8rem; 
   border-radius: 6px;
-  /* On cible uniquement le background et border pour éviter les sauts visuels de taille liés à "all" */
   transition: background-color 0.2s ease, border-color 0.2s ease;
-  user-select: none; /* Empeche la sélection de texte accidentelle au clic répétitif */
-  box-sizing: border-box; /* Garantit que la taille reste stable */
+  user-select: none; 
+  box-sizing: border-box; 
 }
 
 .radio-label:hover {
@@ -257,18 +252,17 @@
   border-color: #475569;
 }
 
-/* On force la taille de l'input radio pour éviter qu'il s'agrandisse bizarrement */
 .radio-label input[type="radio"] {
   flex-shrink: 0;
   margin: 0;
   width: 16px;
   height: 16px;
-  accent-color: #8B5CF6; /* Ajoute la couleur violette nativement si le navigateur le supporte */
+  accent-color: #8B5CF6; 
 }
 
 .radio-custom {
   font-size: 0.85rem;
-  white-space: nowrap; /* Force le texte sur une seule ligne */
+  white-space: nowrap; 
 }
 
 .radio-label input[type="radio"]:checked + .radio-custom {
@@ -276,7 +270,6 @@
   font-weight: 600;
 }
 
-/* --- BOUTON DOC TOKEN TOGGLE --- */
 .doc-toggle-btn {
   background: rgba(139, 92, 246, 0.1);
   border: 1px dashed rgba(139, 92, 246, 0.4);
@@ -297,7 +290,7 @@
   border-color: #8B5CF6;
   color: #fff;
 }
-/* --- PREVIEW LAYER --- */
+/*  PREVIEW LAYER  */
 .audio-preview-box {
   background: rgba(30, 41, 59, 0.4);
   border: 1px solid #1E293B;
@@ -339,11 +332,11 @@
 .custom-audio-player {
   width: 100%;
   height: 40px;
-  filter: invert(0.92) hue-rotate(180deg); /* Modern dark mode filter for native players */
+  filter: invert(0.92) hue-rotate(180deg); 
   outline: none;
 }
 
-/* --- GRID FOR FORMS INSIDE PARAMETERS --- */
+/*  GRID FOR FORMS INSIDE PARAMETERS  */
 .form-parameters-grid {
   display: flex;
   flex-direction: column;
@@ -351,7 +344,7 @@
   background: rgba(15, 23, 42, 0.3);
 }
 
-/* --- OUTPUT ACTIONS --- */
+/*  OUTPUT ACTIONS  */
 .clonage-actions {
   margin-top: 1.5rem;
 }
@@ -362,7 +355,7 @@
   font-family: 'Space Grotesk', sans-serif !important;
   font-size: 1rem !important;
   font-weight: 600 !important;
-  background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%) !important; /* Premium Violet gradient */
+  background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%) !important; 
   box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3) !important;
   color: white !important;
 }
@@ -379,7 +372,6 @@
   box-shadow: none !important;
 }
 
-/* --- ERRORS & RESULTS --- */
 .clonage-error-alert {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.25);

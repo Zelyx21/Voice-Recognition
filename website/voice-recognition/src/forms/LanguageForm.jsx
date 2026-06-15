@@ -1,10 +1,5 @@
  
- /**
- * Props:
- *   language  {string}    Current language code (e.g. "en")
- *   dialect   {string}    Current dialect (e.g. "British" or "")
- *   onChange  {function}  Called with { language, dialect } on change
- */
+
 
  
 export default function LanguageForm({ language, dialect, onChange }) {
@@ -31,23 +26,22 @@ const LANGUAGES = [
     { value: "it",  label: "Italian" },
     { value: "ko",  label: "Korean" },
     { value: "ru",  label: "Russian" },
-    { value: "ja",  label: "Japanese" }, //NOTE for Japanese usage, you must translate it to katakana. 
-
+    //{ value: "ja",  label: "Japanese" }, //NOTE for Japanese usage, you must translate it to katakana. 
   ]
   
   const dialects = DIALECTS[language] || []
-  const hasDialects = dialects.length > 1  // more than just the empty default
+  const hasDialects = dialects.length > 1  
 
 
   const handleLanguageChange = (newLang) => {
-    // Reset dialect when language changes — previous dialect may not apply
+    // Reset dialect when language changes
     onChange({ language: newLang, dialect: "" })
   }
  
   return (
     <div>
  
-      {/* ── Target language ── */}
+      {/* Language  */}
       <label htmlFor="language">Target language</label>
       <p>
         WARNING: If you modify it, the cloning will be less accurate !
@@ -62,7 +56,7 @@ const LANGUAGES = [
         ))}
       </select>
  
-      {/* ── Dialect (conditional) ── */}
+      {/* Dialect */}
       {hasDialects && (
         <>
           <label htmlFor="dialect">Dialect / Accent</label>

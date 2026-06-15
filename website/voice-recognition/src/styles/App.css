@@ -6,7 +6,7 @@
   flex-direction: column;
 }
 
-/* Encapsulation intelligente pour donner de la largeur aux pages standards sans casser la navbar */
+
 main:not(.hm),
 .identify-container,
 .account-container {
@@ -40,7 +40,6 @@ main:not(.hm),
   margin-bottom: 4px;
 }
 
-/* ─── Carte d'informations de fichier audio ──────────────── */
 .file-info {
   width: 100%;
   background: rgba(30, 41, 59, 0.4);
@@ -58,7 +57,7 @@ main:not(.hm),
 }
 
 .file-info p strong {
-  color: #3B82F6; /* Accentuation en bleu */
+  color: #3B82F6; 
   font-family: monospace;
   font-size: 13px;
 }
@@ -68,10 +67,9 @@ main:not(.hm),
   height: 40px;
   border-radius: 8px;
   outline: none;
-  filter: invert(0.9) hue-rotate(180deg); /* Adapter le lecteur audio par défaut au mode sombre */
+  filter: invert(0.9) hue-rotate(180deg); 
 }
 
-/* ─── Formulaires & Inputs ────────────────────────────────── */
 input {
   width: 100%;
   font-family: 'Inter', sans-serif;
@@ -96,7 +94,6 @@ input::placeholder {
   opacity: 0.4;
 }
 
-/* ─── Boutons Applicatifs Internes ───────────────────────── */
 input[type="file"] {
   display: none;
 }
@@ -107,7 +104,6 @@ input[type="file"] {
   flex-wrap: wrap;
 }
 
-/* Cible tous les boutons génériques sauf ceux configurés à part dans le Header */
 .button,
 button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link) {
   display: inline-flex;
@@ -137,7 +133,6 @@ button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):active
   transform: translateY(0);
 }
 
-/* Boutons de suppression / secondaires */
 .remove {
   display: inline-flex;
   align-items: center;

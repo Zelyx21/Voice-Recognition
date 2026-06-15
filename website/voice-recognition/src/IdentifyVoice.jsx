@@ -29,7 +29,7 @@ const EXAMPLE_SENTENCES = {
     const [exempleLanguage, setExempleLanguage] = useState(null)
 
     
-    // ---------------- SEND ----------------
+    // send audio to API
 
     const sendRecording = async () => {
         if (!audioBlob && !audioFile) return
@@ -67,7 +67,7 @@ const EXAMPLE_SENTENCES = {
         <div className="box" style={{alignItems:"center"}}>
 
             <h2>Identify a voice</h2>
-            {/* MODE SELECTION */}
+            {/* mode selection */}
 
             <div className="button-group">
                 <button
@@ -89,7 +89,7 @@ const EXAMPLE_SENTENCES = {
                 </button>
             </div>
 
-            {/* RECORD MODE */}
+            {/* record mode */}
 
             {mode === "record" && (
 
@@ -143,7 +143,7 @@ const EXAMPLE_SENTENCES = {
                 </div>
             )}
 
-            {/* IMPORT MODE */}
+            {/* import mode */}
 
             {mode === "import" && (
 
@@ -173,7 +173,7 @@ const EXAMPLE_SENTENCES = {
                 <p style={{ color: "red" }}>{error}</p>
             )}
 
-            {/* AUDIO PREVIEW */}
+            {/* audio preview */}
 
             {audioURL && (
 

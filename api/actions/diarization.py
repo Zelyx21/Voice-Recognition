@@ -1,7 +1,6 @@
 
 from audio.conversion import conversion
-from audio.processing import resample, denoise, vad
-from ai.embedding import embedding
+from audio.processing import resample, denoise
 from ai.diari_speechbrain import diarizations
 
 

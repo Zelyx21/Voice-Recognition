@@ -2,21 +2,11 @@
 import os
 import sys
 
-import numpy as np
-import soundfile as sf
-import tempfile
-
 from audio.conversion import conversion
 from audio.conversion import ndarray_to_wav_bytes
+from audio.processing import resample, denoise
 
-from audio.processing import resample, denoise, vad
-
-from fastapi.responses import StreamingResponse
-import io
-import soundfile as sf
-
-from fastapi import FastAPI, UploadFile, File
-
+from fastapi import FastAPI
 
 BASE_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..")
@@ -39,14 +29,11 @@ MODEL_DIR = os.path.join(
     "pretrained_models",
     "Fun-CosyVoice3-0.5B"
 )
-
 cosyvoice_model = AutoModel(model_dir=MODEL_DIR)
-
-
 app = FastAPI()
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 
-
+#Ceci est un projet de reconnaissance vocale qui permet également le clonage de voix. Ce projet est mené dans le cadre d'un stage dans l'entreprise Dell Technologie. 
 #En allant au marché je croise deux hommes, accompagnés chacun de deux femmes, accompagnées chacune de deux enfants. Combien de personnes vont aux marché ?
 
 def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are testing a student project on voice recognition and voice cloning.", speed=1.0, transcriptAudio="", instruction="", emotion=None, speaking_style=None, language=None, dialect=None, seed=None):
@@ -97,19 +84,6 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
     
     return 
 
-"""
 
-Response(
-        content=result.audio_bytes,
-        media_type="audio/wav",
-        headers={
-            "Content-Disposition": "inline; filename=clone.wav",
-            "X-Issue": "false",
-            "X-Generation-Time-Ms": str(result.generation_time_ms),
-            "X-Audio-Duration-S": str(result.audio_duration_s),
-            "X-RTF": str(result.real_time_factor),
-        }
-    )
-"""
 
 

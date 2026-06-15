@@ -1,11 +1,6 @@
 
 
 
-/**
- * Props:
- *   instruction  {string}    Current instruction text
- *   onChange     {function}  Called with the new string on every keystroke
- */
 export default function InstructForm({ instruction, onChange }) {
 
   return (

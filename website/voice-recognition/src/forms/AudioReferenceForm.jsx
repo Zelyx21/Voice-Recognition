@@ -12,7 +12,6 @@ export default function AudioReferenceForm({ transcriptAudio, onChange, audioBlo
     setTranscribing(true)
     setError(null)
     setSuggestion(null)
-    onChange("tete<f sef")
     try{
     const formData = new FormData()
     formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
@@ -47,7 +46,7 @@ export default function AudioReferenceForm({ transcriptAudio, onChange, audioBlo
         onChange={(e) => onChange(e.target.value)}
       />
 
-      {/* ── Bouton transcription auto ── */}
+      {/* Button transcription  */}
       <button
         onClick={transcribe}
         disabled={!audioBlob || transcribing}
@@ -56,7 +55,7 @@ export default function AudioReferenceForm({ transcriptAudio, onChange, audioBlo
         {transcribing ? "Transcribing..." : "Auto-transcribe reference audio"}
       </button>
 
-      {/* ── Suggestion Whisper ── */}
+      {/* Use Whisper transcription */}
       {suggestion && (
         <div>
           <p><em>{suggestion}</em></p>
