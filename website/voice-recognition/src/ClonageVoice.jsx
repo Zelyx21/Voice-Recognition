@@ -155,7 +155,7 @@ function ClonageVoice({ isAuthenticated }) {
             <div className="engine-info">
               <span className="engine-badge">Active Engine</span>
               <h3>CosyVoice v3</h3>
-              <p>Zero-shot cross-lingual voice synthesis with accuracy controls.</p>
+              <p>Fun-CosyVoice 3.0 is an advanced text-to-speech (TTS) system based on large language models (LLM), surpassing its predecessor (CosyVoice 2.0) in content consistency, speaker similarity, and prosody naturalness. It is designed for zero-shot multilingual speech synthesis in the wild.</p>
             </div>
           </div>
 
@@ -299,6 +299,16 @@ function ClonageVoice({ isAuthenticated }) {
                   <>
                     <TextForm text={textMultilingual} onChange={({ textMultilingual: tM }) => { setTextMultilingual(tM) }} />
                     <LanguageForm language={language} onChange={({ language: l, dialect: d }) => { setLanguage(l); setDialect(d) }} />
+                    <button
+                      type="button"
+                      className="doc-toggle-btn"
+                      onClick={() => setShowDocToken(!showDocToken)}
+                    >
+                      {showDocToken ? "Mask tokens guide" : "📖 Show special tokens guide"}
+                    </button>
+
+                    {showDocToken && <DocToken />}
+
                   </>
                 )}
 
@@ -319,15 +329,6 @@ function ClonageVoice({ isAuthenticated }) {
                     <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
                     <InstructForm instruction={instruction} onChange={({ instruction: i }) => { setInstruction(i) }} />
 
-                    <button
-                      type="button"
-                      className="doc-toggle-btn"
-                      onClick={() => setShowDocToken(!showDocToken)}
-                    >
-                      {showDocToken ? "Mask tokens guide" : "📖 Show special tokens guide"}
-                    </button>
-
-                    {showDocToken && <DocToken />}
                   </>
                 )}
 
