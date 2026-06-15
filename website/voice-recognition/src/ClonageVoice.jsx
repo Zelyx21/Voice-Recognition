@@ -40,7 +40,7 @@ function ClonageVoice({ isAuthenticated }) {
   const [emotion, setEmotion] = useState("Neutral")
   const [speakingStyle, setSpeakingStyle] = useState("Normal")
   const [instruction, setInstruction] = useState("")
-  const [language, setLanguage] = useState("en")
+  const [language, setLanguage] = useState("None")
   const [dialect, setDialect] = useState("")
   const [speed, setSpeed] = useState(1.0)
   const [transcriptAudio, setTranscriptAudio] = useState("")
@@ -289,7 +289,6 @@ function ClonageVoice({ isAuthenticated }) {
                 {method === "cross_lingual" && (
                   <>
                     <TextForm text={textMultilingual} onChange={({ textMultilingual: tM }) => { setTextMultilingual(tM) }} />
-                    <LanguageForm language={language} onChange={({ language: l, dialect: d }) => { setLanguage(l); setDialect(d) }} />
                     <button
                       type="button"
                       className="doc-toggle-btn"
@@ -306,6 +305,7 @@ function ClonageVoice({ isAuthenticated }) {
                 {method === "preset_instruct" && (
                   <>
                     <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
+                    <LanguageForm language={language} onChange={({ language: l, dialect: d }) => { setLanguage(l); setDialect(d) }} />
                     <EmotionStyleForm
                       emotion={emotion}
                       speakingStyle={speakingStyle}
@@ -318,6 +318,7 @@ function ClonageVoice({ isAuthenticated }) {
                 {method === "synthesize_instruct" && (
                   <>
                     <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
+                    <LanguageForm language={language} onChange={({ language: l, dialect: d }) => { setLanguage(l); setDialect(d) }} />
                     <InstructForm instruction={instruction} onChange={({ instruction: i }) => { setInstruction(i) }} />
 
                   </>

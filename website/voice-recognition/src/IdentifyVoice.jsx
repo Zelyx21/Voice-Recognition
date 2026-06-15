@@ -35,6 +35,10 @@ const EXAMPLE_SENTENCES = {
         if (!audioBlob && !audioFile) return
 
         try{
+            setDiarization(null)
+            setResultDiarization(null)
+            setResult(null)
+            
             const formData = new FormData()
             if (audioBlob) {
                 formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
