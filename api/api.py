@@ -28,8 +28,6 @@ import base64
 #use this command to run univcorn with the reload option, it doesn't reload pretrained models.
 # uvicorn api.api:app --reload-dir api --reload-exclude "pretrained_models/*"
 
-
-
 #uvicorn api.api:app --host 0.0.0.0 --port 8000
 
 #uvicorn api.api:app --reload --reload-dir api --reload-exclude "pretrained_models/*"
