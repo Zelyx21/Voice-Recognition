@@ -14,7 +14,7 @@ import DocToken from './forms/DocToken'
 const API_URL = "http://localhost:8000/clonage"
 
 function ClonageVoice({ isAuthenticated }) {
-  // ─── Input & Recording States ───
+
   const [inputMode, setInputMode] = useState(null)
   const {
     isRecording, audioURL, audioBlob, audioFile,
@@ -23,19 +23,17 @@ function ClonageVoice({ isAuthenticated }) {
     error, setError,
   } = useRecording()
 
-  // ─── CosyVoice Generation States ───
   const [clone, setClone] = useState(null)
-  const [cloneScore, setCloneScore] = useState(null)    // X-Score-Clone
-  const [cloneName, setCloneName] = useState(null)      // X-Score-name
-  const [cloneAudioName, setCloneAudioName] = useState(null) // X-Score-audio_name
+  const [cloneScore, setCloneScore] = useState(null)    // Score Clone     (by voice recognition)
+  const [cloneName, setCloneName] = useState(null)      // Clone name      (by voice recognition)
+  const [cloneAudioName, setCloneAudioName] = useState(null) // audio_name (by voice recognition)
   const [loading, setLoading] = useState(false)
   const [errorclone, setErrorclone] = useState(null)
 
-  // ─── Diarization (several speakers) State ───
-  // Shape: { SPEAKER_00: { audio: "<base64>", duration: float }, ... }
+  // Diarization : { SPEAKER_00: { audio: "<base64>", duration: float }, ... }
   const [diarization, setDiarization] = useState(null)
 
-  // ─── CosyVoice Parameter States ───
+  // CosyVoice Parameter States 
   const [method, setMethod] = useState("zero_shot")
   const [text, setText] = useState("You are testing a student project on voice recognition and voice cloning.")
   const [textMultilingual, setTextMultilingual] = useState("You can enter text directly in the language of your choice, with specific performance instructions.")
@@ -47,10 +45,8 @@ function ClonageVoice({ isAuthenticated }) {
   const [speed, setSpeed] = useState(1.0)
   const [transcriptAudio, setTranscriptAudio] = useState("")
 
-  // ─── UI States ───
   const [showDocToken, setShowDocToken] = useState(false)
 
-  // Full reset of audio inputs and generation results
   const handleReset = () => {
     resetRecording()
     setInputMode(null)
@@ -62,7 +58,6 @@ function ClonageVoice({ isAuthenticated }) {
     setErrorclone(null)
   }
 
-  // API Call to trigger voice cloning process
   const sendClonage = async () => {
     setLoading(true)
     setErrorclone(null)
@@ -141,7 +136,7 @@ function ClonageVoice({ isAuthenticated }) {
         <p className="clonage-subtitle">Create a digital replica of any target voice sample.</p>
       </div>
 
-      {/* ─── Locked State (Unauthenticated Users) ─── */}
+      {/* Locked State  */}
       {!isAuthenticated ? (
         <div className="clonage-locked">
           <span className="lock-icon">🔒</span>
@@ -150,7 +145,7 @@ function ClonageVoice({ isAuthenticated }) {
         </div>
       ) : (
         <>
-          {/* Active Pipeline Status Card */}
+          {/* Fun CosyVoice3 info */}
           <div className="engine-banner">
             <div className="engine-info">
               <span className="engine-badge">Active Engine</span>
@@ -159,11 +154,9 @@ function ClonageVoice({ isAuthenticated }) {
             </div>
           </div>
 
-          {/* ─── Step 1: Target Voice Sample Input ─── */}
           <div className="clonage-step">
             <span className="step-label">1. Reference Voice Sample</span>
 
-            {/* Input Selection Trigger Buttons */}
             {!audioURL && (
               <div className="clonage-mode-selector">
                 <button
@@ -181,7 +174,6 @@ function ClonageVoice({ isAuthenticated }) {
               </div>
             )}
 
-            {/* Microphone Recording Layout */}
             {inputMode === 'record' && !audioURL && (
               <div className="record-area">
                 {!isRecording ? (
@@ -205,7 +197,6 @@ function ClonageVoice({ isAuthenticated }) {
               </div>
             )}
 
-            {/* Local System File Upload Layout */}
             {inputMode === 'import' && !audioURL && (
               <div className="import-area">
                 <input
@@ -223,7 +214,7 @@ function ClonageVoice({ isAuthenticated }) {
 
             {error && <p className="error-text">⚠️ {error}</p>}
 
-            {/* Live Audio Source Preview Component */}
+            {/* Preview Audio */}
             {audioURL && (
               <div className="audio-preview-box">
                 <div className="audio-preview-top">
@@ -235,12 +226,12 @@ function ClonageVoice({ isAuthenticated }) {
             )}
           </div>
 
-          {/* ─── Step 2: Advanced Parameters Configuration ─── */}
+          {/* 2. sunthesis parameters  */}
           {audioURL && (
             <div className="clonage-step">
               <span className="step-label">2. Synthesis Parameters</span>
 
-              {/* Inference Generation Engine Method Selectors */}
+              {/* Select Distinct Cloning Method*/}
               <fieldset className="clonage-fieldset">
                 <legend>All Distinct Cloning Method</legend>
                 <div className="radio-group">
@@ -282,7 +273,7 @@ function ClonageVoice({ isAuthenticated }) {
                 </div>
               </fieldset>
 
-              {/* Dynamic Contextual Inputs Based on Selected Method */}
+              {/* Inputs based on selected method */}
               <div className="form-parameters-grid">
                 {method === "zero_shot" && (
                   <>
@@ -290,7 +281,7 @@ function ClonageVoice({ isAuthenticated }) {
                     <AudioReferenceForm
                       transcriptAudio={transcriptAudio}
                       onChange={setTranscriptAudio}
-                      audioBlob={audioBlob}
+                      audioBlob={audioBlob || audioFile}
                     />
                   </>
                 )}
@@ -336,7 +327,7 @@ function ClonageVoice({ isAuthenticated }) {
                 <SpeedForm speed={speed} onChange={({ speed: s }) => { setSpeed(s) }} />
               </div>
 
-              {/* ─── Step 3: Execution Controls ─── */}
+              {/* Send to API */}
               <div className="clonage-actions">
                 <button
                   className="button generate-btn"

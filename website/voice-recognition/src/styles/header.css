@@ -1,11 +1,9 @@
-/* ═══════════════════════════════════════════════════════
-   HEADER STYLES
-═══════════════════════════════════════════════════════ */
+
 .site-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #0F172A; /* Surface sombre */
+  background-color: #0F172A; 
   border-bottom: 1px solid #1E293B;
   padding: 0.85rem 2rem;
   position: sticky;
@@ -17,7 +15,6 @@
   font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* ─── BRANDING ─────────────────────────────────────── */
 .header-brand {
   display: flex;
   align-items: center;
@@ -46,7 +43,7 @@
   background-clip: text;
 }
 
-/* ─── NAVIGATION NAVBAR ────────────────────────────── */
+/*  NAVIGATION NAVBAR  */
 .header-nav {
   display: flex;
   align-items: center;
@@ -55,7 +52,7 @@
 
 .nav-link {
   text-decoration: none;
-  color: #94A3B8; /* Muted text */
+  color: #94A3B8; 
   font-size: 0.9rem;
   font-weight: 500;
   transition: color 0.2s ease;
@@ -83,7 +80,7 @@
   border-radius: 2px;
 }
 
-/* ─── AUTH ACTIONS ─────────────────────────────────── */
+/*  AUTH ACTIONS  */
 .header-actions {
   display: flex;
   align-items: center;

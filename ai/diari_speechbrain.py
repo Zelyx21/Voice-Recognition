@@ -1,6 +1,4 @@
-import os
 import numpy as np
-from collections import defaultdict
 import torch
 import io
 import base64
@@ -8,7 +6,6 @@ import soundfile as sf
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score
 from silero_vad import load_silero_vad, get_speech_timestamps
-from scipy.signal import medfilt
 
 # Import the existing embedding module
 from ai.embedding import embedding as get_embedding
@@ -20,12 +17,10 @@ def normalize_audio(audio_array):
     return audio_array / audio_norm
 
 
-
-
 def diarizations(audio_array, sample_rate=16000):
     issue = [False, ""]
 
-    # 1. AI-Based VAD — Detect speech regions
+    # 1. Detect speech segment
 
     model_vad = load_silero_vad()
     wav_tensor = torch.FloatTensor(audio_array)
@@ -83,7 +78,7 @@ def diarizations(audio_array, sample_rate=16000):
         issue = [True, "One speaker"]
         return "", issue
 
-    # 3. Auto-detect number of speakers (Silhouette)
+    # 3. Detect number of speakers 
 
     X = np.array(embeddings)
     X = normalize_audio(X)  # Normalize embeddings for cosine similarity
@@ -125,7 +120,7 @@ def diarizations(audio_array, sample_rate=16000):
     else:
         labels = best_label
 
-    # 5. Sample-level Voting (Resolves overlaps & removes echo)
+    # 5. Sample-level Voting 
     # Create a voting matrix: [number_of_samples, number_of_speakers]
     voting_grid = np.zeros((len(audio_array), best_k))
     
@@ -154,11 +149,11 @@ def diarizations(audio_array, sample_rate=16000):
     result = {}
 
     for lbl in range(best_k):
-        # Target samples where this speaker won the vote AND speech was active
+        # Target samples where this speaker get more vote and speech was active
         speaker_mask = (sample_speaker_labels == lbl) & (total_votes_per_sample > 0)
         speaker_audio = audio_array[speaker_mask]
         
-        # Ignore ghost/artifact clusters that are too short to be human speech (e.g. < 1s)
+        # Ignore ghost/artifact clusters that are too short to be human speech or useful ( < 3 sec)
         if len(speaker_audio) < int(3.0 * sample_rate):
             print(f"Skipping artifact cluster SPEAKER_{lbl:02d} (too short)")
             continue

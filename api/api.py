@@ -10,12 +10,11 @@ from typing import Optional
 from api.actions.clonage_voice import clonage_voice_CosyVoice
 from api.actions.voice_similarity import voice_similarity, multi_similarity
 from api.actions.register_database import register_database, add_voice_database
-from api.actions.gestion_database import delete_voice_database, delete_compte
+from api.actions.account_management import delete_voice_database, delete_compte
 from api.actions.login import authenticate_user, clean_embedding
 from api.actions.auth import verify_token
 from api.actions.AudioToSpeech import AudioToSpeech
 from api.actions.diarization import diarization_audio
-from fastapi.responses import Response
 
 from api.schemas import AddVoiceSchema, RegisterSchema, LoginSchema
 from slowapi import Limiter
@@ -28,11 +27,9 @@ import base64
 #use this command to run univcorn with the reload option, it doesn't reload pretrained models.
 # uvicorn api.api:app --reload-dir api --reload-exclude "pretrained_models/*"
 
-
-
+#use this command to run univcorn without reload option
 #uvicorn api.api:app --host 0.0.0.0 --port 8000
 
-#uvicorn api.api:app --reload --reload-dir api --reload-exclude "pretrained_models/*"
 
 app = FastAPI()
 
@@ -289,21 +286,4 @@ async def clonage(
             }
         })
     
-
-"""
-        return Response(
-            content=audio_clonage,
-            media_type="audio/wav",
-            headers={
-                "Content-Disposition":    "inline; filename=clone.wav",
-                "X-Issue":                "false",
-                "X-Generation-Time-Ms":   str(result.generation_time_ms),
-                "X-Audio-Duration-S":     str(result.audio_duration_s),
-                "X-RTF":                  str(result.real_time_factor),
-                "X-Score-Clone":          score_clone,
-                "X-Score-name":           score_name,
-                "X-Score-audio_name":     score_audio,
-            }
-        )  
-    """
     

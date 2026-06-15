@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap');
 
-/* ═══════════════════════════════════════════════════════
-   TOKENS
-═══════════════════════════════════════════════════════ */
 :root {
   --hm-bg:      #080C14;
   --hm-surface: #0F172A;
@@ -18,9 +15,6 @@
   --hm-body:    'Inter', system-ui, sans-serif;
 }
 
-/* ═══════════════════════════════════════════════════════
-   BASE
-═══════════════════════════════════════════════════════ */
 .hm {
   background: var(--hm-bg);
   color: var(--hm-text);
@@ -28,9 +22,6 @@
   min-height: 100vh;
 }
 
-/* ═══════════════════════════════════════════════════════
-   AUDIO BARS  (signature element)
-═══════════════════════════════════════════════════════ */
 .audio-bars {
   display: flex;
   align-items: center;
@@ -60,9 +51,6 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   HERO
-═══════════════════════════════════════════════════════ */
 .hm-hero {
   position: relative;
   min-height: 92vh;
@@ -73,7 +61,6 @@
   padding: 7rem 1.5rem 5rem;
 }
 
-/* bars fill the entire hero as background texture */
 .hm-hero__bars {
   position: absolute;
   inset: 0;
@@ -95,7 +82,6 @@
   width: 100%;
 }
 
-/* Dell badge */
 .hm-badge {
   display: inline-block;
   background: rgba(59, 130, 246, 0.1);
@@ -156,9 +142,7 @@
   flex-wrap: wrap;
 }
 
-/* ═══════════════════════════════════════════════════════
-   BUTTONS
-═══════════════════════════════════════════════════════ */
+/* BUTTONS */
 .hm-btn {
   display: inline-flex;
   align-items: center;
@@ -208,9 +192,7 @@
   box-shadow: 0 5px 28px rgba(139, 92, 246, 0.45);
 }
 
-/* ═══════════════════════════════════════════════════════
-   SECTIONS  (shared layout)
-═══════════════════════════════════════════════════════ */
+/* SECTIONS  (shared layout) */
 .hm-section {
   padding: 5.5rem 1.5rem;
 }
@@ -244,9 +226,7 @@
   letter-spacing: -0.025em;
 }
 
-/* ═══════════════════════════════════════════════════════
-   FEATURE GRID
-═══════════════════════════════════════════════════════ */
+/* FEATURE GRID */
 .hm-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -344,9 +324,7 @@
 .hm-link--green        { color: var(--hm-green);  }
 .hm-link--locked       { color: var(--hm-muted);  }
 
-/* ═══════════════════════════════════════════════════════
-   HOW IT WORKS  (steps)
-═══════════════════════════════════════════════════════ */
+/* HOW IT WORKS  (steps) */
 .hm-steps {
   display: flex;
   align-items: flex-start;
@@ -404,9 +382,7 @@
   .hm-step__arrow { display: none; }
 }
 
-/* ═══════════════════════════════════════════════════════
-   CLONING DETAIL
-═══════════════════════════════════════════════════════ */
+/* CLONING DETAIL */
 .hm-cloning {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -500,9 +476,7 @@
   margin: 0;
 }
 
-/* ═══════════════════════════════════════════════════════
-   ABOUT  (cards)
-═══════════════════════════════════════════════════════ */
+/* ABOUT  (cards) */
 .hm-about {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -601,9 +575,7 @@
   margin: 0;
 }
 
-/* ═══════════════════════════════════════════════════════
-   FOOTER
-═══════════════════════════════════════════════════════ */
+/* FOOTER */
 .hm-footer {
   border-top: 1px solid var(--hm-border);
   padding: 2rem 1.5rem;
@@ -617,9 +589,7 @@
   margin: 0;
 }
 
-/* ═══════════════════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════════════════ */
+/* RESPONSIVE */
 @media (max-width: 480px) {
   .hm-hero { min-height: 85vh; padding: 5rem 1rem 4rem; }
   .hm-hero__title { font-size: 4rem; }

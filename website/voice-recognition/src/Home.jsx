@@ -3,7 +3,7 @@ import './styles/Home.css'
 import './styles/header.css'
 
 
-/* ── Animated audio-visualizer bars ─────────────────────────────── */
+/* Animated audio-visualizer bars */
 const AudioBars = ({ count = 48, className = '' }) => (
   <div className={`audio-bars ${className}`} aria-hidden="true">
     {Array.from({ length: count }, (_, i) => {
@@ -23,7 +23,7 @@ const AudioBars = ({ count = 48, className = '' }) => (
   </div>
 )
 
-/* ── Inline SVG icon ─────────────────────────────────────────────── */
+/* Inline SVG icon (Four tools) */
 const Icon = ({ d }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
     strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -31,7 +31,7 @@ const Icon = ({ d }) => (
   </svg>
 )
 
-/* ── Feature cards config ────────────────────────────────────────── */
+/* Feature cards config (Four tools) */
 const FEATURES = [
   {
     id: 'recognition',
@@ -75,7 +75,7 @@ const FEATURES = [
   },
 ]
 
-/* ── Lock badge ──────────────────────────────────────────────────── */
+/* Lock badge (Account required) */
 const LockBadge = () => (
   <span className="lock-badge">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -88,14 +88,13 @@ const LockBadge = () => (
   </span>
 )
 
-/* ── Home page ───────────────────────────────────────────────────── */
 export default function Home({ isAuthenticated, user }) {
   const firstName = user?.name?.split(' ')[0] || null
 
   return (
     <main className="hm">
 
-      {/* ─── HERO ────────────────────────────────────────── */}
+      {/* first vue */}
       <section className="hm-hero">
         <AudioBars count={56} className="hm-hero__bars" />
         <div className="hm-hero__content">
@@ -125,11 +124,11 @@ export default function Home({ isAuthenticated, user }) {
         </div>
       </section>
 
-      {/* ─── FEATURES ────────────────────────────────────── */}
+      {/* Features (Four tools) */}
       <section className="hm-section">
         <div className="hm-inner">
           <p className="hm-eyebrow">What you can do</p>
-          <h2 className="hm-section__title">Four tools, one pipeline</h2>
+          <h2 className="hm-section__title">Four tools, one platform</h2>
           <div className="hm-grid">
             {FEATURES.map(f => {
               const needsLogin = f.locked && !isAuthenticated
@@ -157,7 +156,7 @@ export default function Home({ isAuthenticated, user }) {
         </div>
       </section>
 
-      {/* ─── HOW IT WORKS ────────────────────────────────── */}
+      {/* How it works */}
       <section className="hm-section hm-section--alt">
         <div className="hm-inner">
           <p className="hm-eyebrow">The process</p>
@@ -199,7 +198,7 @@ export default function Home({ isAuthenticated, user }) {
         </div>
       </section>
 
-      {/* ─── CLONING DETAIL ──────────────────────────────── */}
+      {/* Cloning detail */}
       <section className="hm-section" id="cloning">
         <div className="hm-inner hm-cloning">
 
@@ -231,7 +230,7 @@ export default function Home({ isAuthenticated, user }) {
         </div>
       </section>
 
-      {/* ─── ABOUT ───────────────────────────────────────── */}
+      {/* Context & Team */}
       <section className="hm-section hm-section--alt">
         <div className="hm-inner">
           <p className="hm-eyebrow">The project</p>
@@ -283,7 +282,7 @@ export default function Home({ isAuthenticated, user }) {
         </div>
       </section>
 
-      {/* ─── FOOTER ──────────────────────────────────────── */}
+      {/* Footer  */}
       <footer className="hm-footer">
         <p>
           VoiceID &nbsp;·&nbsp; L3 MIASHS &nbsp;·&nbsp;

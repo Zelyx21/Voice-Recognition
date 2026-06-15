@@ -25,7 +25,7 @@ function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
         </span>
       </div>
 
-      {/* CENTRE : Liens de navigation principale */}
+      {/* Navbar */}
       <nav className="header-nav">
         <Link to="/" className={isActive("/")}>Home</Link>
         <Link to="/Voice_Recognition" className={isActive("/Voice_Recognition")}>Voice Recognition</Link>
@@ -33,7 +33,7 @@ function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
         <Link to="/Statistics" className={isActive("/Statistics")}>Statistics</Link>
       </nav>
 
-      {/* DROITE : Actions d'authentification conditionnelles */}
+      {/* Account management */}
       <div className="header-actions">
         {isAuthenticated ? (
           <>

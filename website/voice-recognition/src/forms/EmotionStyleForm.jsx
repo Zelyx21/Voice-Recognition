@@ -1,48 +1,40 @@
 
-/**
- * Props:
- *   emotion         {string}    Current emotion value (e.g. "HAPPY")
- *   speakingStyle   {string}    Current style value (e.g. "WHISPER")
- *   showStyle       {boolean}   Whether to show the speaking style selector
- *                               (false in multilingual mode)
- *   onChange        {function}  Called with { emotion, speakingStyle } on change
- */
- 
+
 export default function EmotionStyleForm({ emotion, speakingStyle, showStyle = true, onChange }) {
     const EMOTIONS = [
-  { value: "NEUTRAL",    label: "Neutral",    description: "Natural, balanced tone" },
-  { value: "HAPPY",      label: "Happy",      description: "Warm, upbeat, joyful" },
-  { value: "SAD",        label: "Sad",        description: "Slow, heavy, melancholic" },
-  { value: "ANGRY",      label: "Angry",      description: "Tense, forceful, sharp" },
-  { value: "EXCITED",    label: "Excited",    description: "Energetic, enthusiastic" },
-  { value: "FEARFUL",    label: "Fearful",    description: "Trembling, anxious" },
-  { value: "SURPRISED",  label: "Surprised",  description: "Raised pitch, wide dynamics" },
-  { value: "DISGUSTED",  label: "Disgusted",  description: "Low, drawn-out, disdainful" },
-  { value: "CALM",       label: "Calm",       description: "Steady, soothing, relaxed" },
-  { value: "CONFUSED",   label: "Confused",   description: "Hesitant, questioning" },
-  { value: "EMPATHETIC", label: "Empathetic", description: "Gentle, warm, understanding" },
-  { value: "DEPRESSED",  label: "Depressed",  description: "Flat, slow, monotone" },
+  { value: "NEUTRAL",    label: "Neutral"},
+  { value: "HAPPY",      label: "Happy"},
+  { value: "SAD",        label: "Sad"},
+  { value: "ANGRY",      label: "Angry"},
+  { value: "EXCITED",    label: "Excited"},
+  { value: "FEARFUL",    label: "Fearful"},
+  { value: "SURPRISED",  label: "Surprised"},
+  { value: "DISGUSTED",  label: "Disgusted"},
+  { value: "CALM",       label: "Calm"},
+  { value: "CONFUSED",   label: "Confused"},
+  { value: "EMPATHETIC", label: "Empathetic"},
+  { value: "DEPRESSED",  label: "Depressed"},
 ]
     const SPEAKING_STYLES = [
-  { value: "NORMAL",        label: "Normal",        description: "Default conversational tone" },
-  { value: "WHISPER",       label: "Whisper",        description: "Soft, breathy, very quiet" },
-  { value: "SHOUT",         label: "Shout",          description: "Loud, projected voice" },
-  { value: "STORYTELLING",  label: "Storytelling",   description: "Narrative, expressive pacing" },
-  { value: "NEWS",          label: "News anchor",    description: "Clear, authoritative delivery" },
-  { value: "COMMERCIAL",    label: "Commercial",     description: "Bright, persuasive, punchy" },
-  { value: "CHILD",         label: "Child-like",     description: "Higher pitch, playful" },
-  { value: "ELDER",         label: "Elder",          description: "Slower, wise, deliberate" },
-  { value: "MYSTERIOUS",    label: "Mysterious",     description: "Low, slow, suspenseful" },
-  { value: "GENTLE",        label: "Gentle",         description: "Soft and kind" },
-  { value: "AUTHORITATIVE", label: "Authoritative",  description: "Confident, commanding" },
-  { value: "WARM",          label: "Warm",           description: "Friendly, inviting" },
-  { value: "LIVELY",        label: "Lively",         description: "Fast-paced, energetic" },
+  { value: "NORMAL",        label: "Normal"},
+  { value: "WHISPER",       label: "Whisper"},
+  { value: "SHOUT",         label: "Shout"},
+  { value: "STORYTELLING",  label: "Storytelling"},
+  { value: "NEWS",          label: "News anchor"},
+  { value: "COMMERCIAL",    label: "Commercial"},
+  { value: "CHILD",         label: "Child-like"},
+  { value: "ELDER",         label: "Elder"},
+  { value: "MYSTERIOUS",    label: "Mysterious"},
+  { value: "GENTLE",        label: "Gentle"},
+  { value: "AUTHORITATIVE", label: "Authoritative"},
+  { value: "WARM",          label: "Warm"},
+  { value: "LIVELY",        label: "Lively"},
 ]
 
   return (
     <div>
  
-      {/* ── Emotion ── */}
+      {/* Emotion */}
       <label htmlFor="emotion">Emotion</label>
 
       <select
@@ -50,14 +42,14 @@ export default function EmotionStyleForm({ emotion, speakingStyle, showStyle = t
         value={emotion}
         onChange={(e) => onChange({ emotion: e.target.value, speakingStyle })}
       >
-        {EMOTIONS.map(({ value, label, description }) => (
-          <option key={value} value={value} title={description}>
+        {EMOTIONS.map(({ value, label}) => (
+          <option key={value} value={value}>
             {label}
           </option>
         ))}
       </select>
  
-      {/* ── Speaking style (zero_shot only) ── */}
+      {/*  Speaking style  */}
       {showStyle && (
         <>
           <label htmlFor="speakingStyle">Speaking style</label>
@@ -67,8 +59,8 @@ export default function EmotionStyleForm({ emotion, speakingStyle, showStyle = t
             value={speakingStyle}
             onChange={(e) => onChange({ emotion, speakingStyle: e.target.value })}
           >
-            {SPEAKING_STYLES.map(({ value, label, description }) => (
-              <option key={value} value={value} title={description}>
+            {SPEAKING_STYLES.map(({ value, label}) => (
+              <option key={value} value={value}>
                 {label}
               </option>
             ))}

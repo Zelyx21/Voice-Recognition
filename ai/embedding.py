@@ -3,6 +3,7 @@ Python file which takes an audio wav and returns a vector
 """
 from speechbrain.pretrained import EncoderClassifier as sb
 
+#use this if speechbrain >= 1.0
 #from speechbrain.inference.classifiers import EncoderClassifier as sb
 
 import soundfile as sf

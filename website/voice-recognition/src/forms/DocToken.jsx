@@ -19,7 +19,7 @@ export default function DocToken() {
         Enrich your scripts by directly inserting these tags. The voice cloning model interprets these tokens to inject ultra-realistic human sounds or alter word emphasis naturally.
       </p>
 
-      {/* ── SECTION 1: VOCAL BURSTS ── */}
+      {/* Human expressions */}
       <h3 className="doc-token-section-title">1. Human Expressions & Noises (Vocal Bursts)</h3>
       <p className="doc-token-text">
         Insert these tokens between words. <i>Tip: Always leave a space before and after the token for optimal AI detection.</i>
@@ -50,7 +50,7 @@ export default function DocToken() {
         </table>
       </div>
 
-      {/* ── SECTION 2: EMPHASIS ── */}
+      {/* Intonation tags */}
       <h3 className="doc-token-section-title">2. Style and Intonation Tags</h3>
       <div className="doc-token-card-container">
         <div className="doc-token-card">
@@ -76,7 +76,7 @@ export default function DocToken() {
         </div>
       </div>
 
-      {/* ── SECTION 3: PHONEMES ── */}
+      {/* Phonemes */}
       <h3 className="doc-token-section-title">3. Advanced Pronunciation Hotfixes (Phonemes)</h3>
       <p className="doc-token-text">
         If the clone mispronounces a rare word or a specific brand name, you can override standard spelling and write sounds directly using internal phonetic tokens.

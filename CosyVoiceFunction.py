@@ -28,10 +28,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(
 logger = logging.getLogger(__name__)
 
 
-# ══════════════════════════════════════════════════════════════════════════
-# ENUMERATIONS
-# ══════════════════════════════════════════════════════════════════════════
-
 class Emotion(str, Enum):
     """
     Emotions natively supported by CosyVoice2 (tokenizer.py#EMOTION).
@@ -56,8 +52,6 @@ class Emotion(str, Enum):
 class SpeakingStyle(str, Enum):
     """
     Vocal delivery styles passed as natural-language instructions.
-    These modify *how* the voice sounds, independently of emotion.
-    Example: ANGRY + WHISPER = furious but whispered (e.g. a tense argument).
     """
     NORMAL        = "normal"
     WHISPER       = "whisper"
@@ -74,13 +68,15 @@ class SpeakingStyle(str, Enum):
     LIVELY        = "lively"
 
 class Language(str, Enum):
-    """Target output language for multilingual synthesis."""
     CHINESE   = "zh"
     ENGLISH   = "en"
     JAPANESE  = "ja"
     KOREAN    = "ko"
-    CANTONESE = "yue"
-
+    SPANISH   = "es"
+    GERMAN    = "de"
+    ITALIAN   = "it"
+    RUSSIAN   = "ru"
+    FRENCH    = "fr"
 
 class OutputFormat(str, Enum):
     WAV = "wav"
@@ -144,6 +140,7 @@ def _set_seed(seed: Optional[int]) -> None:
 
 def _audio_to_bytes(chunks: list, sample_rate: int, fmt: OutputFormat) -> bytes:
     """Concatenate raw model output chunks and encode to WAV or MP3."""
+
     combined = torch.cat([c["tts_speech"] for c in chunks], dim=-1)
     buf = io.BytesIO()
     try:
@@ -177,14 +174,14 @@ def create_audio_path(audio_bytes:bytes):
         return tmp.name
 
 def prompt_text_adapt(text):
-    text_adapt = re.sub(r"\s*,\s*", ". ", text)
+    #text_adapt = re.sub(r"\s*,\s*", ". ", text)
     text_adapt = re.sub(r"\s+", " ", text)
     return text_adapt
 
 initial_instruction = "You are a helpful assistant."
 
 
-# ── 1. Zero-Shot Voice Cloning ─────────────────────────────────────────────
+# All clonages methods
 
 def synthesize_zero_shot(
     model: AutoModel,
@@ -234,8 +231,6 @@ def synthesize_zero_shot(
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
 
-# ── 2. Free-Form Instruction ───────────────────────────────────────────────
-
 def synthesize_instruct(
     model: AutoModel,
     text: str,
@@ -262,6 +257,9 @@ def synthesize_instruct(
     audio_path = create_audio_path(audio_bytes_reference)
     init_instruction = initial_instruction
 
+    text = prompt_text_adapt(text)
+    instruction = prompt_text_adapt(instruction)
+
     if language is not None and language != "None":
         lang_instr = f"Speak in {language}. "
         if dialect:
@@ -275,7 +273,6 @@ def synthesize_instruct(
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
 
 
-# ── 3. Cross-Lingual with Paralinguistic Tags ──────────────────────────────
 
 def synthesize_cross_lingual(
     model: AutoModel,
@@ -299,7 +296,7 @@ def synthesize_cross_lingual(
 
     prompt_text = prompt_text or "" 
     prompt_text = prompt_text.strip()
-    #prompt_text = prompt_text_adapt(prompt_text)
+    prompt_text = prompt_text_adapt(prompt_text)
     
     instruction = "You are a helpful assistant."
     
@@ -309,8 +306,6 @@ def synthesize_cross_lingual(
     chunks = list(model.inference_cross_lingual(augmented_prompt, audio_path, stream=False))
     audio_bytes = _audio_to_bytes(chunks, model.sample_rate, output_format)
     return _build_result(audio_bytes, model.sample_rate, len(chunks), model.model_dir, start)
-
-# ── 4. Multilingual + Dialect ──────────────────────────────────────────────
 
 def preset_instruct(
     model: AutoModel,
@@ -340,6 +335,8 @@ def preset_instruct(
     _set_seed(seed)
     start = time.time()
     audio_path = create_audio_path(audio_bytes_reference)
+    text = prompt_text_adapt(text.strip())
+
 
     instruction = initial_instruction
     
