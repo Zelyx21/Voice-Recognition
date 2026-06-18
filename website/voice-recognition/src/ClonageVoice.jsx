@@ -11,6 +11,10 @@ import InstructForm from './forms/InstructForm'
 import SpeedForm from './forms/SpeedForm'
 import DocToken from './forms/DocToken'
 
+import ButtonRecord from './forms/ButtonRecord'
+
+
+
 const API_URL = "http://localhost:8000/clonage"
 
 function ClonageVoice({ isAuthenticated }) {
@@ -175,26 +179,7 @@ function ClonageVoice({ isAuthenticated }) {
             )}
 
             {inputMode === 'record' && !audioURL && (
-              <div className="record-area">
-                {!isRecording ? (
-                  <button
-                    className="button record-btn"
-                    onClick={() => { setError(null); startRecording() }}
-                  >
-                    Start Recording
-                  </button>
-                ) : (
-                  <div className="recording-live">
-                    <span className="rec-dot" />
-                    <span className="rec-time">
-                      {Math.floor(recordingTime / 60)}m {recordingTime % 60}s
-                    </span>
-                    <button className="remove-btn-action" onClick={() => stopRecording(setError)}>
-                      Stop
-                    </button>
-                  </div>
-                )}
-              </div>
+              <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime}/>
             )}
 
             {inputMode === 'import' && !audioURL && (

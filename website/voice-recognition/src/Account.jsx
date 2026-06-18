@@ -4,6 +4,9 @@ import { useRecording } from './hooks/useRecording'
 import { useNavigate } from "react-router-dom"
 import './styles/AuthAccount.css'
 
+import ButtonRecord from './forms/ButtonRecord'
+
+
 const MAX_VOICES = 5 
 
 function Account({ user, setUser, setIsAuthenticated, setToken }) {
@@ -25,21 +28,6 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
     const voices = user?.audios_names ?? []
     const canAddVoice = voices.length < MAX_VOICES
 
-
-    const EXAMPLE_SENTENCES = {
-        None: "None",
-        English:
-            "Of course I'm angry ! You dropped an old hammer on my lap ! Do you know what time the meeting starts ? " +
-            "Can you bring these books back to the library ? Trees also provide shade, and they can temper the climate. " +
-            "The city lies at the mouth of the river.",
-        French:
-            "Bonjour, comment allez-vous aujourd'hui ? Chaque chercheur poursuit ses propres hypothèses. " +
-            "Les journalistes interrogent plusieurs témoins. Le spectateur applaudit chaleureusement les musiciens. " +
-            "Le système détecte correctement la voix humaine.",
-
-    }
-
-    const [exempleLanguage, setExempleLanguage] = useState(null)
 
     const flash = (msg) => {
         setSuccess(msg)
@@ -200,57 +188,17 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                     )}
 
                     {inputMode === "record" && (
-                        <div className="record-area">
-                            {!isRecording && !audioURL && (
-                                <div>
-                                    <button className="button record-btn" onClick={() => { setError(null); startRecording() }}>
-                                        Start Recording
-                                    </button>
+                        <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime}/>
+                        
+                    )}
 
-                                    <div>
-                                        <p>Say anything !</p>
-                                        <p>You don't know what to say ? Choose a language and get example sentences</p>
-
-                                        <select
-                                        id="exemple"
-                                        value={exempleLanguage}
-                                        onChange={(e) => setExempleLanguage(e.target.value)}
-                                        >
-                                        {Object.entries(EXAMPLE_SENTENCES).map( ([key, value]) => (
-                                        <option key={key} value={key}>{key}</option>
-                                        ))}
-
-                                        </select>
-                                        
-                                        <div class="text_Exemple">
-
-                                            {exempleLanguage !== "None" && (
-                                                EXAMPLE_SENTENCES[exempleLanguage]
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {isRecording && (
-                                <div className="recording-live">
-                                    <span className="rec-dot" />
-                                    <span className="rec-time">
-                                        {Math.floor(recordingTime / 60)}m {recordingTime % 60}s
-                                    </span>
-                                    <button className="remove-btn-action" onClick={() => stopRecording(setError)}>Stop</button>
-                                </div>
-                            )}
-
-                            {audioURL && (
-                                <div className="audio-preview-box">
-                                    <div className="audio-preview-top">
-                                        <span className="audio-ready-badge">✓ Recording ready</span>
-                                        <button className="remove-btn-action" onClick={resetRecording}>Retry</button>
-                                    </div>
-                                    <audio controls src={audioURL} className="custom-audio-player" />
-                                </div>
-                            )}
+                    {audioURL && (
+                        <div className="audio-preview-box">
+                            <div className="audio-preview-top">
+                                <span className="audio-ready-badge">✓ Recording ready</span>
+                                <button className="remove-btn-action" onClick={resetRecording}>Retry</button>
+                            </div>
+                            <audio controls src={audioURL} className="custom-audio-player" />
                         </div>
                     )}
 
