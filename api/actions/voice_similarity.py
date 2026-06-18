@@ -1,4 +1,4 @@
-from audio.conversion import conversion
+from audio.conversion import conversion, ndarray_to_wav_bytes, ndarray_to_bytes
 from audio.processing import resample, denoise, vad
 from ai.embedding import embedding
 from database.Qdrant import search_similarity_attributes, search_multi_similarity
@@ -45,19 +45,19 @@ def match_audio(audio_dict_1: dict, audio_dict_2: dict, sr: int = 16000) -> np.n
         audio_array, _ = sf.read(io.BytesIO(raw), dtype="float32")
         segments.append(audio_array)
 
-    silence = np.zeros(int(0.3 * sr), dtype=np.float32)  # 300ms entre les deux
+    silence = np.zeros(int(0.3 * sr), dtype=np.float32)  # 300ms between audios
     return np.concatenate([segments[0], silence, segments[1]])
 
 
-
-def multi_similarity(audios:list):
+def multi_similarity(audios:list, sample_rate=16000):
 
     Score_similarity_match = 0.6
+    OneSpeak=False
 
     """
     Takes an list of raw audio bytes and returns a list of dictionnary wich contains the most similars speakers
     """
-    oneSpeak=False
+
     list_vectors=[]
     for audio_bytes in audios:
         audio_unique = audio_bytes["audio"]
@@ -79,7 +79,8 @@ def multi_similarity(audios:list):
     email_matches: dict = {}
 
     for idx, result in enumerate(results):
-        print(f"result [{idx}]: \n{result}")
+
+        print(f"multi_similarity, result [{idx}]: \n{result}")
 
         if result["score"] > Score_similarity_match :
             current_email = result["email"]
@@ -94,11 +95,22 @@ def multi_similarity(audios:list):
                 )
                 for i_rm in sorted([idx, email_matches[current_email]["idx_speakers"]], reverse=True):
                     results.pop(i_rm)
+                    audios.pop(i_rm)
 
-    if len(results)==1:
-        oneSpeak=True
+                duration_sec = len(new_audio) / sample_rate
+                new_audio_bytes = ndarray_to_bytes(new_audio)
 
-    return results, oneSpeak 
+
+                print(type(audios), "audio ----- autre:", type(new_audio_bytes))
+                audios.append({
+                    "audio": new_audio_bytes,
+                    "duration": duration_sec
+                    })
+
+        if len(results)==1:
+            OneSpeak=True
+
+    return results, audios, OneSpeak
 
 
 

@@ -51,7 +51,7 @@ def add_voice_database(audio_bytes:bytes, email, audio_name):
 
             add_secure(email=email, vector=emb.tolist(), audio_name=audio_name)
 
-        return {"name": results[0]["name"], "score": results[0]["score"], "issue": "Unrecognized voice, the audio must come from the same first recording"}
+        return {"name": results[0]["name"], "score": results[0]["score"], "issue": "Unrecognized voice, the audio must come from the same person"}
 
     
-    return {"status": "success"}
+    return {"status": "success", "issue":None}

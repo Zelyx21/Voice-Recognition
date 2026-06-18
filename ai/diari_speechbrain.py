@@ -158,20 +158,19 @@ def diarizations(audio_array, sample_rate=16000):
         
         # Ignore ghost/artifact clusters that are too short to be human speech or useful ( < 3 sec)
         if len(speaker_audio) < int(3.0 * sample_rate):
-            print(f"Skipping artifact cluster SPEAKER_{lbl:02d} (too short)")
+            print(f"Skipping artifact cluster SPEAKER_0{lbl:02d} (too short)")
             continue
             
         buffer = io.BytesIO()
         sf.write(buffer, speaker_audio, samplerate=sample_rate, format="WAV", subtype="PCM_16")
         
-        speaker_name = f"SPEAKER_{lbl:02d}"
+        speaker_name = f"SPEAKER_0{lbl:02d}"
                 
         duration_sec = len(speaker_audio) / sample_rate
 
         result[speaker_name] = {
             "audio": base64.b64encode(buffer.getvalue()).decode(),
             "duration": duration_sec
-            
         }
 
     if len(result)==0:
@@ -180,7 +179,6 @@ def diarizations(audio_array, sample_rate=16000):
 
     elif len(result)==1:
         issue = [True, "One speaker"]
-
 
     return result, issue
 

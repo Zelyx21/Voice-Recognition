@@ -25,6 +25,22 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
     const voices = user?.audios_names ?? []
     const canAddVoice = voices.length < MAX_VOICES
 
+
+    const EXAMPLE_SENTENCES = {
+        None: "None",
+        English:
+            "Of course I'm angry ! You dropped an old hammer on my lap ! Do you know what time the meeting starts ? " +
+            "Can you bring these books back to the library ? Trees also provide shade, and they can temper the climate. " +
+            "The city lies at the mouth of the river.",
+        French:
+            "Bonjour, comment allez-vous aujourd'hui ? Chaque chercheur poursuit ses propres hypothèses. " +
+            "Les journalistes interrogent plusieurs témoins. Le spectateur applaudit chaleureusement les musiciens. " +
+            "Le système détecte correctement la voix humaine.",
+
+    }
+
+    const [exempleLanguage, setExempleLanguage] = useState(null)
+
     const flash = (msg) => {
         setSuccess(msg)
         setTimeout(() => setSuccess(null), 3000)
@@ -186,9 +202,34 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                     {inputMode === "record" && (
                         <div className="record-area">
                             {!isRecording && !audioURL && (
-                                <button className="button record-btn" onClick={() => { setError(null); startRecording() }}>
-                                    Start Recording
-                                </button>
+                                <div>
+                                    <button className="button record-btn" onClick={() => { setError(null); startRecording() }}>
+                                        Start Recording
+                                    </button>
+
+                                    <div>
+                                        <p>Say anything !</p>
+                                        <p>You don't know what to say ? Choose a language and get example sentences</p>
+
+                                        <select
+                                        id="exemple"
+                                        value={exempleLanguage}
+                                        onChange={(e) => setExempleLanguage(e.target.value)}
+                                        >
+                                        {Object.entries(EXAMPLE_SENTENCES).map( ([key, value]) => (
+                                        <option key={key} value={key}>{key}</option>
+                                        ))}
+
+                                        </select>
+                                        
+                                        <div class="text_Exemple">
+
+                                            {exempleLanguage !== "None" && (
+                                                EXAMPLE_SENTENCES[exempleLanguage]
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
                             )}
 
                             {isRecording && (

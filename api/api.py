@@ -80,15 +80,14 @@ async def identify(file: UploadFile = File(...)):
         print("\nSeveral speakers detected.")
 
         audio_list = list(diarization["result"].values())
-        print("type audio :",str(type(audio_list[0])))
 
-        voices_score, oneSpeak = multi_similarity(audio_list)
-        if oneSpeak :
+        voices_score, audios, oneSpeak = multi_similarity(audio_list)
+
+        if oneSpeak:
             return JSONResponse(content={"status": "success", "data": voices_score[0]})
 
-
         return JSONResponse(content={"status": "multiple_speakers",
-                                     "diarization": diarization["result"],
+                                     "diarization": audios,
                                      "data": voices_score
                                      })
 
@@ -129,7 +128,9 @@ async def add_voice_db(file: UploadFile = File(...), email:str=Form(...), audio_
     if len(audio_bytes) == 0:
         raise HTTPException(status_code=422, detail = "Audio file is empty")
     
-    add_voice_database(audio_bytes,email, audio_name)
+    resultat = add_voice_database(audio_bytes,email, audio_name)
+    if resultat["issue"] != None:
+        raise HTTPException(status_code=422, detail = resultat["issue"])
 
     
     return {"status":"success"}
