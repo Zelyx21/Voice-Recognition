@@ -2,8 +2,7 @@
 import os
 import sys
 
-from audio.conversion import conversion
-from audio.conversion import ndarray_to_wav_bytes
+from audio.conversion import ndarray_to_wav_bytes, conversion
 from audio.processing import resample, denoise
 
 from fastapi import FastAPI

@@ -82,7 +82,9 @@ async def identify(file: UploadFile = File(...)):
         audio_list = list(diarization["result"].values())
         print("type audio :",str(type(audio_list[0])))
 
-        voices_score = multi_similarity(audio_list)
+        voices_score, oneSpeak = multi_similarity(audio_list)
+        if oneSpeak :
+            return JSONResponse(content={"status": "success", "data": voices_score[0]})
 
 
         return JSONResponse(content={"status": "multiple_speakers",
@@ -90,7 +92,7 @@ async def identify(file: UploadFile = File(...)):
                                      "data": voices_score
                                      })
 
-    voice_score = voice_similarity(audio_bytes)
+    voice_score = voice_similarity(diarization["result"], fromDiari=True)
     return JSONResponse(content={"status": "success", "data": voice_score})
 
 

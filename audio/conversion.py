@@ -23,6 +23,9 @@ def conversion(audio:bytes):
     return result.stdout
 
 def is_wav(audio_bytes: bytes):
+    if not isinstance(audio_bytes, (bytes, bytearray)):
+        raise TypeError(f"is_wav watting bytes, recived : {type(audio_bytes)}")
+
     return (
         len(audio_bytes) > 12 and
         audio_bytes[:4] == b'RIFF' and

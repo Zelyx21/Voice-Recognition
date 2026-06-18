@@ -9,7 +9,25 @@ from silero_vad import load_silero_vad, get_speech_timestamps
 
 # Import the existing embedding module
 from ai.embedding import embedding as get_embedding
+from hdbscan import HDBSCAN
 
+def _reassign_noise(X: np.ndarray, labels: np.ndarray) -> np.ndarray:
+    labels = labels.copy()
+    noise_mask = labels == -1
+    if not noise_mask.any():
+        return labels  # aucun bruit, rien à faire
+
+    core_mask = ~noise_mask
+    if not core_mask.any():
+        # Tous les points sont du bruit → un seul cluster forcé
+        print("HDBSCAN : tous les points classés bruit, forçage cluster unique")
+        labels[:] = 0
+        return labels
+
+    sim = X[noise_mask] @ X[core_mask].T
+    nearest = np.argmax(sim, axis=1)
+    labels[noise_mask] = labels[core_mask][nearest]
+    return labels
 
 def normalize_audio(audio_array):
     audio_norm = np.linalg.norm(audio_array, axis=1, keepdims=True)
@@ -83,42 +101,27 @@ def diarizations(audio_array, sample_rate=16000):
     X = np.array(embeddings)
     X = normalize_audio(X)  # Normalize embeddings for cosine similarity
 
-    best_k, best_score = 2, -1
 
-    max_k = min(8, len(embeddings) // 2)
-    max_k = max(max_k, 2)
+    clusterer = HDBSCAN(
+        min_cluster_size=max(2, len(X) // 8),  # At least 3 chunks, or 10% 
+        min_samples=1,
+        metric='euclidean',
+        cluster_selection_method='eom',
+        cluster_selection_epsilon=0.5
+    )
+    raw_labels  = clusterer.fit_predict(X)
+    
+    labels = _reassign_noise(X, raw_labels)
 
-    best_label = None
-    for k in range(2, max_k + 1):
-        labels_test = AgglomerativeClustering(
-            n_clusters=k,
-            metric="cosine",
-            linkage="average",
-        ).fit_predict(X)
-
-        score = silhouette_score(X, labels_test, metric="cosine")
-        if score > best_score:
-            best_score, best_k = score, k
-            best_label = labels_test
-
-    print(f"Estimated number of speakers: {best_k} (score={best_score:.3f})")
-
-    min_score_multi_loc = 0.13
-    if best_score < min_score_multi_loc:
+    # Compte les clusters (ignore le bruit marqué -1)
+    best_k = len(set(labels))  
+    
+    if best_k < 2:
         issue = [True, "One speaker"]
-        print(f"{issue[1]}" + f" (score={best_score:.3f} < {min_score_multi_loc})")
-
+        print("Only 1 speaker detected")
         return "", issue
-
-    # 4. Final clustering
-    if best_label is None:
-        labels = AgglomerativeClustering(
-            n_clusters=best_k,
-            metric="cosine",
-            linkage="average",
-        ).fit_predict(X)
-    else:
-        labels = best_label
+    
+    print(f"HDBSCAN detected {best_k} speakers")
 
     # 5. Sample-level Voting 
     # Create a voting matrix: [number_of_samples, number_of_speakers]
@@ -183,4 +186,31 @@ def diarizations(audio_array, sample_rate=16000):
 
 
 
-  
+"""
+    best_k, best_score = 2, -1
+
+    max_k = min(8, len(embeddings) // 2)
+    max_k = max(max_k, 2)
+
+    best_label = None
+    for k in range(2, max_k + 1):
+        labels_test = AgglomerativeClustering(
+            n_clusters=k,
+            metric="cosine",
+            linkage="average",
+        ).fit_predict(X)
+
+        score = silhouette_score(X, labels_test, metric="cosine")
+        if score > best_score:
+            best_score, best_k = score, k
+            best_label = labels_test
+
+    print(f"Estimated number of speakers: {best_k} (score={best_score:.3f})")
+
+    min_score_multi_loc = 0.13
+    if best_score < min_score_multi_loc:
+        issue = [True, "One speaker"]
+        print(f"{issue[1]}" + f" (score={best_score:.3f} < {min_score_multi_loc})")
+
+        return "", issue
+"""

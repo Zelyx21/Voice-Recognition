@@ -1,7 +1,7 @@
 from audio.conversion import conversion
 from audio.processing import resample, denoise, vad
 from ai.embedding import embedding
-from database.Qdrant import insert_secure, add_secure
+from database.Qdrant import insert_secure, add_secure, search_similarity_attributes
 import bcrypt
 
 
@@ -39,6 +39,19 @@ def add_voice_database(audio_bytes:bytes, email, audio_name):
     
     emb = embedding(audio)
 
-    add_secure(email=email, vector=emb.tolist(), audio_name=audio_name)
+    if emb is not None:
+        results = search_similarity_attributes(
+            emb, top_k=1
+        )
+
+        if (results 
+            and results[0]["email"] == email 
+            and results[0]["score"] > 0.6
+            ):
+
+            add_secure(email=email, vector=emb.tolist(), audio_name=audio_name)
+
+        return {"name": results[0]["name"], "score": results[0]["score"], "issue": "Unrecognized voice, the audio must come from the same first recording"}
+
     
     return {"status": "success"}

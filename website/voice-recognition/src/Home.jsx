@@ -109,7 +109,7 @@ export default function Home({ isAuthenticated, user }) {
             at&nbsp;Dell&nbsp;Technologies.
           </p>
           <div className="hm-hero__actions">
-            <Link to="/identify" className="hm-btn hm-btn--primary">
+            <Link to="/Voice_Recognition" className="hm-btn hm-btn--primary">
               Try Voice Recognition
             </Link>
             {isAuthenticated
