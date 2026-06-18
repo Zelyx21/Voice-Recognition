@@ -80,7 +80,7 @@ export function useRecording() {
     stopRecording()
   }
 
-  const handleFileChange = (event, setError) => {
+  const handleFileChange = (event, setError, clonage=false) => {
     const file = event.target.files[0]
     if (!file) return
 
@@ -113,6 +113,11 @@ export function useRecording() {
 
     const audio = new Audio(URL.createObjectURL(file))
     audio.onloadedmetadata = () => {
+      if (clonage && audio.duration > 30){
+        setError("Audio file for cloning must be under 30 secondes")
+        event.target.value = ""
+        return
+      }
       if (audio.duration < 5) {
         setError("Audio file must be at least 5 seconds")
         event.target.value = ""

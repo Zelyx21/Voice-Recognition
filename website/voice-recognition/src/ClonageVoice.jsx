@@ -189,7 +189,7 @@ function ClonageVoice({ isAuthenticated }) {
                   id="audio-upload-clonage"
                   type="file"
                   accept="audio/*"
-                  onChange={(e) => handleFileChange(e, setError)}
+                  onChange={(e) => handleFileChange(e, setError, true)}
                 />
                 <label htmlFor="audio-upload-clonage" className="button upload-btn">
                   Browse Audio Files
