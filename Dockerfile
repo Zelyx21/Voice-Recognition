@@ -50,9 +50,9 @@ RUN pip install torch torchaudio \
 # 5. Install dependencies
 # =========================
 
-COPY new_requirements.txt /app/new_requirements.txt
+COPY last_requirements.txt /app/last_requirements.txt
 
-RUN pip install --no-cache-dir -r new_requirements.txt
+RUN pip install --no-cache-dir -r last_requirements.txt
 
 # =========================
 # 6. Copy project LAST

@@ -39,6 +39,8 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
     """
     Takes raw audio bytes and returns the most similar speaker
     """
+    print("model", model_clonage)
+
     raw = conversion(audio_bytes)
     audio_rs, sr = resample(raw)
     audio_dn = denoise(audio_rs,sr)

@@ -233,7 +233,7 @@ function ClonageVoice({ isAuthenticated }) {
                     <input
                       type="radio" name="method" value="cross_lingual"
                       checked={method === "cross_lingual"}
-                      onChange={() => setMethod("cross_lingual")}
+                      onChange={() => setMethod("multilingual")}
                     />
                     <span className="radio-custom">Cross-Lingual</span>
                   </label>
