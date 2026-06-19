@@ -3,66 +3,107 @@ import pcaEng from './stats/pca_eng.html?raw';
 import pcaFr from './stats/pca_fr.html?raw';
 import umapEng from './stats/umap_eng.html?raw';
 import umapFr from './stats/umap_fr.html?raw';
+import './styles/Statistics.css';
 
-const METRICS = {
+const METRICS_DATA = {
   eng: {
     verification: [
-      { label: 'Intra-speaker similarity', value: '0.6192' },
-      { label: 'Inter-speaker similarity', value: '0.0969' },
-      { label: 'Separation', value: '0.5223' },
-      { label: 'AUC ROC', value: '0.9947' },
-      { label: 'EER', value: '1.98%' },
+      { key: 'intra_similarity', value: '0.6192' },
+      { key: 'inter_similarity', value: '0.0998' },
+      { key: 'separation', value: '0.5194' },
+      { key: 'auc_roc', value: '0.9947' },
+      { key: 'eer', value: '1.98%' },
     ],
     identification: [
-      { label: 'Top-1 Accuracy', value: '99.57%' },
-      { label: 'Top-5 Accuracy', value: '99.91%' },
-      { label: 'Speakers', value: '917' },
-      { label: 'Recordings', value: '39,953' },
+      { key: 'top1_accuracy', value: '99.57%' },
+      { key: 'top5_accuracy', value: '99.91%' },
+      { key: 'speakers', value: '917' },
+      { key: 'recordings', value: '39,953' },
     ],
     clustering: [
-      { label: 'Silhouette Score', value: '0.0816' },
-      { label: 'NMI', value: '0.8647' },
-      { label: 'Purity', value: '0.7939' },
+      { key: 'silhouette', value: '0.0816' },
+      { key: 'nmi', value: '0.8647' },
+      { key: 'purity', value: '0.7939' },
     ],
   },
+
   fr: {
     verification: [
-      { label: 'Similarité intra-locuteur', value: '0.6192' },
-      { label: 'Similarité inter-locuteur', value: '0.0969' },
-      { label: 'Séparation', value: '0.5223' },
-      { label: 'AUC ROC', value: '0.9947' },
-      { label: 'EER', value: '1.98%' },
+      { key: 'intra_similarity', value: '0.6253' },
+      { key: 'inter_similarity', value: '0.1743' },
+      { key: 'separation', value: '0.4510' },
+      { key: 'auc_roc', value: '0.9954' },
+      { key: 'eer', value: '1.91%' },
     ],
     identification: [
-      { label: 'Précision Top-1', value: '99.57%' },
-      { label: 'Précision Top-5', value: '99.91%' },
-      { label: 'Locuteurs', value: '917' },
-      { label: 'Enregistrements', value: '39 953' },
+      { key: 'top1_accuracy', value: '99.33%' },
+      { key: 'top5_accuracy', value: '99.93%' },
+      { key: 'speakers', value: '917' },
+      { key: 'recordings', value: '39 953' },
     ],
     clustering: [
-      { label: 'Silhouette Score', value: '0.0816' },
-      { label: 'NMI', value: '0.8647' },
-      { label: 'Pureté', value: '0.7939' },
+      { key: 'silhouette', value: '0.0998' },
+      { key: 'nmi', value: '0.8729' },
+      { key: 'purity', value: '0.9315' },
     ],
+  },
+};
+
+const LABELS = {
+  eng: {
+    intra_similarity: 'Intra-speaker similarity',
+    inter_similarity: 'Inter-speaker similarity',
+    separation: 'Separation',
+    auc_roc: 'AUC ROC',
+    eer: 'EER',
+    top1_accuracy: 'Top-1 Accuracy',
+    top5_accuracy: 'Top-5 Accuracy',
+    speakers: 'Speakers',
+    recordings: 'Recordings',
+    silhouette: 'Silhouette Score',
+    nmi: 'NMI',
+    purity: 'Purity',
+  },
+  fr: {
+    intra_similarity: 'Similarité intra-locuteur',
+    inter_similarity: 'Similarité inter-locuteur',
+    separation: 'Séparation',
+    auc_roc: 'AUC ROC',
+    eer: 'EER',
+    top1_accuracy: 'Précision Top-1',
+    top5_accuracy: 'Précision Top-5',
+    speakers: 'Locuteurs',
+    recordings: 'Enregistrements',
+    silhouette: 'Silhouette Score',
+    nmi: 'NMI',
+    purity: 'Pureté',
   },
 };
 
 function MetricCard({ label, value }) {
   return (
-    <div style={{
-      background: '#1a1a2e',
-      border: '1px solid #16213e',
-      borderRadius: '8px',
-      padding: '16px',
-      textAlign: 'center',
-      flex: '1 1 calc(50% - 8px)',
-      minWidth: '150px',
-    }}>
-      <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>
-        {label}
-      </div>
-      <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#00d9ff' }}>
-        {value}
+    <div className="metric-card">
+      <div className="metric-label">{label}</div>
+      <div className="metric-value">{value}</div>
+    </div>
+  );
+}
+
+function MetricsSection({ title, sectionKey, language }) {
+  const metrics = METRICS_DATA[language][sectionKey];
+  const labels = LABELS[language];
+
+  return (
+    <div className="metrics-section">
+      <h3 className="metrics-title">{title}</h3>
+      <div className="metrics-grid">
+        {metrics.map((m, i) => (
+          <MetricCard
+            key={i}
+            label={labels[m.key]}
+            value={m.value}
+          />
+        ))}
       </div>
     </div>
   );
@@ -82,47 +123,90 @@ export default function Statistics() {
     return URL.createObjectURL(blob);
   }, [language, viz]);
 
-  const metrics = METRICS[language];
+  const isEnglish = language === 'eng';
 
   return (
-    <div style={{ padding: '20px' }}>
-      <div style={{ marginBottom: '30px' }}>
-        <button onClick={() => setLanguage('eng')}>English</button>
-        <button onClick={() => setLanguage('fr')}>Français</button>
-        <button onClick={() => setViz('pca')}>PCA</button>
-        <button onClick={() => setViz('umap')}>UMAP</button>
-      </div>
-
-      {/* Métriques */}
-      <div style={{ marginBottom: '30px' }}>
-        <h2>{language === 'eng' ? 'Speaker Verification' : 'Vérification de Locuteur'}</h2>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          {metrics.verification.map((m, i) => (
-            <MetricCard key={i} {...m} />
-          ))}
+    <main>
+      <div className="box">
+        <div className="stats-header">
+          <h2>{isEnglish ? 'VoiceID Statistics' : 'Statistiques VoiceID'}</h2>
+          <p className="stats-subtitle">
+            {isEnglish
+              ? 'Speaker recognition and voice cloning performance metrics'
+              : 'Métriques de performance de la reconnaissance de locuteur et du clonage vocal'}
+          </p>
         </div>
 
-        <h2>{language === 'eng' ? 'Speaker Identification' : 'Identification de Locuteur'}</h2>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          {metrics.identification.map((m, i) => (
-            <MetricCard key={i} {...m} />
-          ))}
-        </div>
+        {/* Controls */}
+        <div className="stats-controls">
+          <div className="control-group">
+            <span className="control-label">{isEnglish ? 'Language' : 'Langue'}</span>
+            <div className="button-group">
+              <button
+                className={`button ${language === 'eng' ? 'active' : ''}`}
+                onClick={() => setLanguage('eng')}
+              >
+                English
+              </button>
+              <button
+                className={`button ${language === 'fr' ? 'active' : ''}`}
+                onClick={() => setLanguage('fr')}
+              >
+                Français
+              </button>
+            </div>
+          </div>
 
-        <h2>{language === 'eng' ? 'Clustering' : 'Clustering'}</h2>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          {metrics.clustering.map((m, i) => (
-            <MetricCard key={i} {...m} />
-          ))}
+          <div className="control-group">
+            <span className="control-label">{isEnglish ? 'Visualization' : 'Visualisation'}</span>
+            <div className="button-group">
+              <button
+                className={`button ${viz === 'pca' ? 'active' : ''}`}
+                onClick={() => setViz('pca')}
+              >
+                PCA
+              </button>
+              <button
+                className={`button ${viz === 'umap' ? 'active' : ''}`}
+                onClick={() => setViz('umap')}
+              >
+                UMAP
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Visualizations */}
-      <iframe 
-        key={iframeSrc}
-        src={iframeSrc} 
-        style={{ width: '100%', height: '800px', border: 'none' }}
-      />
-    </div>
+      <div className="box">
+        <div className="viz-container">
+          <iframe
+            key={iframeSrc}
+            src={iframeSrc}
+            title={`${viz.toUpperCase()} Visualization`}
+            className="viz-iframe"
+          />
+        </div>
+      </div>
+
+      {/* Metrics */}
+      <div className="box">
+        <MetricsSection
+          title={isEnglish ? 'Speaker Verification' : 'Vérification de Locuteur'}
+          sectionKey="verification"
+          language={language}
+        />
+        <MetricsSection
+          title={isEnglish ? 'Speaker Identification' : 'Identification de Locuteur'}
+          sectionKey="identification"
+          language={language}
+        />
+        <MetricsSection
+          title={isEnglish ? 'Clustering' : 'Clustering'}
+          sectionKey="clustering"
+          language={language}
+        />
+      </div>
+    </main>
   );
 }
