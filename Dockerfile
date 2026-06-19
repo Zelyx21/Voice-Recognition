@@ -1,7 +1,5 @@
 FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
-
 WORKDIR /app
-
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -18,6 +16,8 @@ RUN apt-get update && apt-get install -y \
     mecab \
     libmecab-dev \
     mecab-ipadic-utf8 \
+    libsndfile1 \
+    libsndfile1-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -31,7 +31,6 @@ RUN add-apt-repository ppa:deadsnakes/ppa && \
     python3.10-venv \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
-
 RUN ln -sf /usr/bin/python3.10 /usr/bin/python
 
 # =========================
@@ -41,25 +40,34 @@ RUN python -m venv /venv
 RUN pip install --upgrade pip setuptools wheel
 
 # =========================
-# 4. PyTorch (GPU)
+# 4. PyTorch + CUDA (GPU) - AVANT requirements
 # =========================
-RUN pip install torch torchaudio \
+RUN pip install --no-cache-dir \
+    torch==2.4.1 \
+    torchaudio==2.4.1 \
     --index-url https://download.pytorch.org/whl/cu124
 
 # =========================
-# 5. Install dependencies
+# 5. Core ML dependencies
 # =========================
+RUN pip install --no-cache-dir \
+    transformers==4.51.3 \
+    diffusers==0.29.0 \
+    modelscope==1.20.0
 
+# =========================
+# 6. Everything else
+# =========================
 COPY new_requirements.txt /app/new_requirements.txt
-
 RUN pip install --no-cache-dir -r new_requirements.txt
 
 # =========================
-# 6. Copy project LAST
+# 7. Copy project
 # =========================
 COPY . .
 
 # =========================
-# 7. Expose API
+# 8. Expose API
 # =========================
 EXPOSE 8000
+CMD ["uvicorn", "api.api:app", "--host", "0.0.0.0", "--port", "8000"]
