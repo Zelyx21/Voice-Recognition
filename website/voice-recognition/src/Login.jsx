@@ -4,6 +4,9 @@ import { useApi } from './hooks/useAPI'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import './styles/AuthAccount.css'
 
+import ButtonRecord from './forms/ButtonRecord'
+
+
 function Login({ setIsAuthenticated, setUser, setToken }) {
     const [email, setEmail] = useState("")
     const [success, setSuccess] = useState("")
@@ -97,40 +100,36 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
                     />
                 ) : (
                     <div className="record-area">
-                        {!isRecording && !audioURL && (
-                            <button className="button record-btn" onClick={() => { setError(null); startRecording() }}>
-                                Start Recording
-                            </button>
-                        )}
-
-                        {isRecording && (
-                            <div className="recording-live">
-                                <span className="rec-dot" />
-                                <span className="rec-time">
-                                    {Math.floor(recordingTime / 60)}m {recordingTime % 60}s
-                                </span>
-                                <button className="remove-btn-action" onClick={() => stopRecording(setError)}>
-                                    Stop
-                                </button>
-                            </div>
-                        )}
+          
+                        <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime}/>
 
                         {audioURL && (
-                            <div className="audio-preview-box">
-                                <div className="audio-preview-top">
-                                    <span className="audio-ready-badge">✓ Voice captured</span>
-                                    <button className="remove-btn-action" onClick={resetRecording}>
-                                        Record again
-                                    </button>
-                                </div>
-                                <audio controls src={audioURL} className="custom-audio-player" />
-                                
+
+                            <div className="file-info" style={{alignItems:"center"}}>
+                                <p>
+                                    Audio ready
+                                </p>
+
+                                <audio
+                                    controls
+                                    src={audioURL}
+                                />
+
+                                <button
+                                    className="remove"
+                                    onClick={resetRecording}
+                                    style={{ alignSelf: "center" }}
+                                >
+                                    Remove audio
+                                </button>
+
                             </div>
                         )}
                     </div>
+
                 )}
             </div>
-
+            
             <button className="button auth-submit-btn" onClick={login} disabled={loading}>
                 {loading ? "Authenticating..." : "Login"}
             </button>

@@ -11,6 +11,10 @@ import InstructForm from './forms/InstructForm'
 import SpeedForm from './forms/SpeedForm'
 import DocToken from './forms/DocToken'
 
+import ButtonRecord from './forms/ButtonRecord'
+
+
+
 const API_URL = "http://localhost:8000/clonage"
 
 function ClonageVoice({ isAuthenticated }) {
@@ -40,7 +44,7 @@ function ClonageVoice({ isAuthenticated }) {
   const [emotion, setEmotion] = useState("Neutral")
   const [speakingStyle, setSpeakingStyle] = useState("Normal")
   const [instruction, setInstruction] = useState("")
-  const [language, setLanguage] = useState("en")
+  const [language, setLanguage] = useState("None")
   const [dialect, setDialect] = useState("")
   const [speed, setSpeed] = useState(1.0)
   const [transcriptAudio, setTranscriptAudio] = useState("")
@@ -175,26 +179,7 @@ function ClonageVoice({ isAuthenticated }) {
             )}
 
             {inputMode === 'record' && !audioURL && (
-              <div className="record-area">
-                {!isRecording ? (
-                  <button
-                    className="button record-btn"
-                    onClick={() => { setError(null); startRecording() }}
-                  >
-                    Start Recording
-                  </button>
-                ) : (
-                  <div className="recording-live">
-                    <span className="rec-dot" />
-                    <span className="rec-time">
-                      {Math.floor(recordingTime / 60)}m {recordingTime % 60}s
-                    </span>
-                    <button className="remove-btn-action" onClick={() => stopRecording(setError)}>
-                      Stop
-                    </button>
-                  </div>
-                )}
-              </div>
+              <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime} clonage={true}/>
             )}
 
             {inputMode === 'import' && !audioURL && (
@@ -204,7 +189,7 @@ function ClonageVoice({ isAuthenticated }) {
                   id="audio-upload-clonage"
                   type="file"
                   accept="audio/*"
-                  onChange={(e) => handleFileChange(e, setError)}
+                  onChange={(e) => handleFileChange(e, setError, true)}
                 />
                 <label htmlFor="audio-upload-clonage" className="button upload-btn">
                   Browse Audio Files
@@ -248,7 +233,7 @@ function ClonageVoice({ isAuthenticated }) {
                     <input
                       type="radio" name="method" value="cross_lingual"
                       checked={method === "cross_lingual"}
-                      onChange={() => setMethod("cross_lingual")}
+                      onChange={() => setMethod("multilingual")}
                     />
                     <span className="radio-custom">Cross-Lingual</span>
                   </label>
@@ -289,7 +274,6 @@ function ClonageVoice({ isAuthenticated }) {
                 {method === "cross_lingual" && (
                   <>
                     <TextForm text={textMultilingual} onChange={({ textMultilingual: tM }) => { setTextMultilingual(tM) }} />
-                    <LanguageForm language={language} onChange={({ language: l, dialect: d }) => { setLanguage(l); setDialect(d) }} />
                     <button
                       type="button"
                       className="doc-toggle-btn"
@@ -306,6 +290,7 @@ function ClonageVoice({ isAuthenticated }) {
                 {method === "preset_instruct" && (
                   <>
                     <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
+                    <LanguageForm language={language} onChange={({ language: l, dialect: d }) => { setLanguage(l); setDialect(d) }} />
                     <EmotionStyleForm
                       emotion={emotion}
                       speakingStyle={speakingStyle}
@@ -318,6 +303,7 @@ function ClonageVoice({ isAuthenticated }) {
                 {method === "synthesize_instruct" && (
                   <>
                     <TextForm text={text} onChange={({ text: t }) => { setText(t) }} />
+                    <LanguageForm language={language} onChange={({ language: l, dialect: d }) => { setLanguage(l); setDialect(d) }} />
                     <InstructForm instruction={instruction} onChange={({ instruction: i }) => { setInstruction(i) }} />
 
                   </>

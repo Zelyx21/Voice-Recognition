@@ -109,7 +109,7 @@ export default function Home({ isAuthenticated, user }) {
             at&nbsp;Dell&nbsp;Technologies.
           </p>
           <div className="hm-hero__actions">
-            <Link to="/identify" className="hm-btn hm-btn--primary">
+            <Link to="/Voice_Recognition" className="hm-btn hm-btn--primary">
               Try Voice Recognition
             </Link>
             {isAuthenticated
@@ -254,7 +254,9 @@ export default function Home({ isAuthenticated, user }) {
                 We did this internship in the conclusion of our third year of the MIASHS programme —
                 Mathematics and Computer Science Applied to Humanities and Social
                 Sciences — at Université Paul Valéry Montpellier.
+
               </p>
+
             </div>
 
             <div className="hm-about__card hm-about__card--team">
@@ -276,6 +278,7 @@ export default function Home({ isAuthenticated, user }) {
                   </div>
                 </div>
               </div>
+              <p class="Github_lien">Github : <a href="https://github.com/Zelyx21/Voice-Recognition">https://github.com/Zelyx21/Voice-Recognition</a></p>
             </div>
 
           </div>

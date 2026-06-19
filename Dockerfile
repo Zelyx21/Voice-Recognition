@@ -17,7 +17,6 @@ RUN apt-get update && apt-get install -y \
     libmecab-dev \
     mecab-ipadic-utf8 \
     libsndfile1 \
-    libsndfile1-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -40,26 +39,17 @@ RUN python -m venv /venv
 RUN pip install --upgrade pip setuptools wheel
 
 # =========================
-# 4. PyTorch + CUDA (GPU) - AVANT requirements
+# 4. PyTorch (GPU cu124)
 # =========================
-RUN pip install --no-cache-dir \
-    torch==2.4.1 \
-    torchaudio==2.4.1 \
+RUN pip install torch==2.4.1+cu124 torchaudio==2.4.1+cu124 \
     --index-url https://download.pytorch.org/whl/cu124
 
 # =========================
 # 5. Core ML dependencies
 # =========================
-RUN pip install --no-cache-dir \
-    transformers==4.51.3 \
-    diffusers==0.29.0 \
-    modelscope==1.20.0
+COPY requirements_docker.txt /app/requirements_docker.txt
 
-# =========================
-# 6. Everything else
-# =========================
-COPY new_requirements.txt /app/new_requirements.txt
-RUN pip install --no-cache-dir -r new_requirements.txt
+RUN pip install --no-cache-dir -r requirements_docker.txt
 
 # =========================
 # 7. Copy project

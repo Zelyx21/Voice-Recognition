@@ -4,6 +4,9 @@ import { useRecording } from './hooks/useRecording'
 import { useNavigate } from "react-router-dom"
 import './styles/AuthAccount.css'
 
+import ButtonRecord from './forms/ButtonRecord'
+
+
 const MAX_VOICES = 5 
 
 function Account({ user, setUser, setIsAuthenticated, setToken }) {
@@ -24,6 +27,7 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
 
     const voices = user?.audios_names ?? []
     const canAddVoice = voices.length < MAX_VOICES
+
 
     const flash = (msg) => {
         setSuccess(msg)
@@ -184,32 +188,17 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                     )}
 
                     {inputMode === "record" && (
-                        <div className="record-area">
-                            {!isRecording && !audioURL && (
-                                <button className="button record-btn" onClick={() => { setError(null); startRecording() }}>
-                                    Start Recording
-                                </button>
-                            )}
+                        <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime}/>
+                        
+                    )}
 
-                            {isRecording && (
-                                <div className="recording-live">
-                                    <span className="rec-dot" />
-                                    <span className="rec-time">
-                                        {Math.floor(recordingTime / 60)}m {recordingTime % 60}s
-                                    </span>
-                                    <button className="remove-btn-action" onClick={() => stopRecording(setError)}>Stop</button>
-                                </div>
-                            )}
-
-                            {audioURL && (
-                                <div className="audio-preview-box">
-                                    <div className="audio-preview-top">
-                                        <span className="audio-ready-badge">✓ Recording ready</span>
-                                        <button className="remove-btn-action" onClick={resetRecording}>Retry</button>
-                                    </div>
-                                    <audio controls src={audioURL} className="custom-audio-player" />
-                                </div>
-                            )}
+                    {audioURL && (
+                        <div className="audio-preview-box">
+                            <div className="audio-preview-top">
+                                <span className="audio-ready-badge">✓ Recording ready</span>
+                                <button className="remove-btn-action" onClick={resetRecording}>Remove Audio</button>
+                            </div>
+                            <audio controls src={audioURL} className="custom-audio-player" />
                         </div>
                     )}
 

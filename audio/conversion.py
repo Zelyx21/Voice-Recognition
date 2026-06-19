@@ -6,6 +6,7 @@ import subprocess
 import numpy as np
 import soundfile as sf
 import io
+import base64
 
 def conversion(audio:bytes):
     """
@@ -23,6 +24,9 @@ def conversion(audio:bytes):
     return result.stdout
 
 def is_wav(audio_bytes: bytes):
+    if not isinstance(audio_bytes, (bytes, bytearray)):
+        raise TypeError(f"is_wav watting bytes, recived : {type(audio_bytes)}")
+
     return (
         len(audio_bytes) > 12 and
         audio_bytes[:4] == b'RIFF' and
@@ -40,3 +44,12 @@ def ndarray_to_wav_bytes(audio: np.ndarray, sr: int = 16000) -> bytes:
     sf.write(buffer, audio, sr, format="WAV", subtype="PCM_16")
     buffer.seek(0)
     return buffer.read()
+
+
+def ndarray_to_bytes(audio: np.ndarray, sr: int = 16000):
+    buffer = io.BytesIO()
+
+    sf.write(buffer, audio, samplerate=sr, format="WAV", subtype="PCM_16")
+    
+            
+    return base64.b64encode(buffer.getvalue()).decode(),
