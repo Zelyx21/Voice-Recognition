@@ -141,7 +141,7 @@ pykakasi==2.3.0
 pynndescent==0.6.0
 pyparsing==3.3.2
 pypinyin==0.55.0
-pyreadline3==3.5.6
+#pyreadline3==3.5.6
 PySocks==1.7.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
@@ -149,7 +149,9 @@ python-jose==3.5.0
 python-multipart==0.0.32
 pytorch-lightning==2.6.5
 pytz==2026.2
-pywin32==312
+
+#pywin32==312 #windows
+
 pyworld==0.3.4
 PyYAML==6.0.3
 qdrant-client==1.18.0
@@ -185,9 +187,9 @@ threadpoolctl==3.6.0
 tiktoken==0.13.0
 tokenizers==0.19.1
 tomlkit==0.14.0
-torch==2.4.1+cu124
+#torch==2.4.1+cu124
 torch-complex==0.4.4
-torchaudio==2.4.1+cu124
+#torchaudio==2.4.1+cu124
 torchmetrics==1.9.0
 tqdm==4.68.3
 transformers==4.44.2
@@ -208,7 +210,7 @@ Werkzeug==3.1.8
 wetext==0.0.4
 wget==3.2
 whisper-timestamped==1.15.9
-win32_setctime==1.2.0
+#win32_setctime==1.2.0
 wrapt==2.2.1
 x-transformers==2.11.24
 yarl==1.24.2

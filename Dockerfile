@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     mecab \
     libmecab-dev \
     mecab-ipadic-utf8 \
+    libsndfile1 \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -41,18 +42,17 @@ RUN python -m venv /venv
 RUN pip install --upgrade pip setuptools wheel
 
 # =========================
-# 4. PyTorch (GPU)
+# 4. PyTorch (GPU cu124)
 # =========================
-RUN pip install torch torchaudio \
+RUN pip install torch==2.4.1+cu124 torchaudio==2.4.1+cu124 \
     --index-url https://download.pytorch.org/whl/cu124
 
 # =========================
 # 5. Install dependencies
 # =========================
+COPY requirements_docker.txt /app/requirements_docker.txt
 
-COPY last_requirements.txt /app/last_requirements.txt
-
-RUN pip install --no-cache-dir -r last_requirements.txt
+RUN pip install --no-cache-dir -r requirements_docker.txt
 
 # =========================
 # 6. Copy project LAST
@@ -60,6 +60,6 @@ RUN pip install --no-cache-dir -r last_requirements.txt
 COPY . .
 
 # =========================
-# 7. Expose API
+# 8. Expose API
 # =========================
 EXPOSE 8000

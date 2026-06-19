@@ -101,16 +101,6 @@ function RegisterDB() {
         <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime}/>
       )}
 
-      {audioURL && (
-        <div className="file-info">
-          <p>Finished recording</p>
-          <audio controls src={audioURL} />
-          <button className="remove" onClick={resetRecording}>
-            Record again
-          </button>
-        </div>
-      )}
-
       {mode == "import" && (
         <div>
           <input
@@ -121,22 +111,22 @@ function RegisterDB() {
             onChange={(e) => handleFileChange(e, setError)}
           />
 
-          {!audioFile ? (
+          {!audioFile && (
             <label htmlFor="audio-upload-register" className="button">
               Import an audio file
             </label>
-          ) : (
-            <div className="file-info">
-              <p>Selected file : <strong>{audioFile.name}</strong></p>
-              <audio controls src={URL.createObjectURL(audioFile)} />
-              <button
-                className="remove"
-                onClick={() => fileInputRef.current.click()}
-              >
-                Change file
-              </button>
-            </div>
           )}
+
+        </div>
+      )}
+
+      {audioURL && (
+        <div className="file-info">
+          <p>Finished recording</p>
+          <audio controls src={audioURL} />
+          <button className="remove" onClick={resetRecording}>
+            Remove audio
+          </button>
         </div>
       )}
 

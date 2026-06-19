@@ -196,7 +196,7 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                         <div className="audio-preview-box">
                             <div className="audio-preview-top">
                                 <span className="audio-ready-badge">✓ Recording ready</span>
-                                <button className="remove-btn-action" onClick={resetRecording}>Retry</button>
+                                <button className="remove-btn-action" onClick={resetRecording}>Remove Audio</button>
                             </div>
                             <audio controls src={audioURL} className="custom-audio-player" />
                         </div>
