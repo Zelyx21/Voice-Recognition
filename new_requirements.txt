@@ -1,12 +1,10 @@
 fastapi
 uvicorn[standard]
 python-multipart
-
 pydantic
 email-validator
 python-dotenv
 slowapi
-
 numpy==1.26.4
 scipy
 scikit-learn
@@ -18,32 +16,23 @@ soundfile
 librosa
 pydub
 noisereduce
-
 silero-vad
 speechbrain
-
 qdrant-client
-
 python-jose
 bcrypt
-
 openai-whisper
 faster-whisper
 whisper-timestamped
-
 eng_to_ipa
 inflect
 unidecode
-
 pypinyin
 cn2an
 jieba
 langid
-
 wavmark
-
 openai
-
 gradio
 
 modelscope==1.37.0
@@ -51,7 +40,6 @@ transformers==4.51.3
 
 num2words
 pykakasi
-
 mecab-python3
 fugashi[unidic-lite]
 
@@ -71,7 +59,6 @@ hydra-core==1.3.2
 conformer==0.3.2
 diffusers==0.38.0
 lightning==2.2.4
-
 gdown==5.1.0
 HyperPyYAML==1.2.3
 networkx==2.8.8
