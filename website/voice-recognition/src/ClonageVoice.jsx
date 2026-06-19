@@ -179,7 +179,7 @@ function ClonageVoice({ isAuthenticated }) {
             )}
 
             {inputMode === 'record' && !audioURL && (
-              <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime}/>
+              <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime} clonage={true}/>
             )}
 
             {inputMode === 'import' && !audioURL && (

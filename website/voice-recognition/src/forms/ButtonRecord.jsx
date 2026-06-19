@@ -3,7 +3,7 @@ import './../styles/App.css'
 import { useApi } from './../hooks/useAPI'
 import { useRecording } from './../hooks/useRecording'
 
-export default function ButtonRecord({isRecording, audioURL, setError, startRecording, stopRecording, recordingTime}) {
+export default function ButtonRecord({isRecording, audioURL, setError, startRecording, stopRecording, recordingTime, clonage=false}) {
 
     const EXAMPLE_SENTENCES = {
         None: "None",
@@ -35,7 +35,12 @@ export default function ButtonRecord({isRecording, audioURL, setError, startReco
 
         {isRecording && (
             <div>
+                {clonage ? (
+                    <p>{Math.floor(recordingTime / 60)}m {recordingTime % 60}s / 30sec</p>
+                ):
                 <p>{Math.floor(recordingTime / 60)}m {recordingTime % 60}s / 10m</p>
+                }
+
                 <button
                     className="remove"
                     onClick={()=>stopRecording(setError)}
