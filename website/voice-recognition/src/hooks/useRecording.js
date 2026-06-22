@@ -1,11 +1,18 @@
 import { useState, useRef } from 'react'
 
+const DIARIZATION_API_URL = "http://localhost:8000/diarization"
+
 export function useRecording() {
   const [isRecording, setIsRecording] = useState(false)
   const [audioURL, setAudioURL] = useState(null)
   const [audioBlob, setAudioBlob] = useState(null)
   const [audioFile, setAudioFile] = useState(null)
   const [recordingTime, setRecordingTime] = useState(0)
+  
+  // Diarization results
+  const [diarization, setDiarization] = useState(null)
+  const [isDiarizationLoading, setIsDiarizationLoading] = useState(false)
+  const [diarizationError, setDiarizationError] = useState(null)
 
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])
@@ -36,6 +43,9 @@ export function useRecording() {
 
         setAudioBlob(blob)
         setAudioURL(URL.createObjectURL(blob))
+        
+        // Run diarization on recorded audio
+        runDiarization(blob)
       }
 
       mediaRecorder.start()
@@ -76,11 +86,58 @@ export function useRecording() {
     setAudioURL(null)
     setAudioBlob(null)
     setAudioFile(null)
+    setDiarization(null)
+    setDiarizationError(null)
     tooShortRef.current = false
     stopRecording()
   }
 
-  const handleFileChange = (event, setError, clonage=false) => {
+  // Run diarization on audio blob
+  const runDiarization = async (audioBlob) => {
+    setIsDiarizationLoading(true)
+    setDiarizationError(null)
+    setDiarization(null)
+
+    try {
+      const formData = new FormData()
+      formData.append("file", audioBlob)
+
+      const response = await fetch(DIARIZATION_API_URL, {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        let errorDetail = `Server error: ${response.status}`
+        try {
+          const errData = await response.json()
+          errorDetail = errData.detail || errorDetail
+        } catch {
+          // Ignore JSON parse errors
+        }
+        setDiarizationError(errorDetail)
+        return
+      }
+
+      const data = await response.json()
+
+      if (data.issue) {
+        setDiarizationError(data.issue_info)
+      } else {
+        // Success - store diarization results
+        setDiarization({
+          issue_info: data.issue_info,
+          result: data.result
+        })
+      }
+    } catch (err) {
+      setDiarizationError(err.message || "Failed to run diarization")
+    } finally {
+      setIsDiarizationLoading(false)
+    }
+  }
+
+  const handleFileChange = (event, setError) => {
     const file = event.target.files[0]
     if (!file) return
 
@@ -113,11 +170,6 @@ export function useRecording() {
 
     const audio = new Audio(URL.createObjectURL(file))
     audio.onloadedmetadata = () => {
-      if (clonage && audio.duration > 30){
-        setError("Audio file for cloning must be under 30 secondes")
-        event.target.value = ""
-        return
-      }
       if (audio.duration < 5) {
         setError("Audio file must be at least 5 seconds")
         event.target.value = ""
@@ -131,6 +183,9 @@ export function useRecording() {
       setError(null)
       setAudioFile(file)
       setAudioURL(URL.createObjectURL(file))
+      
+      // Run diarization on uploaded file
+      runDiarization(file)
     }
   }
 
@@ -138,6 +193,8 @@ export function useRecording() {
     isRecording, audioURL, audioBlob, audioFile,
     recordingTime, fileInputRef,
     startRecording, stopRecording, resetRecording, handleFileChange,
-    error, setError
+    error, setError,
+    // Diarization results
+    diarization, isDiarizationLoading, diarizationError
   }
 }

@@ -25,6 +25,8 @@ function ClonageVoice({ isAuthenticated }) {
     recordingTime, fileInputRef,
     startRecording, stopRecording, resetRecording, handleFileChange,
     error, setError,
+    // Diarization from hook
+    diarization, isDiarizationLoading, diarizationError
   } = useRecording()
 
   const [clone, setClone] = useState(null)
@@ -33,9 +35,6 @@ function ClonageVoice({ isAuthenticated }) {
   const [cloneAudioName, setCloneAudioName] = useState(null) // audio_name (by voice recognition)
   const [loading, setLoading] = useState(false)
   const [errorclone, setErrorclone] = useState(null)
-
-  // Diarization : { SPEAKER_00: { audio: "<base64>", duration: float }, ... }
-  const [diarization, setDiarization] = useState(null)
   
   // Selected speaker from diarization: { name, blob, url }
   const [selectedSpeaker, setSelectedSpeaker] = useState(null)
@@ -65,7 +64,6 @@ function ClonageVoice({ isAuthenticated }) {
     setCloneScore(null)
     setCloneName(null)
     setCloneAudioName(null)
-    setDiarization(null)
     setSelectedSpeaker(null)
     setErrorclone(null)
   }
@@ -90,9 +88,6 @@ function ClonageVoice({ isAuthenticated }) {
         blob: blob,
         url: url
       })
-      
-      // Clear diarization display to show the selected speaker as the new reference
-      setDiarization(null)
     } catch (err) {
       console.error("Error loading speaker audio:", err)
       setErrorclone("Failed to load speaker audio. Please try again.")
@@ -106,7 +101,6 @@ function ClonageVoice({ isAuthenticated }) {
     setCloneScore(null)
     setCloneName(null)
     setCloneAudioName(null)
-    setDiarization(null)
 
     try {
       const targetAudio = currentAudioBlob || audioFile
@@ -143,10 +137,7 @@ function ClonageVoice({ isAuthenticated }) {
 
       const data = await response.json()
 
-      if (data.status === "multiple_speakers") {
-        setDiarization(data.diarization)
-      } 
-      else if (data.status === "success") {
+      if (data.status === "success") {
         const cloneData = data.data.clone
         const metadata = data.data.metadata
 
@@ -198,7 +189,7 @@ function ClonageVoice({ isAuthenticated }) {
           <div className="clonage-step">
             <span className="step-label">1. Reference Voice Sample</span>
 
-            {!currentAudioURL && !selectedSpeaker && (
+            {!audioURL && !selectedSpeaker && (
               <div className="clonage-mode-selector">
                 <button
                   className={`btn-mode ${inputMode === 'record' ? 'active' : ''}`}
@@ -215,18 +206,18 @@ function ClonageVoice({ isAuthenticated }) {
               </div>
             )}
 
-            {inputMode === 'record' && !currentAudioURL && !selectedSpeaker && (
+            {inputMode === 'record' && !audioURL && !selectedSpeaker && (
               <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime} clonage={true}/>
             )}
 
-            {inputMode === 'import' && !currentAudioURL && !selectedSpeaker && (
+            {inputMode === 'import' && !audioURL && !selectedSpeaker && (
               <div className="import-area">
                 <input
                   ref={fileInputRef}
                   id="audio-upload-clonage"
                   type="file"
                   accept="audio/*"
-                  onChange={(e) => handleFileChange(e, setError, true)}
+                  onChange={(e) => handleFileChange(e, setError)}
                 />
                 <label htmlFor="audio-upload-clonage" className="button upload-btn">
                   Browse Audio Files
@@ -235,6 +226,14 @@ function ClonageVoice({ isAuthenticated }) {
             )}
 
             {error && <p className="error-text">⚠️ {error}</p>}
+
+            {/* Diarization loading state */}
+            {audioURL && isDiarizationLoading && (
+              <div className="diarization-loading">
+                <p>🔄 Analyzing speakers...</p>
+              </div>
+            )}
+
 
             {/* Preview Audio */}
             {currentAudioURL && (
@@ -246,50 +245,59 @@ function ClonageVoice({ isAuthenticated }) {
                 <audio controls src={currentAudioURL} className="custom-audio-player" />
               </div>
             )}
+
+            {/* Diarization error */}
+            {diarizationError && (
+              <div className="diarization-error">
+                <p>⚠️ {diarizationError}</p>
+              </div>
+            )}
+
+            {/* Diarization Result - Multiple speakers */}
+            {diarization && diarization.issue_info === "several speakers" && !selectedSpeaker && (
+              <div className="diarization-result-card">
+                <div className="result-header">
+                  <span className="warning-icon">⚠️</span>
+                  <h3>Multiple Speakers Detected</h3>
+                </div>
+                <p>
+                  The audio sample contains <strong>{Object.keys(diarization.result).length} speakers</strong>.
+                  Voice cloning requires a single-speaker recording. Select one speaker below
+                  and we'll use it for voice cloning.
+                </p>
+                <div className="speakers-list">
+                  {Object.entries(diarization.result).map(([speakerName, speakerData]) => (
+                    <div key={speakerName} className="speaker-item">
+                      <div className="speaker-meta">
+                        <span className="speaker-label">{speakerName}</span>
+                        <span className="speaker-duration">
+                          {speakerData.duration.toFixed(1)}s
+                        </span>
+                      </div>
+                      <audio
+                        controls
+                        src={`data:audio/wav;base64,${speakerData.audio}`}
+                        className="custom-audio-player"
+                      />
+                      <button
+                        className="button use-speaker-btn"
+                        onClick={() => handleSelectSpeaker(speakerName, speakerData)}
+                      >
+                        ✓ Use this speaker
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="diarization-actions">
+                  <button className="button secondary-btn" onClick={handleReset}>
+                    ↺ Try different file
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Diarization Result - Let user select a speaker */}
-          {diarization && !selectedSpeaker && (
-            <div className="diarization-result-card">
-              <div className="result-header">
-                <span className="warning-icon">⚠️</span>
-                <h3>Multiple Speakers Detected</h3>
-              </div>
-              <p>
-                The audio sample contains <strong>{Object.keys(diarization).length} speakers</strong>.
-                Voice cloning requires a single-speaker recording. Select one speaker below
-                and we'll use it for voice cloning.
-              </p>
-              <div className="speakers-list">
-                {Object.entries(diarization).map(([speakerName, speakerData]) => (
-                  <div key={speakerName} className="speaker-item">
-                    <div className="speaker-meta">
-                      <span className="speaker-label">{speakerName}</span>
-                      <span className="speaker-duration">
-                        {speakerData.duration.toFixed(1)}s
-                      </span>
-                    </div>
-                    <audio
-                      controls
-                      src={`data:audio/wav;base64,${speakerData.audio}`}
-                      className="custom-audio-player"
-                    />
-                    <button
-                      className="button use-speaker-btn"
-                      onClick={() => handleSelectSpeaker(speakerName, speakerData)}
-                    >
-                      ✓ Use this speaker
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <div className="diarization-actions">
-                <button className="button secondary-btn" onClick={handleReset}>
-                  ↺ Try different file
-                </button>
-              </div>
-            </div>
-          )}
+  
 
           {/* 2. synthesis parameters  */}
           {currentAudioURL && (

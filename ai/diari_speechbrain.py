@@ -12,6 +12,9 @@ from silero_vad import load_silero_vad, get_speech_timestamps
 from ai.embedding import embedding as get_embedding
 from hdbscan import HDBSCAN
 
+MIN_SPEAKER_SEC = 5
+MAX_SPEAKER_SEC = 30
+
 def _reassign_noise(X: np.ndarray, labels: np.ndarray) -> np.ndarray:
     labels = labels.copy()
     noise_mask = labels == -1
@@ -38,6 +41,8 @@ def normalize_audio(audio_array):
 
 def diarizations(audio_array, sample_rate=16000):
     issue = [False, ""]
+    MAX_SPEAKER_SEC = 30.0
+    max_samples = int(MAX_SPEAKER_SEC * sample_rate)
 
     # 1. Detect speech segment
 
@@ -118,9 +123,12 @@ def diarizations(audio_array, sample_rate=16000):
     best_k = len(set(labels))  
     
     if best_k < 2:
-        issue = [True, "One speaker"]
-        print("Only 1 speaker detected")
-        return "", issue
+        issue = [False, "One speaker"]
+        return {
+            "SPEAKER_00": {
+                "audio_array": audio_array  # ← PROBLÈME: pas encodé en base64!
+            }
+        }, issue
     
     print(f"HDBSCAN detected {best_k} speakers")
 
@@ -151,16 +159,20 @@ def diarizations(audio_array, sample_rate=16000):
 
     # 6. Reconstruct and export clean audio files
     result = {}
-
+    
     for lbl in range(best_k):
-        # Target samples where this speaker get more vote and speech was active
         speaker_mask = (sample_speaker_labels == lbl) & (total_votes_per_sample > 0)
         speaker_audio = audio_array[speaker_mask]
         
         # Ignore ghost/artifact clusters that are too short to be human speech or useful ( < 3 sec)
-        if len(speaker_audio) < int(3.0 * sample_rate):
+        if len(speaker_audio) < int(MIN_SPEAKER_SEC * sample_rate):
             print(f"Skipping artifact cluster SPEAKER_0{lbl:02d} (too short)")
             continue
+        
+        # ← AJOUTE CES LIGNES: Couper à 30s max
+        if len(speaker_audio) > max_samples:
+            print(f"Truncating SPEAKER_0{lbl:02d} to {MAX_SPEAKER_SEC}s")
+            speaker_audio = speaker_audio[:max_samples]
             
         buffer = io.BytesIO()
         sf.write(buffer, speaker_audio, samplerate=sample_rate, format="WAV", subtype="PCM_16")
@@ -179,7 +191,7 @@ def diarizations(audio_array, sample_rate=16000):
         issue = [True, "Not enough speech by speakers detected (need at least 3s/speaker)."]
 
     elif len(result)==1:
-        issue = [True, "One speaker"]
+        issue = [False, "One speaker"]
 
     return result, issue
 
