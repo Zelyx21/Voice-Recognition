@@ -60,6 +60,7 @@ function IdentifyVoice() {
             <h2>Identify a voice</h2>
             {/* mode selection */}
 
+
             <div className="button-group">
                 <button
                     onClick={() => {
@@ -79,6 +80,8 @@ function IdentifyVoice() {
                     Import your voice
                 </button>
             </div>
+
+            <p className="clonage-subtitle">Please provide an audio between 5 seconds and 10 minutes</p>
 
             {/* record mode */}
 
