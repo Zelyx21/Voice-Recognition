@@ -90,6 +90,12 @@ def multi_similarity(audios:list, sample_rate=16000):
             }
             else:
                 new_audio = match_audio(audios[email_matches[current_email]["idx_speakers"]], audios[idx])
+                MAX_DURATION_SEC = 30
+                max_samples = int(MAX_DURATION_SEC * sample_rate)
+
+                if len(new_audio) > max_samples:
+                    print(f"Truncating merged speaker to {MAX_DURATION_SEC}s")
+                    new_audio = new_audio[:max_samples]
                 results.append(
                     voice_similarity(new_audio, fromDiari=True)
                 )

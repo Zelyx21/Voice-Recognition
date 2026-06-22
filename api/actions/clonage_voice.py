@@ -77,7 +77,6 @@ def clonage_voice_CosyVoice(audio_bytes:bytes, model_clonage, text="You are test
                             )
 
     else:
-        return
         JSONResponse(
             status_code=400,
             content={"issue": "Voice Cloning unknown"}

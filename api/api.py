@@ -22,7 +22,8 @@ from slowapi.util import get_remote_address
 import base64
 
 #Command to run univcorn
-# uvicorn api.api:app --reload
+# uvicorn api.api:app --host 0.0.0.0 --port 8000 --reload
+# uvicorn api.api:app --host 127.0.0.1 --port 8000 --reload
 
 #use this command to run univcorn with the reload option, it doesn't reload pretrained models.
 # uvicorn api.api:app --reload-dir api --reload-exclude "pretrained_models/*"
@@ -35,7 +36,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:3000","http://localhost:5173"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -211,7 +212,6 @@ async def diarization(file: UploadFile = File(...)):
 async def clonage(
     file: UploadFile = File(...),
     cloneText: str = Form(...),
-
     textSpeed: Optional[float] = Form(1.0),
     language: Optional[str] = Form(None),
     dialect: Optional[str] = Form(None),
@@ -222,12 +222,7 @@ async def clonage(
     speakingStyle: Optional[str] = Form(None),
 ):
     audio_bytes = await file.read()
-    print(
-        f"Received file: {file.filename}, "
-        f"cloneText: {cloneText}, textSpeed: {textSpeed}, cloneMethod: {cloneMethod},"
-        f"language: {language}, dialect: {dialect}, transcriptAudio:{transcriptAudio}"
-        f"instruction: {instruction}, emotion: {emotion}, speakingStyle: {speakingStyle}"
-    )
+    print(...)
     if len(audio_bytes) == 0:
         raise HTTPException(status_code=422, detail="Audio file is empty")
 
@@ -239,13 +234,20 @@ async def clonage(
 
     elif diarization["issue_info"] == "several speakers":
         print("\nSeveral speakers detected.")
+        print("DIARIZATION KEYS:", list(diarization["result"].keys()))
         return JSONResponse(content={"status": "multiple_speakers",
                                      "diarization": diarization["result"]})
 
     else:
         print("Using CosyVoice for voice cloning")
+        
+        speaker_data = diarization["result"]["SPEAKER_00"]
+        audio_base64 = speaker_data["audio"]
+        
+        cloned_audio_bytes = base64.b64decode(audio_base64)
+        
         result = clonage_voice_CosyVoice(
-            audio_bytes=audio_bytes,
+            audio_bytes=cloned_audio_bytes,
             model_clonage=cloneMethod,
             text=cloneText,
             speed=textSpeed,
@@ -269,7 +271,6 @@ async def clonage(
             score_name  = str(compare_database["name"])
             score_audio = str(compare_database["audio_name"])
 
-
         audio_base64 = base64.b64encode(audio_clonage).decode('utf-8')
 
         return JSONResponse(content={
@@ -288,5 +289,4 @@ async def clonage(
                 }
             }
         })
-    
     
