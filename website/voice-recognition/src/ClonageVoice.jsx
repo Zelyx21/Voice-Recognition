@@ -408,7 +408,7 @@ function ClonageVoice({ isAuthenticated }) {
                   onClick={sendClonage}
                   disabled={loading}
                 >
-                  {loading ? "Processing..." : "Execute CosyVoice Synthesis"}
+                  {loading ? "Processing..." : "Clone the voice"}
                 </button>
               </div>
 
