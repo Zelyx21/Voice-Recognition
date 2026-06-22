@@ -22,7 +22,8 @@ from slowapi.util import get_remote_address
 import base64
 
 #Command to run univcorn
-# uvicorn api.api:app --reload
+# uvicorn api.api:app --host 0.0.0.0 --port 8000 --reload
+# uvicorn api.api:app --host 127.0.0.1 --port 8000 --reload
 
 #use this command to run univcorn with the reload option, it doesn't reload pretrained models.
 # uvicorn api.api:app --reload-dir api --reload-exclude "pretrained_models/*"
@@ -35,7 +36,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:3000","http://localhost:5173"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

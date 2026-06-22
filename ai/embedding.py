@@ -1,7 +1,8 @@
 """
 Python file which takes an audio wav and returns a vector
 """
-from speechbrain.pretrained import EncoderClassifier as sb
+import os
+from speechbrain.pretrained import EncoderClassifier
 
 #use this if speechbrain >= 1.0
 #from speechbrain.inference.classifiers import EncoderClassifier as sb
@@ -13,10 +14,20 @@ import numpy as np
 # ------------------charge the model-----------------------
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-speechbrain_model = sb.from_hparams(
-    source="ai\\model\\spkrec-ecapa-voxceleb", 
-    run_opts={"device": device}
-)
+
+model_dir = os.path.join(os.path.dirname(__file__), "model", "spkrec-ecapa-voxceleb")
+
+try:
+    speechbrain_model = EncoderClassifier.from_hparams(
+        source=model_dir,
+        savedir=model_dir,
+        run_opts={"device": device}
+    )
+except Exception as e:
+    print(f"Error loading model: {e}")
+    print(f"Model directory: {model_dir}")
+    print(f"Files in directory: {os.listdir(model_dir)}")
+    raise
 
 def embedding(audio: np.ndarray):
     """
