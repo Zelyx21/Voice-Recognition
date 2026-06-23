@@ -19,6 +19,9 @@ const METRICS_DATA = {
       { key: 'top5_accuracy', value: '99.91%' },
       { key: 'speakers', value: '917' },
       { key: 'recordings', value: '39,953' },
+      { key: 'precision', value: '94,19%'},
+      { key: 'recall', value: '91,16%'},
+      { key: 'f1', value: '91,38%'},
     ],
     clustering: [
       { key: 'silhouette', value: '0.0816' },
@@ -40,6 +43,9 @@ const METRICS_DATA = {
       { key: 'top5_accuracy', value: '99.93%' },
       { key: 'speakers', value: '917' },
       { key: 'recordings', value: '39 953' },
+      { key: 'precision', value: '94,58%'},
+      { key: 'recall', value: '90,63%'},
+      { key: 'f1', value: '91,52%'},
     ],
     clustering: [
       { key: 'silhouette', value: '0.0998' },
@@ -63,6 +69,9 @@ const LABELS = {
     silhouette: 'Silhouette Score',
     nmi: 'NMI',
     purity: 'Purity',
+    precision:'Precision',
+    recall: 'Recall',
+    f1: 'F1-Score',
   },
   fr: {
     intra_similarity: 'Similarité intra-locuteur',
@@ -77,6 +86,9 @@ const LABELS = {
     silhouette: 'Silhouette Score',
     nmi: 'NMI',
     purity: 'Pureté',
+    precision:'Precision',
+    recall: 'Recall',
+    f1: 'F1-Score',
   },
 };
 
