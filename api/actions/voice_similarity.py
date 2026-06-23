@@ -7,7 +7,7 @@ import io
 import numpy as np
 import soundfile as sf
 
-
+SIMILARITY_THRESHOLD = 0.4
 
 def voice_similarity(audio_bytes:bytes, fromDiari=False):
     """
@@ -28,10 +28,13 @@ def voice_similarity(audio_bytes:bytes, fromDiari=False):
     results = search_similarity_attributes(query_vector=emb.tolist(), top_k=1)
     print("results: \n" + str(results))
 
-
+    result = results[0]
+    
+    if result["score"] < SIMILARITY_THRESHOLD:
+        return {"name":"unknown", "score":result["score"], "issue":None}
+    
     #return a dictionnary
-    return results[0]
-
+    return result
 
 
 def match_audio(audio_dict_1: dict, audio_dict_2: dict, sr: int = 16000) -> np.ndarray:
@@ -115,6 +118,10 @@ def multi_similarity(audios:list, sample_rate=16000):
 
         if len(results)==1:
             OneSpeak=True
+    
+    for result in results:
+        if result["score"]< SIMILARITY_THRESHOLD:
+            result["name"] = "unknown"
 
     return results, audios, OneSpeak
 
