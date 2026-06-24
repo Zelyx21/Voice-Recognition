@@ -49,7 +49,7 @@ function IdentifyVoice() {
             }
 
         } catch (err) {
-            setErrorclone(err.message || "An unexpected error occurred during Voice recognition.")
+            setError(err.message || "An unexpected error occurred during Voice recognition.")
         } 
     }
 
@@ -81,7 +81,7 @@ function IdentifyVoice() {
                 </button>
             </div>
 
-            <p className="clonage-subtitle">Please provide an audio between 5 seconds and 10 minutes</p>
+            <p>Please provide an audio between 5 seconds and 10 minutes</p>
 
             {/* record mode */}
 

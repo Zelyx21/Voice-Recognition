@@ -15,6 +15,8 @@ from api.actions.login import authenticate_user, clean_embedding
 from api.actions.auth import verify_token
 from api.actions.AudioToSpeech import AudioToSpeech
 from api.actions.diarization import diarization_audio
+from audio.conversion import conversion
+from audio.processing import resample
 
 from api.schemas import AddVoiceSchema, RegisterSchema, LoginSchema
 from slowapi import Limiter
@@ -73,7 +75,31 @@ async def identify(file: UploadFile = File(...)):
     
     diarization = diarization_audio(audio_bytes)
 
-    if diarization["issue"]:
+    print(f"DEBUG: diarization keys = {diarization.keys()}")
+    print(f"DEBUG: issue = {diarization.get('issue')}")
+    print(f"DEBUG: issue_info = {diarization.get('issue_info')}")
+
+    if diarization["issue_info"] == "One speaker":
+        print("✅ One speaker detected - processing normally")
+        try:
+            speaker_data = diarization["result"]["SPEAKER_00"]
+            audio_base64 = speaker_data["audio"]
+            audio_bytes_decoded = base64.b64decode(audio_base64)
+            
+            # 👇 Applique la même conversion que multi_similarity()
+            audio_conv = conversion(audio_bytes_decoded)
+            audio, sr = resample(audio_conv)
+            # audio = denoise(audio, sr)  # Optionnel si tu veux
+            
+            voice_score = voice_similarity(audio, fromDiari=True)
+            return JSONResponse(content={"status": "success", "data": voice_score})
+        except Exception as e:
+            print(f"❌ Error in voice_similarity: {e}")
+            import traceback
+            traceback.print_exc()
+            raise HTTPException(status_code=422, detail=str(e))
+
+    elif diarization["issue"]:
         print(diarization["issue_info"])
         raise HTTPException(status_code=422, detail=diarization["issue_info"])
 
