@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import './styles/ClonageVoice.css'
 import { useRecording } from './hooks/useRecording'
