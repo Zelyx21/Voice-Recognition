@@ -1,29 +1,22 @@
-__pycache__
+# Modèles lourds → montés en volume, pas dans l'image
+CosyVoice/pretrained_models/
+ai/model/
+database/qdrant_storage/
+
+# Environnements virtuels
+.venv/
+__pycache__/
 *.pyc
 *.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-.git
-.gitignore
-.dockerignore
-.env
-.env.local
-node_modules
-dist
-build
-*.egg-info
-.pytest_cache
-.coverage
-.idea
-.vscode
-*.swp
-*.swo
-*~
+
+# Frontend (pas dans ce conteneur)
+website/
+
+# Git
+.git/
+.gitmodules
+
+# Divers
+*.log
+*.tmp
 .DS_Store
-qdrant_storage
-.next
-.nuxt
-coverage

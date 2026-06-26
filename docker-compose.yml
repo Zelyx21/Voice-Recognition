@@ -2,69 +2,54 @@ version: "3.9"
 
 services:
 
-  # VECTOR DATABASE
+  # ─── Qdrant : base vectorielle ───────────────────────────
   qdrant:
     image: qdrant/qdrant:latest
     container_name: qdrant
+    restart: unless-stopped
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - "6333:6333"   # REST API + Dashboard
+      - "6334:6334"   # gRPC
     volumes:
-      - qdrant_storage:/qdrant/storage
-    environment:
-      - QDRANT_API_KEY=${QDRANT_API_KEY:-}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - ./database/qdrant_storage:/qdrant/storage:z
+    networks:
+      - voice_net
 
-  # BACKEND FASTAPI
+  # ─── Backend FastAPI + GPU ────────────────────────────────
   backend:
-    mem_limit: 20g
     build:
       context: .
       dockerfile: Dockerfile
+      # Décommenter si derrière proxy Dell :
+      # args:
+      #   HTTP_PROXY: "http://proxy.dell.com:PORT"
+      #   HTTPS_PROXY: "http://proxy.dell.com:PORT"
     container_name: voice_backend
-    working_dir: /app
+    restart: unless-stopped
     ports:
       - "8000:8000"
     volumes:
-      - ./:/app
+      # Modèles montés en lecture seule (déjà téléchargés sur l'hôte)
+      - ./CosyVoice/pretrained_models:/app/CosyVoice/pretrained_models:ro
+      - ./ai/model:/app/ai/model:ro
+      # Qdrant storage partagé si nécessaire
+      - ./database/qdrant_storage:/app/database/qdrant_storage:z
     environment:
-      - QDRANT_URL=http://qdrant:6333
-      - PYTHONUNBUFFERED=1
-    command: uvicorn api.api:app --host 0.0.0.0 --port 8000 --reload
+      - HF_HUB_OFFLINE=1
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
     depends_on:
-      qdrant:
-        condition: service_healthy
+      - qdrant
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     networks:
-      - voice_network
-
-  # FRONTEND REACT
-  frontend:
-    build:
-      context: ./website/voice-recognition
-      dockerfile: Dockerfile
-    container_name: voice_frontend
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./website/voice-recognition:/app
-      - /app/node_modules
-    working_dir: /app
-    command: npm run dev -- --host
-    environment:
-      - VITE_API_URL=http://backend:8000
-    depends_on:
-      - backend
-    networks:
-      - voice_network
+      - voice_net
 
 networks:
-  voice_network:
+  voice_net:
     driver: bridge
-
-volumes:
-  qdrant_storage:
-    driver: local

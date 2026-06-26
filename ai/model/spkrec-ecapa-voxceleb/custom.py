@@ -1,1 +1,1 @@
-C:/Users/PC5/Documents/Voice-Recognition/ai/model/spkrec-ecapa-voxceleb/custom.py
+C:/Users/sidsm/OneDrive/Desktop/stage_dell/Voice-Recognition/ai/model/spkrec-ecapa-voxceleb/custom.py
