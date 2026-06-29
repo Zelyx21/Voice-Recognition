@@ -17,7 +17,9 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
     const {
         isRecording, audioURL, audioBlob, audioFile,
         recordingTime, fileInputRef, startRecording, stopRecording,
-        resetRecording, handleFileChange
+        resetRecording, handleFileChange,
+        // Diarization from hook
+        diarization, isDiarizationLoading, diarizationError
     } = useRecording()
 
     const [addMode, setAddMode] = useState(null)
@@ -26,14 +28,46 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
     const [success, setSuccess] = useState(null)
     const [confirmDelete, setConfirmDelete] = useState(null)
     const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false)
+    
+    // Selected speaker from diarization: { name, blob, url }
+    const [selectedSpeaker, setSelectedSpeaker] = useState(null)
 
     const voices = user?.audios_names ?? []
     const canAddVoice = voices.length < MAX_VOICES
 
+    // Get the current audio to use (either from speaker selection or from recording/upload)
+    const currentAudioURL = selectedSpeaker?.url || audioURL
+    const currentAudioBlob = selectedSpeaker?.blob || audioBlob
 
     const flash = (msg) => {
         setSuccess(msg)
         setTimeout(() => setSuccess(null), 3000)
+    }
+
+    // Convert base64 audio to Blob and load as selected speaker
+    const handleSelectSpeaker = (speakerName, speakerData) => {
+        try {
+            // Decode base64 to binary
+            const binaryString = atob(speakerData.audio)
+            const bytes = new Uint8Array(binaryString.length)
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i)
+            }
+            
+            // Create Blob from binary data
+            const blob = new Blob([bytes], { type: 'audio/wav' })
+            const url = URL.createObjectURL(blob)
+            
+            // Store the selected speaker
+            setSelectedSpeaker({
+                name: speakerName,
+                blob: blob,
+                url: url
+            })
+        } catch (err) {
+            console.error("Error loading speaker audio:", err)
+            setError(t('cloning.error_loading_speaker'))
+        }
     }
 
     const handleAddVoice = async () => {
@@ -42,7 +76,9 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
             setError(t('account.error_name_length'))
             return
         }
-        if (!audioBlob && !audioFile) {
+
+        const targetAudio = currentAudioBlob || audioFile
+        if (!targetAudio) {
             setError(t('account.error_no_audio'))
             return
         }
@@ -51,8 +87,8 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
         formData.append("email", user.email)
         formData.append("audio_name", newAudioName.trim())
 
-        if (audioBlob) {
-            formData.append("file", new File([audioBlob], "recording.wav", { type: "audio/wav" }))
+        if (currentAudioBlob) {
+            formData.append("file", new File([currentAudioBlob], "recording.wav", { type: "audio/wav" }))
         } else {
             formData.append("file", audioFile)
         }
@@ -67,8 +103,16 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
             resetRecording()
             setAddMode(null)
             setInputMode(null)
+            setSelectedSpeaker(null)
             flash(t('account.voice_added'))
         }
+    }
+
+    const handleResetAudio = () => {
+        resetRecording()
+        setInputMode(null)
+        setSelectedSpeaker(null)
+        setError(null)
     }
 
     const handleDeleteVoice = async (audio_name) => {
@@ -178,7 +222,7 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                         />
                     </div>
 
-                    {!inputMode && (
+                    {!currentAudioURL && !selectedSpeaker && (
                         <div className="mode-selector">
                             <button className="btn-mode" onClick={() => { setInputMode("record"); resetRecording() }}>
                                 🎙️ {t('account.record_live')}
@@ -189,22 +233,11 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                         </div>
                     )}
 
-                    {inputMode === "record" && (
+                    {inputMode === "record" && !currentAudioURL && !selectedSpeaker && (
                         <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime}/>
-                        
                     )}
 
-                    {audioURL && (
-                        <div className="audio-preview-box">
-                            <div className="audio-preview-top">
-                                <span className="audio-ready-badge">{t('common.success_prefix')} {t('account.recording_ready')}</span>
-                                <button className="remove-btn-action" onClick={resetRecording}>{t('common.button_remove')}</button>
-                            </div>
-                            <audio controls src={audioURL} className="custom-audio-player" />
-                        </div>
-                    )}
-
-                    {inputMode === "import" && (
+                    {inputMode === "import" && !currentAudioURL && !selectedSpeaker && (
                         <div className="import-area">
                             <input
                                 ref={fileInputRef}
@@ -230,11 +263,79 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                         </div>
                     )}
 
+                    {/* Diarization loading state */}
+                    {audioURL && isDiarizationLoading && (
+                        <div className="diarization-loading">
+                            <p>🔄 {t('cloning.analyzing_speakers')}</p>
+                        </div>
+                    )}
+
+                    {/* Preview Audio */}
+                    {currentAudioURL && (
+                        <div className="audio-preview-box">
+                            <div className="audio-preview-top">
+                                <span className="audio-ready-badge">{t('common.success_prefix')} {t('cloning.sample_loaded')} {selectedSpeaker && `(${selectedSpeaker.name})`}</span>
+                                <button className="remove-btn" onClick={handleResetAudio}>{t('cloning.change_sample')}</button>
+                            </div>
+                            <audio controls src={currentAudioURL} className="custom-audio-player" />
+                        </div>
+                    )}
+
+                    {/* Diarization error */}
+                    {diarizationError && (
+                        <div className="diarization-error">
+                            <p>{t('common.error_prefix')} {diarizationError}</p>
+                        </div>
+                    )}
+
+                    {/* Diarization Result - Multiple speakers */}
+                    {diarization && diarization.issue_info === "several speakers" && !selectedSpeaker && (
+                        <div className="diarization-result-card">
+                            <div className="result-header">
+                                <span className="warning-icon">⚠️</span>
+                                <h3>{t('cloning.multiple_speakers_title')}</h3>
+                            </div>
+                            <p>
+                                {t('cloning.multiple_speakers_description', { 
+                                    count: Object.keys(diarization.result).length 
+                                })}
+                            </p>
+                            <div className="speakers-list">
+                                {Object.entries(diarization.result).map(([speakerName, speakerData]) => (
+                                    <div key={speakerName} className="speaker-item">
+                                        <div className="speaker-meta">
+                                            <span className="speaker-label">{speakerName}</span>
+                                            <span className="speaker-duration">
+                                                {speakerData.duration.toFixed(1)}s
+                                            </span>
+                                        </div>
+                                        <audio
+                                            controls
+                                            src={`data:audio/wav;base64,${speakerData.audio}`}
+                                            className="custom-audio-player"
+                                        />
+                                        <button
+                                            className="button use-speaker-btn"
+                                            onClick={() => handleSelectSpeaker(speakerName, speakerData)}
+                                        >
+                                            {t('common.success_prefix')} {t('cloning.use_speaker')}
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="diarization-actions">
+                                <button className="button secondary-btn" onClick={handleResetAudio}>
+                                    {t('cloning.try_other_file')}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="panel-actions">
-                        <button className="button generate-btn" onClick={handleAddVoice} disabled={loading}>
+                        <button className="button generate-btn" onClick={handleAddVoice} disabled={loading || !currentAudioURL}>
                             {loading ? t('account.button_registering') : t('account.confirm_save')}
                         </button>
-                        <button className="cancel-btn-action" onClick={() => { setAddMode(null); setInputMode(null); resetRecording(); setNewAudioName(""); setError(null) }}>
+                        <button className="cancel-btn-action" onClick={() => { setAddMode(null); setInputMode(null); resetRecording(); setNewAudioName(""); setSelectedSpeaker(null); setError(null) }}>
                             {t('common.button_cancel')}
                         </button>
                     </div>

@@ -252,67 +252,50 @@ async def clonage(
     if len(audio_bytes) == 0:
         raise HTTPException(status_code=422, detail="Audio file is empty")
 
-    diarization = diarization_audio(audio_bytes)
-
-    if diarization["issue"]:
-        print(diarization["issue_info"])
-        raise HTTPException(status_code=422, detail=diarization["issue_info"])
-
-    elif diarization["issue_info"] == "several speakers":
-        print("\nSeveral speakers detected.")
-        print("DIARIZATION KEYS:", list(diarization["result"].keys()))
-        return JSONResponse(content={"status": "multiple_speakers",
-                                     "diarization": diarization["result"]})
-
-    else:
-        print("Using CosyVoice for voice cloning")
-        
-        speaker_data = diarization["result"]["SPEAKER_00"]
-        audio_base64 = speaker_data["audio"]
-        
-        cloned_audio_bytes = base64.b64decode(audio_base64)
-        
-        result = clonage_voice_CosyVoice(
-            audio_bytes=cloned_audio_bytes,
-            model_clonage=cloneMethod,
-            text=cloneText,
-            speed=textSpeed,
-            language=language,
-            dialect=dialect,
-            transcriptAudio=transcriptAudio,
-            instruction=instruction,
-            emotion=emotion,
-            speaking_style=speakingStyle,
-        )
-
-        audio_clonage = result.audio_bytes
-        compare_database = voice_similarity(audio_clonage)
-
-        if not compare_database:
-            score_clone = "N/A"
-            score_name  = "N/A"
-            score_audio = "N/A"
-        else:
-            score_clone = str(compare_database["score"])
-            score_name  = str(compare_database["name"])
-            score_audio = str(compare_database["audio_name"])
-
-        audio_base64 = base64.b64encode(audio_clonage).decode('utf-8')
-
-        return JSONResponse(content={
-            "status": "success",
-            "data": {
-                "clone": {
-                    "audio": audio_base64,
-                    "duration": result.audio_duration_s
-                },
-                "metadata": {
-                    "generation_time_ms": result.generation_time_ms,
-                    "real_time_factor": result.real_time_factor,
-                    "score_clone": score_clone,
-                    "score_name": score_name,
-                    "score_audio_name": score_audio
-                }
-            }
-        })
+    print("Using CosyVoice for voice cloning")
     
+    
+    result = clonage_voice_CosyVoice(
+        audio_bytes=audio_bytes,
+        model_clonage=cloneMethod,
+        text=cloneText,
+        speed=textSpeed,
+        language=language,
+        dialect=dialect,
+        transcriptAudio=transcriptAudio,
+        instruction=instruction,
+        emotion=emotion,
+        speaking_style=speakingStyle,
+    )
+
+    audio_clonage = result.audio_bytes
+    compare_database = voice_similarity(audio_clonage)
+
+    if not compare_database:
+        score_clone = "N/A"
+        score_name  = "N/A"
+        score_audio = "N/A"
+    else:
+        score_clone = str(compare_database["score"])
+        score_name  = str(compare_database["name"])
+        score_audio = str(compare_database["audio_name"])
+
+    audio_base64 = base64.b64encode(audio_clonage).decode('utf-8')
+
+    return JSONResponse(content={
+        "status": "success",
+        "data": {
+            "clone": {
+                "audio": audio_base64,
+                "duration": result.audio_duration_s
+            },
+            "metadata": {
+                "generation_time_ms": result.generation_time_ms,
+                "real_time_factor": result.real_time_factor,
+                "score_clone": score_clone,
+                "score_name": score_name,
+                "score_audio_name": score_audio
+            }
+        }
+    })
+
