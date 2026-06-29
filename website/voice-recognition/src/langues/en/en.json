@@ -190,7 +190,9 @@
     "error_name_length": "Audio name must be at least 3 characters.",
     "error_no_audio": "Please record or import an audio file.",
     "error_registering": "Registering...",
-    "button_registering": "Registering..."
+    "button_registering": "Registering...",
+    "default_voice": "Default",
+    "cannot_delete_default_voice": "The default voice profile cannot be deleted."
   },
 
   "identify": {

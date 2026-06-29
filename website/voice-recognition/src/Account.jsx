@@ -8,7 +8,7 @@ import './styles/AuthAccount.css'
 import ButtonRecord from './forms/ButtonRecord'
 
 
-const MAX_VOICES = 5 
+const MAX_VOICES = 5
 
 function Account({ user, setUser, setIsAuthenticated, setToken }) {
     const { t } = useTranslation()
@@ -28,7 +28,7 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
     const [success, setSuccess] = useState(null)
     const [confirmDelete, setConfirmDelete] = useState(null)
     const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false)
-    
+
     // Selected speaker from diarization: { name, blob, url }
     const [selectedSpeaker, setSelectedSpeaker] = useState(null)
 
@@ -38,6 +38,16 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
     // Get the current audio to use (either from speaker selection or from recording/upload)
     const currentAudioURL = selectedSpeaker?.url || audioURL
     const currentAudioBlob = selectedSpeaker?.blob || audioBlob
+
+    const canSubmit =
+        currentAudioURL &&
+        !loading &&
+        !isDiarizationLoading &&
+        (
+            !diarization ||
+            diarization.issue_info !== "several speakers" ||
+            selectedSpeaker
+        )
 
     const flash = (msg) => {
         setSuccess(msg)
@@ -53,11 +63,11 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
             for (let i = 0; i < binaryString.length; i++) {
                 bytes[i] = binaryString.charCodeAt(i)
             }
-            
+
             // Create Blob from binary data
             const blob = new Blob([bytes], { type: 'audio/wav' })
             const url = URL.createObjectURL(blob)
-            
+
             // Store the selected speaker
             setSelectedSpeaker({
                 name: speakerName,
@@ -83,6 +93,16 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
             return
         }
 
+        if (isDiarizationLoading) {
+            setError(t('cloning.analyzing_speakers'))
+            return
+        }
+
+        if (diarization?.issue_info === "several speakers" && !selectedSpeaker) {
+            setError(t('cloning.select_speaker_first'))
+            return
+        }
+
         const formData = new FormData()
         formData.append("email", user.email)
         formData.append("audio_name", newAudioName.trim())
@@ -93,7 +113,25 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
             formData.append("file", audioFile)
         }
 
+        if (isDiarizationLoading) {
+            setError(t('cloning.analyzing_speakers'))
+            return
+        }
+
+        if (
+            diarization?.issue_info === "several speakers" &&
+            !selectedSpeaker
+        ) {
+            setError(t('cloning.select_speaker_first'))
+            return
+        }
+
         const data = await call("/add_voice_db", { method: "POST", body: formData })
+
+        if (!data) {
+            // useApi already set the error message
+            return;
+        }
 
         if (data.status) {
             const updatedUser = { ...user, audios_names: [...voices, newAudioName.trim()] }
@@ -117,14 +155,19 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
 
     const handleDeleteVoice = async (audio_name) => {
         setError(null)
+
+        if (voices[0] === audio_name) {
+            setError(t('account.cannot_delete_default_voice'))
+            return
+        }
         const formData = new FormData()
         formData.append("email", user.email)
         formData.append("audio_name", audio_name)
 
         const data = await call("/delete_voice_db", { method: "POST", body: formData })
-        
+
         if (data) {
-            if (voices.length === 1){
+            if (voices.length === 1) {
                 sessionStorage.clear()
                 setIsAuthenticated(false)
                 setUser(null)
@@ -188,11 +231,13 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                 </div>
 
                 <ul className="voice-list">
-                    {voices.map((v) => (
+                    {voices.map((v, index) => (
                         <li key={v} className="voice-item">
                             <span className="voice-name">🎙️ {v}</span>
 
-                            {confirmDelete === v ? (
+                            {index === 0 ? (
+                                <span className="default-voice-badge">{t('account.default_voice')}</span>
+                            ) : confirmDelete === v ? (
                                 <div className="confirm-delete-actions">
                                     <span className="warning-text">{t('account.confirm_delete')}</span>
                                     <button className="remove-btn-action" onClick={() => handleDeleteVoice(v)}>{t('common.button_yes')}</button>
@@ -211,7 +256,7 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
             {addMode && (
                 <div className="add-voice-panel">
                     <h4>{t('account.add_voice_title')}</h4>
-                    
+
                     <div className="form-group">
                         <label>{t('account.profile_name_label')}</label>
                         <input
@@ -234,7 +279,7 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                     )}
 
                     {inputMode === "record" && !currentAudioURL && !selectedSpeaker && (
-                        <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime}/>
+                        <ButtonRecord isRecording={isRecording} audioURL={audioURL} setError={setError} startRecording={startRecording} stopRecording={stopRecording} recordingTime={recordingTime} />
                     )}
 
                     {inputMode === "import" && !currentAudioURL && !selectedSpeaker && (
@@ -296,8 +341,8 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                                 <h3>{t('cloning.multiple_speakers_title')}</h3>
                             </div>
                             <p>
-                                {t('cloning.multiple_speakers_description', { 
-                                    count: Object.keys(diarization.result).length 
+                                {t('cloning.multiple_speakers_description', {
+                                    count: Object.keys(diarization.result).length
                                 })}
                             </p>
                             <div className="speakers-list">
@@ -332,7 +377,11 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                     )}
 
                     <div className="panel-actions">
-                        <button className="button generate-btn" onClick={handleAddVoice} disabled={loading || !currentAudioURL}>
+                        <button
+                            className="button generate-btn"
+                            onClick={handleAddVoice}
+                            disabled={!canSubmit}
+                        >
                             {loading ? t('account.button_registering') : t('account.confirm_save')}
                         </button>
                         <button className="cancel-btn-action" onClick={() => { setAddMode(null); setInputMode(null); resetRecording(); setNewAudioName(""); setSelectedSpeaker(null); setError(null) }}>

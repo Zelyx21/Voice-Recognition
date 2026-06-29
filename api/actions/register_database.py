@@ -26,32 +26,51 @@ def register_database(audio_bytes:bytes, email, name, password, audio_name):
     return {"status": "success"}
 
 
-def add_voice_database(audio_bytes:bytes, email, audio_name):
+def add_voice_database(audio_bytes: bytes, email, audio_name):
     """
     Takes raw audio bytes and returns a vector npy
     """
     raw = conversion(audio_bytes)
     audio, sr = resample(raw)
-    audio = denoise(audio,sr)
-    audio, issue = vad(audio,sr)
-    if issue[0]: # if there is an issue with the audio file (no voice detected)
-        return {"name": None, "score": 0, "issue": issue[1]}
-    
+    audio = denoise(audio, sr)
+    audio, issue = vad(audio, sr)
+
+    if issue[0]:  # if there is an issue with the audio file (no voice detected)
+        return {
+            "name": None,
+            "score": 0,
+            "issue": issue[1]
+        }
+
     emb = embedding(audio)
 
-    if emb is not None:
-        results = search_similarity_attributes(
-            emb, top_k=1
+    if emb is None:
+        return {
+            "name": None,
+            "score": 0,
+            "issue": "Unable to compute voice embedding"
+        }
+
+    results = search_similarity_attributes(emb, top_k=1)
+
+    if (
+        results
+        and results[0]["email"] == email
+        and results[0]["score"] > 0.4
+    ):
+        add_secure(
+            email=email,
+            vector=emb.tolist(),
+            audio_name=audio_name
         )
 
-        if (results 
-            and results[0]["email"] == email 
-            and results[0]["score"] > 0.6
-            ):
+        return {
+            "status": "success",
+            "issue": None
+        }
 
-            add_secure(email=email, vector=emb.tolist(), audio_name=audio_name)
-
-        return {"name": results[0]["name"], "score": results[0]["score"], "issue": "Unrecognized voice, the audio must come from the same person"}
-
-    
-    return {"status": "success", "issue":None}
+    return {
+        "name": results[0]["name"] if results else None,
+        "score": results[0]["score"] if results else 0,
+        "issue": "Unrecognized voice, the audio must come from the same person"
+    }

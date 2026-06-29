@@ -190,7 +190,9 @@
     "error_name_length": "Le nom de l'audio doit contenir au moins 3 caractères.",
     "error_no_audio": "Veuillez enregistrer ou importer un fichier audio.",
     "error_registering": "Enregistrement en cours...",
-    "button_registering": "Enregistrement en cours..."
+    "button_registering": "Enregistrement en cours...",
+    "default_voice": "Par défaut",
+    "cannot_delete_default_voice": "Le profil vocal par défaut ne peut pas être supprimé."
   },
 
   "identify": {
