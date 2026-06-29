@@ -298,5 +298,144 @@
     "network_error": "Network error. Please try again.",
     "file_error": "Error reading file. Please try another file.",
     "server_error": "Server error. Please try again later."
+  },
+
+  "forms": {
+    "emotion_label": "Emotion",
+    "speaking_style_label": "Speaking style",
+    "emotions": {
+      "neutral": "Neutral",
+      "happy": "Happy",
+      "sad": "Sad",
+      "angry": "Angry",
+      "excited": "Excited",
+      "fearful": "Fearful",
+      "surprised": "Surprised",
+      "disgusted": "Disgusted",
+      "calm": "Calm",
+      "confused": "Confused",
+      "empathetic": "Empathetic",
+      "depressed": "Depressed"
+    },
+    "styles": {
+      "normal": "Normal",
+      "whisper": "Whisper",
+      "shout": "Shout",
+      "storytelling": "Storytelling",
+      "news": "News anchor",
+      "commercial": "Commercial",
+      "child": "Child-like",
+      "elder": "Elder",
+      "mysterious": "Mysterious",
+      "gentle": "Gentle",
+      "authoritative": "Authoritative",
+      "warm": "Warm",
+      "lively": "Lively"
+    },
+    "instruction": {
+      "label": "Custom instruction",
+      "description": "Provide a free-text instruction to guide the synthesis style.",
+      "placeholder": "e.g. Please say a sentence as loudly as possible.\ne.g. Can you try answering in a robotic way?",
+      "clear_button": "Clear instruction"
+    },
+    "language": {
+      "label": "Target language",
+      "warning": "WARNING: If you modify it, the cloning will be less accurate !",
+      "dialect_label": "Dialect / Accent",
+      "standard": "Standard",
+      "same_as_reference": "Same language as reference",
+      "french": "French",
+      "english": "English",
+      "chinese": "Chinese (Mandarin)",
+      "spanish": "Spanish",
+      "german": "German",
+      "italian": "Italian",
+      "korean": "Korean",
+      "russian": "Russian"
+    },
+    "speed": {
+      "label": "Speed — {{speed}}x",
+      "recommendation": "We recommend a speed between 0.8 and 1.5"
+    },
+    "text": {
+      "label": "Text to synthesize"
+    },
+    "audio_reference": {
+      "label": "Reference audio transcript",
+      "description": "Type the exact words spoken in your reference audio recording.",
+      "placeholder": "e.g. Hello, my name is Alice and I am recording this sample.",
+      "auto_transcribe_button": "Auto-transcribe reference audio",
+      "transcribing": "Transcribing...",
+      "use_transcript_button": "Use this transcript",
+      "dismiss_button": "✗ Dismiss",
+      "warning": "Leaving this empty will reduce clone quality.",
+      "transcription_failed": "Transcription failed",
+      "network_error": "Network error: Unable to reach the backend server or CORS issue."
+    },
+    "record": {
+      "start_button": "Start recording",
+      "stop_button": "Stop recording",
+      "instruction": "Say anything !",
+      "help_text": "You don't know what to say ? Choose a language and get example sentences",
+      "examples": {
+        "english": "Of course I'm angry ! You dropped an old hammer on my lap ! Do you know what time the meeting starts ? Can you bring these books back to the library ? Trees also provide shade, and they can temper the climate. The city lies at the mouth of the river.",
+        "french": "Bonjour, comment allez-vous aujourd'hui ? Chaque chercheur poursuit ses propres hypothèses. Les journalistes interrogent plusieurs témoins. Le spectateur applaudit chaleureusement les musiciens. Le système détecte correctement la voix humaine."
+      }
+    },
+    "doctoken": {
+      "title": "📖 Special Tokens Guide (CosyVoice)",
+      "intro": "Enrich your scripts by directly inserting these tags. The voice cloning model interprets these tokens to inject ultra-realistic human sounds or alter word emphasis naturally.",
+      "section1_title": "1. Human Expressions & Noises (Vocal Bursts)",
+      "section1_tip": "Insert these tokens between words. <i>Tip: Always leave a space before and after the token for optimal AI detection.</i>",
+      "table_header_token": "Token",
+      "table_header_effect": "Acoustic Effect",
+      "table_header_example": "Text Example",
+      "example_prefix": "Hello everyone,",
+      "example_suffix": "glad to be here.",
+      "section2_title": "2. Style and Intonation Tags",
+      "strong_label": "Emphasis",
+      "strong_description": "Forces the model to stress the wrapped word or phrase heavily. Perfect for highlighting key technical terms or strong commands.",
+      "strong_example": "Example: This action is <code>&lt;strong&gt;</code>forbidden<code>&lt;/strong&gt;</code>!",
+      "accent_label": "Pitch Accent",
+      "accent_description": "Subtly alters the pitch curve at the token's exact location to mark an intentional bounce in attention.",
+      "accent_example": "Example: Look <code>[accent]</code> up there!",
+      "section3_title": "3. Advanced Pronunciation Hotfixes (Phonemes)",
+      "section3_description": "If the clone mispronounces a rare word or a specific brand name, you can override standard spelling and write sounds directly using internal phonetic tokens.",
+      "english_format": "English Format (ARPAbet)",
+      "english_format_description": "UPPERCASE tokens (e.g., <code>[JH]</code>, <code>[OY2]</code>) handle English. The trailing digit indicates lexical stress: <code>1</code> for primary stress, <code>2</code> for secondary stress, and <code>0</code> for unstressed sounds.",
+      "mandarin_format": "Mandarin Format (Pinyin)",
+      "mandarin_format_description": "Lowercase tokens with accents (e.g., <code>[ǐn]</code>, <code>[uà]</code>) dictate the exact official tones of Mandarin Chinese for complex lip-sync or dubbing use cases.",
+      "bursts": {
+        "breath": {
+          "description": "Normal Breathing",
+          "usage": "Takes a natural breathing pause mid-sentence."
+        },
+        "quick_breath": {
+          "description": "Quick Inhalation",
+          "usage": "Indicates surprise, urgency, or excitement."
+        },
+        "laughter": {
+          "description": "Laughter / Chuckle",
+          "usage": "Adds a warm laugh or a subtle chuckle."
+        },
+        "sigh": {
+          "description": "Sigh",
+          "usage": "Expresses fatigue, relief, or exasperation."
+        },
+        "cough": {
+          "description": "Cough / Throat Clearing",
+          "usage": "Simulates a brief cough or throat clearing."
+        },
+        "lipsmack": {
+          "description": "Lip Smack",
+          "usage": "Labial audio cue (light chewing or preparation before speaking)."
+        },
+        "mn": {
+          "description": "Hesitation (\"Hum\")",
+          "usage": "Ideal for simulating thinking periods or quiet agreements."
+        }
+      }
+    }
   }
+
 }

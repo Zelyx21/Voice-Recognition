@@ -1,23 +1,23 @@
+import { useTranslation } from 'react-i18next'
 
 export default function SpeedForm({ speed, onChange }) {
-  return (
-    <div>
- 
-      <label htmlFor="speed">
-        Speed — {speed}x
-      </label>
-      <p>
-        We recommend a speed between 0.8 and 1.5
-      </p>
-      <input
-        id="speed"
-        type="range"
-        min="0.5" max="2.0" step="0.05"
-        value={speed}
-        onChange={(e) => onChange({ speed: parseFloat(e.target.value) })}
-      />
- 
-    </div>
-  )
-}
+    const { t } = useTranslation()
 
+    return (
+        <div>
+            <label htmlFor="speed">
+                {t('forms.speed.label', { speed: speed.toFixed(2) })}
+            </label>
+            <p>
+                {t('forms.speed.recommendation')}
+            </p>
+            <input
+                id="speed"
+                type="range"
+                min="0.5" max="2.0" step="0.05"
+                value={speed}
+                onChange={(e) => onChange({ speed: parseFloat(e.target.value) })}
+            />
+        </div>
+    )
+}

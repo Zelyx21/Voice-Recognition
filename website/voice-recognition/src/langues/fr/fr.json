@@ -178,11 +178,11 @@
     "delete_account_confirm": "Cela supprimera définitivement votre compte et toutes les données vocales associées. Cette action est irréversible.",
     "delete_account_permanent": "Supprimer définitivement",
     "add_voice_title": "Enregistrer un nouveau profil vocal",
-    "profile_name_label": "Nom du profil",
+    "profile_name_label": "Nom de l'audio",
     "profile_name_placeholder": "ex. Microphone studio",
-    "record_live": "🎙️ Enregistrer en direct",
-    "import_file": "📁 Importer un fichier",
-    "recording_ready": "✓ Enregistrement prêt",
+    "record_live": "Enregistrer en direct",
+    "import_file": "Importer un fichier",
+    "recording_ready": "Enregistrement prêt",
     "browse_audio": "Parcourir les fichiers audio",
     "confirm_save": "Confirmer & enregistrer",
     "voice_added": "Profil vocal ajouté avec succès.",
@@ -226,13 +226,13 @@
     "browse_audio": "Parcourir les fichiers audio",
 
     "analyzing_speakers": "Analyse des locuteurs...",
-    "sample_loaded": "✓ Échantillon chargé",
+    "sample_loaded": "Échantillon chargé",
     "change_sample": "Changer d'échantillon",
 
     "multiple_speakers_title": "Plusieurs locuteurs détectés",
     "multiple_speakers_description": "L'échantillon audio contient {{count}} locuteurs. Le clonage vocal nécessite un enregistrement avec un seul locuteur. Sélectionnez un locuteur ci-dessous et nous l'utiliserons pour le clonage vocal.",
-    "use_speaker": "✓ Utiliser ce locuteur",
-    "try_other_file": "↺ Essayer un autre fichier",
+    "use_speaker": "Utiliser ce locuteur",
+    "try_other_file": "Essayer un autre fichier",
 
     "cloning_method": "Méthodes de clonage disponibles",
 
@@ -298,5 +298,144 @@
     "network_error": "Erreur réseau. Veuillez réessayer.",
     "file_error": "Erreur lors de la lecture du fichier. Veuillez essayer un autre fichier.",
     "server_error": "Erreur serveur. Veuillez réessayer plus tard."
+  },
+
+  "forms": {
+    "emotion_label": "Émotion",
+    "speaking_style_label": "Style de parole",
+    "emotions": {
+      "neutral": "Neutre",
+      "happy": "Heureux",
+      "sad": "Triste",
+      "angry": "En colère",
+      "excited": "Excité",
+      "fearful": "Apeuré",
+      "surprised": "Surpris",
+      "disgusted": "Dégoûté",
+      "calm": "Calme",
+      "confused": "Confus",
+      "empathetic": "Empathique",
+      "depressed": "Déprimé"
+    },
+    "styles": {
+      "normal": "Normal",
+      "whisper": "Chuchotement",
+      "shout": "Cri",
+      "storytelling": "Narration",
+      "news": "Présentateur d'actualités",
+      "commercial": "Publicité",
+      "child": "Enfantin",
+      "elder": "Personne âgée",
+      "mysterious": "Mystérieux",
+      "gentle": "Doux",
+      "authoritative": "Autoritaire",
+      "warm": "Chaleureux",
+      "lively": "Dynamique"
+    },
+    "instruction": {
+      "label": "Instruction personnalisée",
+      "description": "Fournissez une instruction en texte libre pour guider le style de synthèse.",
+      "placeholder": "ex. Veuillez dire une phrase aussi fort que possible.\nex. Peux-tu essayer de répondre d'une manière robotique ?",
+      "clear_button": "Effacer l'instruction"
+    },
+    "language": {
+      "label": "Langue cible",
+      "warning": "ATTENTION : Si vous la modifiez, le clonage sera moins précis !",
+      "dialect_label": "Dialecte / Accent",
+      "standard": "Standard",
+      "same_as_reference": "Même langue que la référence",
+      "french": "Français",
+      "english": "Anglais",
+      "chinese": "Chinois (Mandarin)",
+      "spanish": "Espagnol",
+      "german": "Allemand",
+      "italian": "Italien",
+      "korean": "Coréen",
+      "russian": "Russe"
+    },
+    "speed": {
+      "label": "Vitesse — {{speed}}x",
+      "recommendation": "Nous recommandons une vitesse entre 0,8 et 1,5"
+    },
+    "text": {
+      "label": "Texte à synthétiser"
+    },
+    "audio_reference": {
+      "label": "Transcription de l'audio de référence",
+      "description": "Tapez les mots exacts prononcés dans votre enregistrement audio de référence.",
+      "placeholder": "ex. Bonjour, mon nom est Alice et j'enregistre cet exemple.",
+      "auto_transcribe_button": "Transcrire automatiquement l'audio de référence",
+      "transcribing": "Transcription en cours...",
+      "use_transcript_button": "Utiliser cette transcription",
+      "dismiss_button": "✗ Rejeter",
+      "warning": "Laisser ce champ vide réduira la qualité du clonage.",
+      "transcription_failed": "La transcription a échoué",
+      "network_error": "Erreur réseau : Impossible de joindre le serveur backend ou problème CORS."
+    },
+    "record": {
+      "start_button": "Commencer l'enregistrement",
+      "stop_button": "Arrêter l'enregistrement",
+      "instruction": "Dites ce que vous voulez !",
+      "help_text": "Vous ne savez pas quoi dire ? Choisissez une langue et obtenez des phrases d'exemple",
+      "examples": {
+        "english": "Of course I'm angry ! You dropped an old hammer on my lap ! Do you know what time the meeting starts ? Can you bring these books back to the library ? Trees also provide shade, and they can temper the climate. The city lies at the mouth of the river.",
+        "french": "Bonjour, comment allez-vous aujourd'hui ? Chaque chercheur poursuit ses propres hypothèses. Les journalistes interrogent plusieurs témoins. Le spectateur applaudit chaleureusement les musiciens. Le système détecte correctement la voix humaine."
+      }
+    },
+    "doctoken": {
+      "title": "📖 Guide des tokens spéciaux (CosyVoice)",
+      "intro": "Enrichissez vos scripts en insérant directement ces balises. Le modèle de clonage vocal interprète ces tokens pour injecter des sons humains ultra-réalistes ou modifier naturellement l'emphasis des mots.",
+      "section1_title": "1. Expressions humaines et bruits (Rafales vocales)",
+      "section1_tip": "Insérez ces tokens entre les mots. <i>Conseil : Laissez toujours un espace avant et après le token pour une détection IA optimale.</i>",
+      "table_header_token": "Token",
+      "table_header_effect": "Effet acoustique",
+      "table_header_example": "Exemple de texte",
+      "example_prefix": "Bonjour à tous,",
+      "example_suffix": "heureux d'être ici.",
+      "section2_title": "2. Balises de style et d'intonation",
+      "strong_label": "Emphasis",
+      "strong_description": "Force le modèle à accentuer fortement le mot ou la phrase enveloppé. Parfait pour mettre en évidence les termes techniques clés ou les commandes fortes.",
+      "strong_example": "Exemple : Cette action est <code>&lt;strong&gt;</code>interdite<code>&lt;/strong&gt;</code> !",
+      "accent_label": "Accent de pitch",
+      "accent_description": "Modifie subtilement la courbe de pitch à l'emplacement exact du token pour marquer un rebond intentionnel d'attention.",
+      "accent_example": "Exemple : Regardez <code>[accent]</code> là-haut !",
+      "section3_title": "3. Correctifs de prononciation avancés (Phonèmes)",
+      "section3_description": "Si le clone misprononce un mot rare ou un nom de marque spécifique, vous pouvez remplacer l'orthographe standard et écrire les sons directement en utilisant des tokens phonétiques internes.",
+      "english_format": "Format anglais (ARPAbet)",
+      "english_format_description": "Les tokens MAJUSCULES (ex. <code>[JH]</code>, <code>[OY2]</code>) gèrent l'anglais. Le chiffre final indique l'accent lexical : <code>1</code> pour l'accent primaire, <code>2</code> pour l'accent secondaire, et <code>0</code> pour les sons inaccentués.",
+      "mandarin_format": "Format mandarin (Pinyin)",
+      "mandarin_format_description": "Les tokens minuscules avec accents (ex. <code>[ǐn]</code>, <code>[uà]</code>) dictent les tons officiels exacts du chinois mandarin pour les cas complexes de synchronisation labiale ou de doublage.",
+      "bursts": {
+        "breath": {
+          "description": "Respiration normale",
+          "usage": "Fait une pause respiratoire naturelle au milieu d'une phrase."
+        },
+        "quick_breath": {
+          "description": "Inhalation rapide",
+          "usage": "Indique une surprise, une urgence ou de l'excitation."
+        },
+        "laughter": {
+          "description": "Rire / Gloussement",
+          "usage": "Ajoute un rire chaleureux ou un gloussement subtil."
+        },
+        "sigh": {
+          "description": "Soupir",
+          "usage": "Exprime la fatigue, le soulagement ou l'exaspération."
+        },
+        "cough": {
+          "description": "Toux / Éclaircissement de gorge",
+          "usage": "Simule une brève toux ou un éclaircissement de gorge."
+        },
+        "lipsmack": {
+          "description": "Claquement de lèvres",
+          "usage": "Signal audio labial (légère mastication ou préparation avant de parler)."
+        },
+        "mn": {
+          "description": "Hésitation (\"Hum\")",
+          "usage": "Idéal pour simuler les périodes de réflexion ou les accords silencieux."
+        }
+      }
+    }
   }
+
 }

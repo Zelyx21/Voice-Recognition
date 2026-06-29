@@ -11,6 +11,7 @@ import ButtonRecord from './forms/ButtonRecord'
 const MAX_VOICES = 5 
 
 function Account({ user, setUser, setIsAuthenticated, setToken }) {
+    const { t } = useTranslation()
     const { call, loading, error, setError } = useApi()
     const navigate = useNavigate()
     const {
@@ -38,11 +39,11 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
     const handleAddVoice = async () => {
         setError(null)
         if (!newAudioName || newAudioName.trim().length < 3) {
-            setError("Audio name must be at least 3 characters.")
+            setError(t('account.error_name_length'))
             return
         }
         if (!audioBlob && !audioFile) {
-            setError("Please record or import an audio file.")
+            setError(t('account.error_no_audio'))
             return
         }
 
@@ -66,7 +67,7 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
             resetRecording()
             setAddMode(null)
             setInputMode(null)
-            flash("Voice profile added successfully.")
+            flash(t('account.voice_added'))
         }
     }
 
@@ -90,7 +91,7 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                 sessionStorage.setItem("user", JSON.stringify(updatedUser))
                 setUser(updatedUser)
                 setConfirmDelete(null)
-                flash(`Voice profile "${audio_name}" deleted.`)
+                flash(t('account.voice_deleted', { name: audio_name }))
             }
         }
     }
@@ -121,23 +122,23 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
     return (
         <div className="box auth-box">
             <div className="auth-header">
-                <h2>User Dashboard</h2>
-                <p>Manage your account settings and registered voice profiles.</p>
+                <h2>{t('account.title')}</h2>
+                <p>{t('account.subtitle')}</p>
             </div>
 
             <section className="user-section">
-                <InfoRow label="Display Name" value={user?.name} />
-                <InfoRow label="Email Address" value={user?.email} />
+                <InfoRow label={t('account.display_name')} value={user?.name} />
+                <InfoRow label={t('account.email_address')} value={user?.email} />
             </section>
 
             <hr className="divider" />
 
             <section className="voices-section">
                 <div className="voices-header">
-                    <h3>Registered Voices <span className="voices-counter">({voices.length} / {MAX_VOICES})</span></h3>
+                    <h3>{t('account.registered_voices')} <span className="voices-counter">({voices.length} / {MAX_VOICES})</span></h3>
                     {canAddVoice && !addMode && (
                         <button className="button small-btn" onClick={() => setAddMode("choose")}>
-                            + Add Voice
+                            {t('account.add_voice')}
                         </button>
                     )}
                 </div>
@@ -149,13 +150,13 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
 
                             {confirmDelete === v ? (
                                 <div className="confirm-delete-actions">
-                                    <span className="warning-text">Delete?</span>
-                                    <button className="remove-btn-action" onClick={() => handleDeleteVoice(v)}>Yes</button>
-                                    <button className="cancel-btn-action" onClick={() => setConfirmDelete(null)}>No</button>
+                                    <span className="warning-text">{t('account.confirm_delete')}</span>
+                                    <button className="remove-btn-action" onClick={() => handleDeleteVoice(v)}>{t('common.button_yes')}</button>
+                                    <button className="cancel-btn-action" onClick={() => setConfirmDelete(null)}>{t('common.button_no')}</button>
                                 </div>
                             ) : (
                                 <button className="remove-btn-action" onClick={() => setConfirmDelete(v)}>
-                                    Delete
+                                    {t('common.button_delete')}
                                 </button>
                             )}
                         </li>
@@ -165,13 +166,13 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
 
             {addMode && (
                 <div className="add-voice-panel">
-                    <h4>Register a new voice profile</h4>
+                    <h4>{t('account.add_voice_title')}</h4>
                     
                     <div className="form-group">
-                        <label>Profile Name</label>
+                        <label>{t('account.profile_name_label')}</label>
                         <input
                             type="text"
-                            placeholder="e.g. Studio Microphone"
+                            placeholder={t('account.profile_name_placeholder')}
                             value={newAudioName}
                             onChange={(e) => setNewAudioName(e.target.value)}
                         />
@@ -180,10 +181,10 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                     {!inputMode && (
                         <div className="mode-selector">
                             <button className="btn-mode" onClick={() => { setInputMode("record"); resetRecording() }}>
-                                🎙️ Record Live
+                                🎙️ {t('account.record_live')}
                             </button>
                             <button className="btn-mode" onClick={() => { setInputMode("import"); resetRecording() }}>
-                                📁 Import File
+                                📁 {t('account.import_file')}
                             </button>
                         </div>
                     )}
@@ -196,8 +197,8 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                     {audioURL && (
                         <div className="audio-preview-box">
                             <div className="audio-preview-top">
-                                <span className="audio-ready-badge">✓ Recording ready</span>
-                                <button className="remove-btn-action" onClick={resetRecording}>Remove Audio</button>
+                                <span className="audio-ready-badge">{t('common.success_prefix')} {t('account.recording_ready')}</span>
+                                <button className="remove-btn-action" onClick={resetRecording}>{t('common.button_remove')}</button>
                             </div>
                             <audio controls src={audioURL} className="custom-audio-player" />
                         </div>
@@ -215,13 +216,13 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                             />
                             {!audioFile ? (
                                 <label htmlFor="audio-upload-account" className="button upload-btn">
-                                    Browse Audio Files
+                                    {t('account.browse_audio')}
                                 </label>
                             ) : (
                                 <div className="audio-preview-box">
                                     <div className="audio-preview-top">
-                                        <span className="audio-ready-badge">✓ {audioFile.name}</span>
-                                        <button className="remove-btn-action" onClick={() => fileInputRef.current.click()}>Change</button>
+                                        <span className="audio-ready-badge">{t('common.success_prefix')} {audioFile.name}</span>
+                                        <button className="remove-btn-action" onClick={() => fileInputRef.current.click()}>{t('common.button_remove')}</button>
                                     </div>
                                     <audio controls src={URL.createObjectURL(audioFile)} className="custom-audio-player" />
                                 </div>
@@ -231,37 +232,37 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
 
                     <div className="panel-actions">
                         <button className="button generate-btn" onClick={handleAddVoice} disabled={loading}>
-                            {loading ? "Registering..." : "Confirm & Save"}
+                            {loading ? t('account.button_registering') : t('account.confirm_save')}
                         </button>
                         <button className="cancel-btn-action" onClick={() => { setAddMode(null); setInputMode(null); resetRecording(); setNewAudioName(""); setError(null) }}>
-                            Cancel
+                            {t('common.button_cancel')}
                         </button>
                     </div>
                 </div>
             )}
 
             <div className="auth-feedback">
-                {error && <p className="error-text">⚠️ {error}</p>}
-                {success && <p className="success-text">✓ {success}</p>}
+                {error && <p className="error-text">{t('common.error_prefix')} {error}</p>}
+                {success && <p className="success-text">{t('common.success_prefix')} {success}</p>}
             </div>
 
             <hr className="divider" />
 
             <div className="account-actions">
-                <button className="button auth-submit-btn" onClick={handleLogout}>Log Out</button>
+                <button className="button auth-submit-btn" onClick={handleLogout}>{t('account.logout_button')}</button>
 
                 {!confirmDeleteAccount ? (
                     <button className="remove delete-account-btn" onClick={() => setConfirmDeleteAccount(true)}>
-                        Delete Account
+                        {t('account.delete_account_button')}
                     </button>
                 ) : (
                     <div className="danger-zone">
-                        <p className="warning-text">This will permanently delete your account and all associated voice data. This action is irreversible.</p>
+                        <p className="warning-text">{t('account.delete_account_confirm')}</p>
                         <div className="panel-actions">
                             <button className="button record-btn" onClick={handleDeleteAccount} disabled={loading}>
-                                {loading ? "Deleting..." : "Permanently Delete"}
+                                {loading ? t('common.loading') : t('account.delete_account_permanent')}
                             </button>
-                            <button className="cancel-btn-action" onClick={() => setConfirmDeleteAccount(false)}>Cancel</button>
+                            <button className="cancel-btn-action" onClick={() => setConfirmDeleteAccount(false)}>{t('common.button_cancel')}</button>
                         </div>
                     </div>
                 )}

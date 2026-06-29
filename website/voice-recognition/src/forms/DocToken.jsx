@@ -1,36 +1,67 @@
 // DocToken.jsx
+import { useTranslation } from 'react-i18next'
 import './../styles/styleDoc.css';
 
 export default function DocToken() {
+  const { t } = useTranslation()
+
   const vocalBursts = [
-    { token: '[breath]', description: 'Normal Breathing', usage: 'Takes a natural breathing pause mid-sentence.' },
-    { token: '[quick_breath]', description: 'Quick Inhalation', usage: 'Indicates surprise, urgency, or excitement.' },
-    { token: '[laughter]', description: 'Laughter / Chuckle', usage: 'Adds a warm laugh or a subtle chuckle.' },
-    { token: '[sigh]', description: 'Sigh', usage: 'Expresses fatigue, relief, or exasperation.' },
-    { token: '[cough]', description: 'Cough / Throat Clearing', usage: 'Simulates a brief cough or throat clearing.' },
-    { token: '[lipsmack]', description: 'Lip Smack', usage: 'Labial audio cue (light chewing or preparation before speaking).' },
-    { token: '[mn]', description: 'Hesitation ("Hum")', usage: 'Ideal for simulating thinking periods or quiet agreements.' },
+    { 
+      token: '[breath]', 
+      descriptionKey: 'forms.doctoken.bursts.breath.description',
+      usageKey: 'forms.doctoken.bursts.breath.usage'
+    },
+    { 
+      token: '[quick_breath]', 
+      descriptionKey: 'forms.doctoken.bursts.quick_breath.description',
+      usageKey: 'forms.doctoken.bursts.quick_breath.usage'
+    },
+    { 
+      token: '[laughter]', 
+      descriptionKey: 'forms.doctoken.bursts.laughter.description',
+      usageKey: 'forms.doctoken.bursts.laughter.usage'
+    },
+    { 
+      token: '[sigh]', 
+      descriptionKey: 'forms.doctoken.bursts.sigh.description',
+      usageKey: 'forms.doctoken.bursts.sigh.usage'
+    },
+    { 
+      token: '[cough]', 
+      descriptionKey: 'forms.doctoken.bursts.cough.description',
+      usageKey: 'forms.doctoken.bursts.cough.usage'
+    },
+    { 
+      token: '[lipsmack]', 
+      descriptionKey: 'forms.doctoken.bursts.lipsmack.description',
+      usageKey: 'forms.doctoken.bursts.lipsmack.usage'
+    },
+    { 
+      token: '[mn]', 
+      descriptionKey: 'forms.doctoken.bursts.mn.description',
+      usageKey: 'forms.doctoken.bursts.mn.usage'
+    },
   ];
 
   return (
     <div className="doc-token-wrapper">
-      <h2 className="doc-token-main-title">📖 Special Tokens Guide (CosyVoice)</h2>
+      <h2 className="doc-token-main-title">{t('forms.doctoken.title')}</h2>
       <p className="doc-token-intro">
-        Enrich your scripts by directly inserting these tags. The voice cloning model interprets these tokens to inject ultra-realistic human sounds or alter word emphasis naturally.
+        {t('forms.doctoken.intro')}
       </p>
 
       {/* Human expressions */}
-      <h3 className="doc-token-section-title">1. Human Expressions & Noises (Vocal Bursts)</h3>
+      <h3 className="doc-token-section-title">{t('forms.doctoken.section1_title')}</h3>
       <p className="doc-token-text">
-        Insert these tokens between words. <i>Tip: Always leave a space before and after the token for optimal AI detection.</i>
+        {t('forms.doctoken.section1_tip')}
       </p>
       <div className="doc-token-table-responsive">
         <table className="doc-token-table">
           <thead>
             <tr className="doc-token-th-row">
-              <th className="doc-token-th">Token</th>
-              <th className="doc-token-th">Acoustic Effect</th>
-              <th className="doc-token-th">Text Example</th>
+              <th className="doc-token-th">{t('forms.doctoken.table_header_token')}</th>
+              <th className="doc-token-th">{t('forms.doctoken.table_header_effect')}</th>
+              <th className="doc-token-th">{t('forms.doctoken.table_header_example')}</th>
             </tr>
           </thead>
           <tbody>
@@ -38,11 +69,11 @@ export default function DocToken() {
               <tr key={b.token}>
                 <td className="doc-token-td-token"><code>{b.token}</code></td>
                 <td className="doc-token-td">
-                  <strong>{b.description}</strong>
-                  <div className="doc-token-sub-text">{b.usage}</div>
+                  <strong>{t(b.descriptionKey)}</strong>
+                  <div className="doc-token-sub-text">{t(b.usageKey)}</div>
                 </td>
                 <td className="doc-token-td-example">
-                  "Hello everyone, <span className="doc-token-highlight">{b.token}</span> glad to be here."
+                  {t('forms.doctoken.example_prefix')} <span className="doc-token-highlight">{b.token}</span> {t('forms.doctoken.example_suffix')}
                 </td>
               </tr>
             ))}
@@ -51,16 +82,16 @@ export default function DocToken() {
       </div>
 
       {/* Intonation tags */}
-      <h3 className="doc-token-section-title">2. Style and Intonation Tags</h3>
+      <h3 className="doc-token-section-title">{t('forms.doctoken.section2_title')}</h3>
       <div className="doc-token-card-container">
         <div className="doc-token-card">
           <div className="doc-token-card-header">
             <code>&lt;strong&gt;text&lt;/strong&gt;</code>
           </div>
           <p className="doc-token-card-body">
-            <strong>Emphasis:</strong> Forces the model to stress the wrapped word or phrase heavily. Perfect for highlighting key technical terms or strong commands.
+            <strong>{t('forms.doctoken.strong_label')}:</strong> {t('forms.doctoken.strong_description')}
             <br />
-            <span className="doc-token-sub-text">Example: "This action is <code>&lt;strong&gt;</code>forbidden<code>&lt;/strong&gt;</code>!"</span>
+            <span className="doc-token-sub-text">{t('forms.doctoken.strong_example')}</span>
           </p>
         </div>
 
@@ -69,25 +100,23 @@ export default function DocToken() {
             <code>[accent]</code>
           </div>
           <p className="doc-token-card-body">
-            <strong>Pitch Accent:</strong> Subtly alters the pitch curve at the token's exact location to mark an intentional bounce in attention.
+            <strong>{t('forms.doctoken.accent_label')}:</strong> {t('forms.doctoken.accent_description')}
             <br />
-            <span className="doc-token-sub-text">Example: "Look <code>[accent]</code> up there!"</span>
+            <span className="doc-token-sub-text">{t('forms.doctoken.accent_example')}</span>
           </p>
         </div>
       </div>
 
       {/* Phonemes */}
-      <h3 className="doc-token-section-title">3. Advanced Pronunciation Hotfixes (Phonemes)</h3>
+      <h3 className="doc-token-section-title">{t('forms.doctoken.section3_title')}</h3>
       <p className="doc-token-text">
-        If the clone mispronounces a rare word or a specific brand name, you can override standard spelling and write sounds directly using internal phonetic tokens.
+        {t('forms.doctoken.section3_description')}
       </p>
       <div className="doc-token-alert-box">
-        <strong>💡 English Format (ARPAbet):</strong> UPPERCASE tokens (e.g., <code>[JH]</code>, <code>[OY2]</code>) handle English. The trailing digit indicates lexical stress: <code>1</code> for primary stress, <code>2</code> for secondary stress, and <code>0</code> for unstressed sounds.
+        <strong>💡 {t('forms.doctoken.english_format')}:</strong> {t('forms.doctoken.english_format_description')}
         <br /><br />
-        <strong>💡 Mandarin Format (Pinyin):</strong> Lowercase tokens with accents (e.g., <code>[ǐn]</code>, <code>[uà]</code>) dictate the exact official tones of Mandarin Chinese for complex lip-sync or dubbing use cases.
+        <strong>💡 {t('forms.doctoken.mandarin_format')}:</strong> {t('forms.doctoken.mandarin_format_description')}
       </div>
     </div>
   );
 }
-
-
