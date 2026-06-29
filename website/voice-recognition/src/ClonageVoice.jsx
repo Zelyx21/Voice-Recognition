@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import './styles/ClonageVoice.css'
 import { useRecording } from './hooks/useRecording'
@@ -18,6 +19,7 @@ import ButtonRecord from './forms/ButtonRecord'
 const API_URL = "http://localhost:8000/clonage"
 
 function ClonageVoice({ isAuthenticated }) {
+  const { t } = useTranslation()
 
   const [inputMode, setInputMode] = useState(null)
   const {
@@ -90,7 +92,7 @@ function ClonageVoice({ isAuthenticated }) {
       })
     } catch (err) {
       console.error("Error loading speaker audio:", err)
-      setErrorclone("Failed to load speaker audio. Please try again.")
+      setErrorclone(t('cloning.error_loading_speaker'))
     }
   }
 
@@ -105,7 +107,7 @@ function ClonageVoice({ isAuthenticated }) {
     try {
       const targetAudio = currentAudioBlob || audioFile
       if (!targetAudio) {
-        throw new Error("Please provide a voice sample before generating.")
+        throw new Error(t('cloning.error_missing_audio'))
       }
 
       const formData = new FormData()
@@ -150,11 +152,11 @@ function ClonageVoice({ isAuthenticated }) {
         setCloneAudioName(metadata.score_audio_name !== "N/A" ? metadata.score_audio_name : null)
       } 
       else {
-        throw new Error("Unexpected response format from server.")
+        throw new Error(t('cloning.error_unexpected_response'))
       }
 
     } catch (err) {
-      setErrorclone(err.message || "An unexpected error occurred during cloning.")
+      setErrorclone(err.message || t('cloning.error_clone'))
     } finally {
       setLoading(false)
     }
@@ -164,30 +166,30 @@ function ClonageVoice({ isAuthenticated }) {
   return (
     <div className="box clonage-box">
       <div className="clonage-header">
-        <h2>AI Voice Cloning</h2>
-        <p className="clonage-subtitle">Create a digital replica of any target voice sample.</p>
+        <h2>{t('cloning.title')}</h2>
+        <p className="clonage-subtitle">{t('cloning.subtitle')}</p>
       </div>
 
       {/* Locked State  */}
       {!isAuthenticated ? (
         <div className="clonage-locked">
           <span className="lock-icon">🔒</span>
-          <h3>Feature Restricted</h3>
-          <p>Please log in to your account to unlock voice cloning tools.</p>
+          <h3>{t('cloning.locked_title')}</h3>
+          <p>{t('cloning.locked_description')}</p>
         </div>
       ) : (
         <>
           {/* Fun CosyVoice3 info */}
           <div className="engine-banner">
             <div className="engine-info">
-              <span className="engine-badge">Active Engine</span>
-              <h3>CosyVoice v3</h3>
-              <p>Fun-CosyVoice 3.0 is an advanced text-to-speech (TTS) system based on large language models (LLM), surpassing its predecessor (CosyVoice 2.0) in content consistency, speaker similarity, and prosody naturalness. It is designed for zero-shot multilingual speech synthesis in the wild.</p>
+              <span className="engine-badge">{t('cloning.engine_badge')}</span>
+              <h3>{t('cloning.engine_title')}</h3>
+              <p>{t('cloning.engine_description')}</p>
             </div>
           </div>
 
           <div className="clonage-step">
-            <span className="step-label">1. Reference Voice Sample</span>
+            <span className="step-label">{t('cloning.step1')}</span>
 
             {!audioURL && !selectedSpeaker && (
               <div className="clonage-mode-selector">
@@ -195,13 +197,13 @@ function ClonageVoice({ isAuthenticated }) {
                   className={`btn-mode ${inputMode === 'record' ? 'active' : ''}`}
                   onClick={() => { setInputMode('record'); resetRecording() }}
                 >
-                  🎙️ Record Sample Live
+                  🎙️ {t('cloning.record_live')}
                 </button>
                 <button
                   className={`btn-mode ${inputMode === 'import' ? 'active' : ''}`}
                   onClick={() => { setInputMode('import'); resetRecording() }}
                 >
-                  📁 Import Audio File
+                  📁 {t('cloning.import_file')}
                 </button>
               </div>
             )}
@@ -220,17 +222,17 @@ function ClonageVoice({ isAuthenticated }) {
                   onChange={(e) => handleFileChange(e, setError)}
                 />
                 <label htmlFor="audio-upload-clonage" className="button upload-btn">
-                  Browse Audio Files
+                  {t('cloning.browse_audio')}
                 </label>
               </div>
             )}
 
-            {error && <p className="error-text">⚠️ {error}</p>}
+            {error && <p className="error-text">{t('common.error_prefix')} {error}</p>}
 
             {/* Diarization loading state */}
             {audioURL && isDiarizationLoading && (
               <div className="diarization-loading">
-                <p>🔄 Analyzing speakers...</p>
+                <p>🔄 {t('cloning.analyzing_speakers')}</p>
               </div>
             )}
 
@@ -239,8 +241,8 @@ function ClonageVoice({ isAuthenticated }) {
             {currentAudioURL && (
               <div className="audio-preview-box">
                 <div className="audio-preview-top">
-                  <span className="audio-ready-badge">✓ Sample Loaded {selectedSpeaker && `(${selectedSpeaker.name})`}</span>
-                  <button className="remove-btn" onClick={handleReset}>Change Sample</button>
+                  <span className="audio-ready-badge">{t('common.success_prefix')} {t('cloning.sample_loaded')} {selectedSpeaker && `(${selectedSpeaker.name})`}</span>
+                  <button className="remove-btn" onClick={handleReset}>{t('cloning.change_sample')}</button>
                 </div>
                 <audio controls src={currentAudioURL} className="custom-audio-player" />
               </div>
@@ -249,7 +251,7 @@ function ClonageVoice({ isAuthenticated }) {
             {/* Diarization error */}
             {diarizationError && (
               <div className="diarization-error">
-                <p>⚠️ {diarizationError}</p>
+                <p>{t('common.error_prefix')} {diarizationError}</p>
               </div>
             )}
 
@@ -258,12 +260,12 @@ function ClonageVoice({ isAuthenticated }) {
               <div className="diarization-result-card">
                 <div className="result-header">
                   <span className="warning-icon">⚠️</span>
-                  <h3>Multiple Speakers Detected</h3>
+                  <h3>{t('cloning.multiple_speakers_title')}</h3>
                 </div>
                 <p>
-                  The audio sample contains <strong>{Object.keys(diarization.result).length} speakers</strong>.
-                  Voice cloning requires a single-speaker recording. Select one speaker below
-                  and we'll use it for voice cloning.
+                  {t('cloning.multiple_speakers_description', { 
+                    count: Object.keys(diarization.result).length 
+                  })}
                 </p>
                 <div className="speakers-list">
                   {Object.entries(diarization.result).map(([speakerName, speakerData]) => (
@@ -283,14 +285,14 @@ function ClonageVoice({ isAuthenticated }) {
                         className="button use-speaker-btn"
                         onClick={() => handleSelectSpeaker(speakerName, speakerData)}
                       >
-                        ✓ Use this speaker
+                        {t('common.success_prefix')} {t('cloning.use_speaker')}
                       </button>
                     </div>
                   ))}
                 </div>
                 <div className="diarization-actions">
                   <button className="button secondary-btn" onClick={handleReset}>
-                    ↺ Try different file
+                    {t('cloning.try_other_file')}
                   </button>
                 </div>
               </div>
@@ -302,11 +304,11 @@ function ClonageVoice({ isAuthenticated }) {
           {/* 2. synthesis parameters  */}
           {currentAudioURL && (
             <div className="clonage-step">
-              <span className="step-label">2. Synthesis Parameters</span>
+              <span className="step-label">{t('cloning.step2')}</span>
 
               {/* Select Distinct Cloning Method*/}
               <fieldset className="clonage-fieldset">
-                <legend>All Distinct Cloning Method</legend>
+                <legend>{t('cloning.cloning_method')}</legend>
                 <div className="radio-group">
                   <label className="radio-label">
                     <input
@@ -314,7 +316,7 @@ function ClonageVoice({ isAuthenticated }) {
                       checked={method === "zero_shot"}
                       onChange={() => setMethod("zero_shot")}
                     />
-                    <span className="radio-custom">Zero-Shot</span>
+                    <span className="radio-custom">{t('cloning.mode_zeroshot')}</span>
                   </label>
 
                   <label className="radio-label">
@@ -323,7 +325,7 @@ function ClonageVoice({ isAuthenticated }) {
                       checked={method === "cross_lingual"}
                       onChange={() => setMethod("cross_lingual")}
                     />
-                    <span className="radio-custom">Cross-Lingual</span>
+                    <span className="radio-custom">{t('cloning.mode_crosslingual')}</span>
                   </label>
 
                   <label className="radio-label">
@@ -332,7 +334,7 @@ function ClonageVoice({ isAuthenticated }) {
                       checked={method === "preset_instruct"}
                       onChange={() => setMethod("preset_instruct")}
                     />
-                    <span className="radio-custom">Preset Instruct</span>
+                    <span className="radio-custom">{t('cloning.mode_preset')}</span>
                   </label>
 
                   <label className="radio-label">
@@ -341,7 +343,7 @@ function ClonageVoice({ isAuthenticated }) {
                       checked={method === "synthesize_instruct"}
                       onChange={() => setMethod("synthesize_instruct")}
                     />
-                    <span className="radio-custom">Custom Instruction</span>
+                    <span className="radio-custom">{t('cloning.mode_custom')}</span>
                   </label>
                 </div>
               </fieldset>
@@ -367,7 +369,7 @@ function ClonageVoice({ isAuthenticated }) {
                       className="doc-toggle-btn"
                       onClick={() => setShowDocToken(!showDocToken)}
                     >
-                      {showDocToken ? "Mask tokens guide" : "📖 Show special tokens guide"}
+                      {showDocToken ? t('cloning.hide_tokens') : `📖 ${t('cloning.show_tokens')}`}
                     </button>
 
                     {showDocToken && <DocToken />}
@@ -408,13 +410,13 @@ function ClonageVoice({ isAuthenticated }) {
                   onClick={sendClonage}
                   disabled={loading}
                 >
-                  {loading ? "Processing..." : "Clone the voice"}
+                  {loading ? t('cloning.processing') : t('cloning.clone_button')}
                 </button>
               </div>
 
               {errorclone && (
                 <div className="clonage-error-alert">
-                  <p><strong>Cloning Process Interrupted:</strong> {errorclone}</p>
+                  <p><strong>{t('cloning.clone_error_title')}</strong> {errorclone}</p>
                 </div>
               )}
 
@@ -422,18 +424,18 @@ function ClonageVoice({ isAuthenticated }) {
                 <div className="clone-result-card">
                   <div className="result-header">
                     <span className="success-pulse"></span>
-                    <h3>Successfully Cloned Audio Stream</h3>
+                    <h3>{t('cloning.result_title')}</h3>
                   </div>
-                  <p>Your target text voice clone has been successfully synthesized.</p>
+                  <p>{t('cloning.result_description')}</p>
                   <audio controls src={clone} className="custom-audio-player output-player" />
 
                   {/* Similarity score against database */}
                   {cloneScore !== null && (
                     <div className="clone-score-info">
                       <p>
-                        <strong>Database similarity:</strong> {parseFloat(cloneScore).toFixed(3)}
+                        <strong>{t('cloning.database_similarity')}:</strong> {parseFloat(cloneScore).toFixed(3)}
                         {cloneName && (
-                          <> — closest match: <em>{cloneName}</em>
+                          <> — {t('cloning.closest_match')}: <em>{cloneName}</em>
                             {cloneAudioName && <> ({cloneAudioName})</>}
                           </>
                         )}
@@ -442,7 +444,7 @@ function ClonageVoice({ isAuthenticated }) {
                   )}
 
                   <a href={clone} download="cloned_voice_output.wav" className="button download-output-btn">
-                    Download Audio Waveform (.wav)
+                    {t('cloning.download_audio')}
                   </a>
                 </div>
               )}

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useRecording } from './hooks/useRecording'
 import { useApi } from './hooks/useAPI'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import './styles/AuthAccount.css'
 
 import ButtonRecord from './forms/ButtonRecord'
@@ -15,13 +16,14 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
     const [searchParams] = useSearchParams()
     const expired = searchParams.get("expired")
 
-    const { isRecording, audioURL, audioBlob, recordingTime, startRecording, stopRecording, resetRecording } = useRecording()
+    const { isRecording, audioURL, audioBlob, audioFile, recordingTime, startRecording, stopRecording, resetRecording } = useRecording()
     const { call, loading, error, setError } = useApi()
     const navigate = useNavigate()
+    const { t } = useTranslation()
 
     const validate = () => {
-        if (!email) return "Please enter an email address."
-        if (!password && !audioBlob) return "Please enter a password or record your voice."
+        if (!email) return t('login.error_email')
+        if (!password && !audioBlob) return t('login.error_password')
         return null
     }
 
@@ -48,7 +50,7 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
             setIsAuthenticated(true)
             setUser(data)
             setToken(data.token)
-            setSuccess(`Welcome back, ${data.name}!`)
+            setSuccess(t('login.welcome_back', { name: data.name }))
         }
 
         if (data && data.issue) {
@@ -59,33 +61,33 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
     return (
         <div className="box auth-box">
             <div className="auth-header">
-                <h2>Account Login</h2>
+                <h2>{t('login.title')}</h2>
             </div>
             
             <div className="form-group">
-                <label htmlFor="mail-login">Email Address</label>
+                <label htmlFor="mail-login">{t('login.email_label')}</label>
                 <input
                     type="email"
                     id="mail-login"
-                    placeholder="Enter your email"
+                    placeholder={t('login.email_placeholder')}
                     onChange={(e) => setEmail(e.target.value)} 
                 />
             </div>
 
             <div className="form-group">
-                <label>Authentication Method</label>
+                <label>{t('login.auth_method')}</label>
                 <div className="mode-selector">
                     <button 
                         className={`btn-mode ${!recordingOption ? 'active' : ''}`} 
                         onClick={() => {setRecordingOption(false)}}
                     >
-                        🔑 Password
+                        {t('login.password_mode')}
                     </button>
                     <button 
                         className={`btn-mode ${recordingOption ? 'active' : ''}`} 
                         onClick={() => {setRecordingOption(true), setPassword("")}}
                     >
-                        🎙️ Voice Biometrics
+                        {t('login.voice_mode')}
                     </button>
                 </div>
             </div>
@@ -95,7 +97,7 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
                     <input
                         type="password"
                         id="password-login"
-                        placeholder="Enter your password"
+                        placeholder={t('login.password_placeholder')}
                         onChange={(e) => setPassword(e.target.value)}
                     />
                 ) : (
@@ -107,7 +109,7 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
 
                             <div className="file-info" style={{alignItems:"center"}}>
                                 <p>
-                                    Audio ready
+                                    {t('common.audio_ready')}
                                 </p>
 
                                 <audio
@@ -120,7 +122,7 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
                                     onClick={resetRecording}
                                     style={{ alignSelf: "center" }}
                                 >
-                                    Remove audio
+                                    {t('common.button_remove')}
                                 </button>
 
                             </div>
@@ -131,13 +133,13 @@ function Login({ setIsAuthenticated, setUser, setToken }) {
             </div>
             
             <button className="button auth-submit-btn" onClick={login} disabled={loading}>
-                {loading ? "Authenticating..." : "Login"}
+                {loading ? t('login.button_authenticating') : t('login.button_login')}
             </button>
 
             <div className="auth-feedback">
-                {error && <p className="error-text">⚠️ {error}</p>}
-                {expired && <p className="error-text">⚠️ Your session has expired, please login again.</p>}
-                {success && <p className="success-text">✓ {success}</p>}
+                {error && <p className="error-text">{t('common.error_prefix')} {error}</p>}
+                {expired && <p className="error-text">{t('login.session_expired')}</p>}
+                {success && <p className="success-text">{t('common.success_prefix')} {success}</p>}
             </div>
         </div>
     )

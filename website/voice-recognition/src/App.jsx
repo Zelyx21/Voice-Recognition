@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import './styles/App.css'
 import IdentifyVoice from './IdentifyVoice.jsx'
