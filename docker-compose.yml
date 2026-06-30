@@ -21,9 +21,10 @@ services:
       context: .
       dockerfile: Dockerfile
       # Décommenter si derrière proxy Dell :
-      # args:
-      #   HTTP_PROXY: "http://proxy.dell.com:PORT"
-      #   HTTPS_PROXY: "http://proxy.dell.com:PORT"
+      args:
+        HTTP_PROXY: "http://proxy.mtp.supportlabs.dell:80"
+        HTTPS_PROXY: "http://proxy.mtp.supportlabs.dell:80"
+
     container_name: voice_backend
     restart: unless-stopped
     ports:
