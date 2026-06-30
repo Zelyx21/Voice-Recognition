@@ -237,7 +237,7 @@ chroma_db/
 *.dll
 
 #CosyVoice
-#CosyVoice/ 
+CosyVoice/ 
 
 
 
