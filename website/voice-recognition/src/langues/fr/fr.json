@@ -109,7 +109,7 @@
     "button_login": "Se connecter",
     "button_authenticating": "Authentification en cours...",
     "session_expired": "⚠️ Votre session a expiré, veuillez vous reconnecter.",
-    "welcome_back": "Bienvenue, {name} !",
+    "welcome_back": "Bienvenue, {{name}} !",
     "error_email": "Veuillez entrer une adresse email.",
     "error_password": "Veuillez entrer un mot de passe ou enregistrer votre voix.",
     "error_auth": "L'authentification a échoué. Veuillez vérifier vos identifiants."
@@ -186,11 +186,13 @@
     "browse_audio": "Parcourir les fichiers audio",
     "confirm_save": "Confirmer & enregistrer",
     "voice_added": "Profil vocal ajouté avec succès.",
-    "voice_deleted": "Profil vocal \"{name}\" supprimé.",
+    "voice_deleted": "Profil vocal \"{{name}}\" supprimé.",
     "error_name_length": "Le nom de l'audio doit contenir au moins 3 caractères.",
     "error_no_audio": "Veuillez enregistrer ou importer un fichier audio.",
     "error_registering": "Enregistrement en cours...",
-    "button_registering": "Enregistrement en cours..."
+    "button_registering": "Enregistrement en cours...",
+    "default_voice": "Par défaut",
+    "cannot_delete_default_voice": "Le profil vocal par défaut ne peut pas être supprimé."
   },
 
   "identify": {
@@ -201,7 +203,7 @@
     "button_identify": "Identifier le locuteur",
     "button_analyzing": "Analyse en cours...",
     "multiple_speakers": "Plusieurs locuteurs détectés",
-    "speakers_count": "L'exemple audio contient {count} locuteurs.",
+    "speakers_count": "L'exemple audio contient {{count}} locuteurs.",
     "speaker_label": "Locuteur : ",
     "score_label": "Score : ",
     "issue_label": "Problème : "

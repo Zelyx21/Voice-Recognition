@@ -267,7 +267,6 @@
 
 .radio-label input[type="radio"]:checked + .radio-custom {
   color: #8B5CF6;
-  font-weight: 600;
 }
 
 .doc-toggle-btn {
@@ -508,4 +507,185 @@
   background: rgba(255, 255, 255, 0.05);
   padding: 0.25rem 0.75rem;
   border-radius: 4px;
+}
+
+
+
+
+
+
+/* ==========================================================
+   FORMULAIRES (TextForm, LanguageForm, EmotionForm, etc.)
+   ========================================================== */
+
+/* Chaque bloc de formulaire */
+.form-parameters-grid > * {
+  background: linear-gradient(
+    180deg,
+    rgba(30,41,59,.45),
+    rgba(15,23,42,.55)
+  );
+  border: 1px solid rgba(148,163,184,.12);
+  border-radius: 14px;
+  padding: 1.2rem;
+  transition: all .25s ease;
+}
+
+.form-parameters-grid > *:hover {
+  border-color: rgba(139,92,246,.35);
+  box-shadow: 0 0 0 1px rgba(139,92,246,.12);
+}
+
+/* Labels */
+.form-parameters-grid label {
+  display: block;
+  margin-bottom: .55rem;
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #CBD5E1;
+}
+
+/* Inputs / Textarea / Select */
+.form-parameters-grid input,
+.form-parameters-grid textarea,
+.form-parameters-grid select {
+
+  width: 100%;
+  background: rgba(15,23,42,.95);
+  border: 1px solid #334155;
+  color: #F8FAFC;
+
+  border-radius: 10px;
+  padding: .9rem 1rem;
+
+  font-size: .92rem;
+  transition: .25s;
+}
+
+/* Focus */
+.form-parameters-grid input:focus,
+.form-parameters-grid textarea:focus,
+.form-parameters-grid select:focus {
+
+  outline: none;
+  border-color: #8B5CF6;
+
+  box-shadow:
+      0 0 0 3px rgba(139,92,246,.18),
+      0 0 25px rgba(139,92,246,.10);
+}
+
+/* Placeholder */
+.form-parameters-grid textarea::placeholder,
+.form-parameters-grid input::placeholder{
+    color:#64748B;
+}
+
+/* Textarea */
+.form-parameters-grid textarea{
+    min-height:140px;
+    resize:vertical;
+    line-height:1.6;
+}
+
+/* Select */
+.form-parameters-grid select{
+
+    appearance:none;
+
+    background-image:
+        linear-gradient(45deg,transparent 50%,#8B5CF6 50%),
+        linear-gradient(135deg,#8B5CF6 50%,transparent 50%);
+
+    background-position:
+        calc(100% - 18px) calc(50% - 3px),
+        calc(100% - 12px) calc(50% - 3px);
+
+    background-size:6px 6px;
+    background-repeat:no-repeat;
+
+    cursor:pointer;
+}
+
+/* ==========================================================
+   SLIDER (SpeedForm)
+   ========================================================== */
+
+input[type="range"]{
+
+    appearance:none;
+    height:6px;
+
+    background:#1E293B;
+    border-radius:50px;
+
+    padding:0;
+}
+
+input[type="range"]::-webkit-slider-thumb{
+
+    appearance:none;
+
+    width:18px;
+    height:18px;
+    margin-top: -6px;
+
+    border-radius:50%;
+
+    background:#8B5CF6;
+
+    cursor:pointer;
+
+    box-shadow:0 0 12px rgba(139,92,246,.5);
+}
+
+input[type="range"]::-webkit-slider-runnable-track{
+
+    height:6px;
+    border-radius:50px;
+}
+
+/* ==========================================================
+   Champ actif
+   ========================================================== */
+
+.form-parameters-grid > *:focus-within{
+
+    border-color:#8B5CF6;
+
+    box-shadow:
+        0 0 0 1px rgba(139,92,246,.15),
+        0 10px 30px rgba(0,0,0,.25);
+}
+
+/* ==========================================================
+   Petites descriptions
+   ========================================================== */
+
+.form-parameters-grid small,
+.form-parameters-grid p{
+
+    color:#94A3B8;
+    font-size:.82rem;
+}
+
+/* ==========================================================
+   Animation
+   ========================================================== */
+
+
+@keyframes fadeCard{
+
+    from{
+        opacity:0;
+        transform:translateY(8px);
+    }
+
+    to{
+        opacity:1;
+        transform:none;
+    }
+
 }

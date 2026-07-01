@@ -1,9 +1,11 @@
-
-from database.Qdrant import generate_user_id, delete_points, delete_by_email
+from database.Qdrant import generate_user_id, delete_points, delete_by_email, nbr_email
 
 
 def delete_voice_database(email, audio_name):
-    id = generate_user_id (email=email, audio_name=audio_name)
+    if nbr_email(email) <= 1:
+        return {"status": "error", "issue": "Cannot delete the last voice of an account"}
+
+    id = generate_user_id(email=email, audio_name=audio_name)
     delete_points(point_ids=id)
 
     return {"status": "success"}
@@ -12,5 +14,3 @@ def delete_compte(email):
     delete_by_email(email=email)
 
     return {"status": "success"}
-
-

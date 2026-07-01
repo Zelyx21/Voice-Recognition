@@ -76,6 +76,15 @@ function IdentifyVoice() {
         }
     }
 
+    const switchMode = (newMode) => {
+        setMode(newMode)
+        resetRecording()
+        setResult(null)
+        setDiarization(null)
+        setResultDiarization(null)
+        setError(null)
+    }
+
     return (
         <div className="box" style={{ alignItems: "center" }}>
 
@@ -84,19 +93,13 @@ function IdentifyVoice() {
             <div className="button-group">
 
                 <button
-                    onClick={() => {
-                        setMode("record")
-                        resetRecording()
-                    }}
+                    onClick={() => switchMode("record")}
                 >
                     {t('identify.button_record')}
                 </button>
 
                 <button
-                    onClick={() => {
-                        setMode("import")
-                        resetRecording()
-                    }}
+                    onClick={() => switchMode("import")}
                 >
                     {t('identify.button_import')}
                 </button>
@@ -162,24 +165,24 @@ function IdentifyVoice() {
                         src={audioURL}
                     />
 
-                    <button
-                        className="remove"
-                        onClick={resetRecording}
-                        style={{ alignSelf: "center" }}
-                    >
-                        {t('common.button_remove')}
-                    </button>
+                    <div className="file-actions-row">
+                        <button
+                            className="remove"
+                            onClick={resetRecording}
+                        >
+                            {t('common.button_remove')}
+                        </button>
 
-                    <button
-                        className="button"
-                        onClick={sendRecording}
-                        disabled={loading}
-                        style={{ alignSelf: "center" }}
-                    >
-                        {loading
-                            ? t('identify.button_analyzing')
-                            : t('identify.button_identify')}
-                    </button>
+                        <button
+                            className="button"
+                            onClick={sendRecording}
+                            disabled={loading}
+                        >
+                            {loading
+                                ? t('identify.button_analyzing')
+                                : t('identify.button_identify')}
+                        </button>
+                    </div>
 
                     {diarization && resultDiarization && (
                         <div className="diarization-result-card">
