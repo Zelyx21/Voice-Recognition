@@ -48,6 +48,7 @@ main:not(.hm),
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 14px;
 }
 
@@ -227,22 +228,35 @@ button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):active
   width: 100%;
 }
 
+/* Neutralise le style "carte" du speaker-result quand il est DÉJÀ dans une carte .speaker-item (cas diarization) */
 .file-info .speaker-item .speaker-result {
   flex: none;
   width: 100%;
+  max-width: none;
+  margin: 0;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
-/* ─── Résultat d'un locuteur ──────────────────────────────── */
+/* ─── Résultat d'un locuteur (cas SEUL, hors diarization) ───── */
 .speaker-result {
   width: 100%;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin: 0 auto;
+  background: rgba(8, 12, 20, 0.35);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
 }
 
 .speaker-result-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   font-size: 13px;
 }

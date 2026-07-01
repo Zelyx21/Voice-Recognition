@@ -76,6 +76,15 @@ function IdentifyVoice() {
         }
     }
 
+    const switchMode = (newMode) => {
+        setMode(newMode)
+        resetRecording()
+        setResult(null)
+        setDiarization(null)
+        setResultDiarization(null)
+        setError(null)
+    }
+
     return (
         <div className="box" style={{ alignItems: "center" }}>
 
@@ -84,19 +93,13 @@ function IdentifyVoice() {
             <div className="button-group">
 
                 <button
-                    onClick={() => {
-                        setMode("record")
-                        resetRecording()
-                    }}
+                    onClick={() => switchMode("record")}
                 >
                     {t('identify.button_record')}
                 </button>
 
                 <button
-                    onClick={() => {
-                        setMode("import")
-                        resetRecording()
-                    }}
+                    onClick={() => switchMode("import")}
                 >
                     {t('identify.button_import')}
                 </button>
