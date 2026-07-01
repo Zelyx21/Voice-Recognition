@@ -109,7 +109,7 @@
     "button_login": "Se connecter",
     "button_authenticating": "Authentification en cours...",
     "session_expired": "⚠️ Votre session a expiré, veuillez vous reconnecter.",
-    "welcome_back": "Bienvenue, {name} !",
+    "welcome_back": "Bienvenue, {{name}} !",
     "error_email": "Veuillez entrer une adresse email.",
     "error_password": "Veuillez entrer un mot de passe ou enregistrer votre voix.",
     "error_auth": "L'authentification a échoué. Veuillez vérifier vos identifiants."
@@ -203,7 +203,7 @@
     "button_identify": "Identifier le locuteur",
     "button_analyzing": "Analyse en cours...",
     "multiple_speakers": "Plusieurs locuteurs détectés",
-    "speakers_count": "L'exemple audio contient {count} locuteurs.",
+    "speakers_count": "L'exemple audio contient {{count}} locuteurs.",
     "speaker_label": "Locuteur : ",
     "score_label": "Score : ",
     "issue_label": "Problème : "

@@ -165,13 +165,104 @@ button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):active
   text-align: center;
 }
 
-.speaker-item{
-  margin-top: 5px;
+/* ─── Actions boutons (Supprimer / Identifier) en row ───────── */
+.file-actions-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-.speakers-list{
+/* ─── Carte de diarization ────────────────────────────────── */
+.diarization-result-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  align-self: stretch;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+}
+
+.result-header h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ─── Speakers list en row (cartes côte à côte) ─────────────── */
+.speakers-list {
   margin-top: 15px;
-  
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* ─── Speaker items (diarization) en row ─────────────────────── */
+.file-info .speaker-item {
+  flex: 1 1 220px;
+  max-width: 260px;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  background: rgba(8, 12, 20, 0.35);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.file-info .speaker-item audio {
+  width: 100%;
+}
+
+.file-info .speaker-item .speaker-result {
+  flex: none;
+  width: 100%;
+}
+
+/* ─── Résultat d'un locuteur ──────────────────────────────── */
+.speaker-result {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.speaker-result-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.speaker-result-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.speaker-result-value {
+  color: var(--text-primary);
+}
+
+.speaker-result-value.score {
+  color: #3B82F6;
+  font-family: monospace;
+}
+
+.speaker-result-row.issue .speaker-result-value {
+  color: var(--danger);
 }
 
 .speaker-meta{

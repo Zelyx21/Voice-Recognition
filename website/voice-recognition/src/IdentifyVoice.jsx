@@ -162,24 +162,24 @@ function IdentifyVoice() {
                         src={audioURL}
                     />
 
-                    <button
-                        className="remove"
-                        onClick={resetRecording}
-                        style={{ alignSelf: "center" }}
-                    >
-                        {t('common.button_remove')}
-                    </button>
+                    <div className="file-actions-row">
+                        <button
+                            className="remove"
+                            onClick={resetRecording}
+                        >
+                            {t('common.button_remove')}
+                        </button>
 
-                    <button
-                        className="button"
-                        onClick={sendRecording}
-                        disabled={loading}
-                        style={{ alignSelf: "center" }}
-                    >
-                        {loading
-                            ? t('identify.button_analyzing')
-                            : t('identify.button_identify')}
-                    </button>
+                        <button
+                            className="button"
+                            onClick={sendRecording}
+                            disabled={loading}
+                        >
+                            {loading
+                                ? t('identify.button_analyzing')
+                                : t('identify.button_identify')}
+                        </button>
+                    </div>
 
                     {diarization && resultDiarization && (
                         <div className="diarization-result-card">
