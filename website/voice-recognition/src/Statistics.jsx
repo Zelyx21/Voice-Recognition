@@ -125,7 +125,34 @@ export default function Statistics() {
             {t('statistics.subtitle')}
           </p>
         </div>
+      </div>
 
+      {/* Résultats chiffrés en premier */}
+      <div className="box">
+        <MetricsSection
+          title={t('statistics.verification_title')}
+          sectionKey="verification"
+          language={language}
+          t={t}
+        />
+
+        <MetricsSection
+          title={t('statistics.identification_title')}
+          sectionKey="identification"
+          language={language}
+          t={t}
+        />
+
+        <MetricsSection
+          title={t('statistics.clustering_title')}
+          sectionKey="clustering"
+          language={language}
+          t={t}
+        />
+      </div>
+
+      {/* Visualisation PCA / UMAP en dessous */}
+      <div className="box">
         <div className="stats-controls">
           <div className="control-group">
             <span className="control-label">
@@ -151,9 +178,7 @@ export default function Statistics() {
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="box">
         <div className="viz-container">
           <iframe
             key={iframeSrc}
@@ -164,29 +189,6 @@ export default function Statistics() {
             className="viz-iframe"
           />
         </div>
-      </div>
-
-      <div className="box">
-        <MetricsSection
-          title={t('statistics.verification_title')}
-          sectionKey="verification"
-          language={language}
-          t={t}
-        />
-
-        <MetricsSection
-          title={t('statistics.identification_title')}
-          sectionKey="identification"
-          language={language}
-          t={t}
-        />
-
-        <MetricsSection
-          title={t('statistics.clustering_title')}
-          sectionKey="clustering"
-          language={language}
-          t={t}
-        />
       </div>
     </main>
   );
