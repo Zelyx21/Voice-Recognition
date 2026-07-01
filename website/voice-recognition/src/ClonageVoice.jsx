@@ -256,7 +256,7 @@ function ClonageVoice({ isAuthenticated }) {
             )}
 
             {/* Diarization Result - Multiple speakers */}
-            {diarization && diarization.issue_info === "several speakers" && !selectedSpeaker && (
+            {diarization && diarization.speakerCount > 1 && !selectedSpeaker && (
               <div className="diarization-result-card">
                 <div className="result-header">
                   <span className="warning-icon">⚠️</span>
@@ -264,7 +264,7 @@ function ClonageVoice({ isAuthenticated }) {
                 </div>
                 <p>
                   {t('cloning.multiple_speakers_description', { 
-                    count: Object.keys(diarization.result).length 
+                    count: diarization.speakerCount 
                   })}
                 </p>
                 <div className="speakers-list">

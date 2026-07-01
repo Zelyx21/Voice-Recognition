@@ -121,12 +121,12 @@ export function useRecording() {
 
       const data = await response.json()
 
-      if (data.issue) {
-        setDiarizationError(data.issue_info)
+      if (!data.success) {
+        setDiarizationError(data.error || "Diarization failed")
       } else {
         // Success - store diarization results
         setDiarization({
-          issue_info: data.issue_info,
+          speakerCount: data.speaker_count,
           result: data.result
         })
       }
