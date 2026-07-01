@@ -71,7 +71,8 @@ main:not(.hm),
   filter: invert(0.9) hue-rotate(180deg); 
 }
 
-input {
+input 
+:not(.radio-label){
   width: 100%;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
@@ -106,7 +107,7 @@ input[type="file"] {
 }
 
 .button,
-button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link) {
+button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):not(.radio-label) {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -124,13 +125,13 @@ button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link) {
 }
 
 .button:hover,
-button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):hover {
+button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):not(.radio-label):hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(59, 130, 246, 0.45);
 }
 
 .button:active,
-button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):active {
+button:not(.btn-logout):not(.btn-login):not(.btn-register):not(.nav-link):not(.radio-label):active {
   transform: translateY(0);
 }
 
