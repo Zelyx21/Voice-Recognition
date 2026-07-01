@@ -13,6 +13,26 @@ import bcrypt
 VOICE_SIMILARITY_THRESHOLD = 0.6  # À ajuster selon tes tests (0.4 était trop bas)
 CROSS_ACCOUNT_PROTECTION_THRESHOLD = 0.95  # Rejette si TROP similaire (anti-fraude)
 
+
+def register_database(audio_bytes:bytes, email, name, password, audio_name):
+    """
+    Takes raw audio bytes and returns a vector npy
+    """
+    raw = conversion(audio_bytes)
+    audio, sr = resample(raw)
+    audio = denoise(audio,sr)
+    audio, issue = vad(audio,sr)
+
+    if issue[0]: # if there is an issue with the audio file (no voice detected)
+        return {"name": None, "score": 0, "issue": issue[1]}
+
+    emb = embedding(audio)
+
+    print("\n"+audio_name)
+    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    insert_secure(name=name, email=email, vector=emb.tolist(), password=hashed, audio_name=audio_name)
+    return {"status": "success"}
+
 def add_voice_database(audio_bytes: bytes, email, audio_name):
     """
     Takes raw audio bytes and adds it to the database.

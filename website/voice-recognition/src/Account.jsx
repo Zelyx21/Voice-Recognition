@@ -156,7 +156,7 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
     const handleDeleteVoice = async (audio_name) => {
         setError(null)
 
-        if (voices[0] === audio_name) {
+        if (voices.length === 1) {
             setError(t('account.cannot_delete_default_voice'))
             return
         }
@@ -235,7 +235,7 @@ function Account({ user, setUser, setIsAuthenticated, setToken }) {
                         <li key={v} className="voice-item">
                             <span className="voice-name">🎙️ {v}</span>
 
-                            {index === 0 ? (
+                            {voices.length === 1 ? (
                                 <span className="default-voice-badge">{t('account.default_voice')}</span>
                             ) : confirmDelete === v ? (
                                 <div className="confirm-delete-actions">

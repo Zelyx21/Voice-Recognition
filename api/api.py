@@ -75,51 +75,41 @@ async def identify(file: UploadFile = File(...)):
     
     diarization = diarization_audio(audio_bytes)
 
-    print(f"DEBUG: diarization keys = {diarization.keys()}")
-    print(f"DEBUG: issue = {diarization.get('issue')}")
-    print(f"DEBUG: issue_info = {diarization.get('issue_info')}")
+    if not diarization["success"]:
+        raise HTTPException(status_code=422, detail=diarization["error"])
 
-    if diarization["issue_info"] == "One speaker":
-        print("✅ One speaker detected - processing normally")
+    if diarization["speaker_count"] == 1:
+        print("One speaker detected - processing normally")
         try:
             speaker_data = diarization["result"]["SPEAKER_00"]
             audio_base64 = speaker_data["audio"]
             audio_bytes_decoded = base64.b64decode(audio_base64)
             
-            # 👇 Applique la même conversion que multi_similarity()
             audio_conv = conversion(audio_bytes_decoded)
             audio, sr = resample(audio_conv)
-            # audio = denoise(audio, sr)  # Optionnel si tu veux
             
             voice_score = voice_similarity(audio, fromDiari=True)
             return JSONResponse(content={"status": "success", "data": voice_score})
         except Exception as e:
-            print(f"❌ Error in voice_similarity: {e}")
+            print(f"Error in voice_similarity: {e}")
             import traceback
             traceback.print_exc()
             raise HTTPException(status_code=422, detail=str(e))
 
-    elif diarization["issue"]:
-        print(diarization["issue_info"])
-        raise HTTPException(status_code=422, detail=diarization["issue_info"])
-
-    elif diarization["issue_info"] == "several speakers":
-        print("\nSeveral speakers detected.")
-
+    if diarization["speaker_count"] > 1:
+        print(f"🎙️ Multiple speakers detected ({diarization['speaker_count']})")
         audio_list = list(diarization["result"].values())
-
         voices_score, audios, oneSpeak = multi_similarity(audio_list)
 
         if oneSpeak:
             return JSONResponse(content={"status": "success", "data": voices_score[0]})
 
-        return JSONResponse(content={"status": "multiple_speakers",
-                                     "diarization": audios,
-                                     "data": voices_score
-                                     })
-
-    voice_score = voice_similarity(diarization["result"], fromDiari=True)
-    return JSONResponse(content={"status": "success", "data": voice_score})
+        return JSONResponse(content={
+            "status": "multiple_speakers",
+            "speaker_count": diarization["speaker_count"],
+            "diarization": audios,
+            "data": voices_score
+        })
 
 
 @app.post("/registerdb")
@@ -164,10 +154,10 @@ async def add_voice_db(file: UploadFile = File(...), email:str=Form(...), audio_
 
 @app.post("/delete_voice_db")
 async def delete_voice_db(email:str=Form(...), audio_name:str=Form(...)):
-
-    delete_voice_database(email, audio_name)
-    
-    return {"status":"success"}
+    result = delete_voice_database(email, audio_name)
+    if result.get("issue"):
+        raise HTTPException(status_code=422, detail=result["issue"])
+    return {"status": "success"}
 
 @app.post("/delete_compte")
 async def delete_compte_route(email:str=Form(...)):

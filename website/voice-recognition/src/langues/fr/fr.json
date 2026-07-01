@@ -186,7 +186,7 @@
     "browse_audio": "Parcourir les fichiers audio",
     "confirm_save": "Confirmer & enregistrer",
     "voice_added": "Profil vocal ajouté avec succès.",
-    "voice_deleted": "Profil vocal \"{name}\" supprimé.",
+    "voice_deleted": "Profil vocal \"{{name}}\" supprimé.",
     "error_name_length": "Le nom de l'audio doit contenir au moins 3 caractères.",
     "error_no_audio": "Veuillez enregistrer ou importer un fichier audio.",
     "error_registering": "Enregistrement en cours...",
