@@ -146,7 +146,7 @@ export function useLiveRecording(call, setError) {
                 if (mediaRecorderRef.current?.state === "recording") {
                     mediaRecorderRef.current.stop();
                 }
-            }, 3000);
+            }, 300);
 
         } catch (err) {
             setError(err.message);

@@ -312,16 +312,12 @@ async def identify_live(file: UploadFile = File(...)):
         if len(audio) / sr < MIN_DURATION_SEC:
             return JSONResponse(content={"status": "not_speaking"})
 
-        voice_score = voice_similarity(audio, fromDiari=True)
+        voice_score = voice_similarity(audio, fromDiari=True, exact=False)
 
-        if voice_score.get("issue") is not None:
-
+        if voice_score.get("issue"):
             if "No voice detected" in voice_score["issue"]:
                 return JSONResponse(content={"status": "not_speaking"})
-
-            return JSONResponse(
-                content={"status": "error", "message": voice_score["issue"]}
-            )
+            return JSONResponse(content={"status": "error", "message": voice_score["issue"]})
 
         if voice_score["name"] == "unknown":
             return JSONResponse(
