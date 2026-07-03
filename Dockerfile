@@ -41,6 +41,14 @@ RUN ln -sf /usr/bin/python3.10 /usr/bin/python3 && \
 # ─────────────────────────────────────────────
 # 2. Upgrade pip
 # ─────────────────────────────────────────────
+
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ENV http_proxy=$HTTP_PROXY
+ENV https_proxy=$HTTPS_PROXY
+ENV HTTP_PROXY=$HTTP_PROXY
+ENV HTTPS_PROXY=$HTTPS_PROXY
+
 RUN python3 -m pip install --upgrade pip setuptools wheel
 
 # ─────────────────────────────────────────────

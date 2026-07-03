@@ -101,6 +101,7 @@ A ready-to-run download script is included at `scripts/download_models.py`.
 It handles all three required model snapshots in one command:
 
 ```bash
+pip install huggingface_hub
 python scripts/download_models.py
 ```
 
