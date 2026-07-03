@@ -75,14 +75,12 @@ def add_voice_database(audio_bytes: bytes, email, audio_name):
     # Search top matches in entire database
     results = search_similarity_attributes(emb, top_k=5)  # Increased from 1 to 5
 
-    # 1️⃣ Find best match from SAME EMAIL
     best_same_email = None
     for result in results:
         if result["email"] == email:
             best_same_email = result
             break
 
-    # 2️⃣ Check if best match from other emails is TOO SIMILAR (fraud detection)
     best_other_email = None
     for result in results:
         if result["email"] != email:
@@ -99,7 +97,6 @@ def add_voice_database(audio_bytes: bytes, email, audio_name):
             "issue": f"Voice too similar to {best_other_email['name']}'s account. Please use a different voice sample."
         }
 
-    # 3️⃣ Check if voice matches any existing voice of this user
     if (
         best_same_email
         and best_same_email["score"] >= VOICE_SIMILARITY_THRESHOLD
@@ -111,7 +108,6 @@ def add_voice_database(audio_bytes: bytes, email, audio_name):
         )
         return {"status": "success", "issue": None}
 
-    # Rejection: voice doesn't match user's existing voices
     return {
         "name": best_same_email["name"] if best_same_email else "Unknown",
         "score": best_same_email["score"] if best_same_email else 0,
