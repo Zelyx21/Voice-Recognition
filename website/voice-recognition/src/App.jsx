@@ -10,6 +10,7 @@ import Home from './Home.jsx'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import ClonageVoice from './ClonageVoice.jsx'
 import Statistics from './Statistics.jsx'
+import LiveIdentify from './LiveIdentify.jsx'
 
 function ProtectedRoute({ isAuthenticated, children }) {
   const navigate = useNavigate()
@@ -38,6 +39,7 @@ function App() {
         isAuthenticated={isAuthenticated} user={user} setIsAuthenticated={setIsAuthenticated} setUser={setUser} />
       <Routes>
         <Route path="/Voice_Recognition" element={<IdentifyVoice />} />
+        <Route path="/Live_Recognition" element={<LiveIdentify />} />
         <Route path="/" element={<Home isAuthenticated={isAuthenticated} user={user}/>} />
 
         <Route path="/Statistics" element={<Statistics />} />

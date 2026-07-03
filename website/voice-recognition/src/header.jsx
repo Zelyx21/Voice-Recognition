@@ -37,6 +37,7 @@ function Header({ isAuthenticated, user, setIsAuthenticated, setUser }) {
       <nav className="header-nav">
         <Link to="/" className={isActive("/")}>{t('header.home')}</Link>
         <Link to="/Voice_Recognition" className={isActive("/Voice_Recognition")}>{t('header.voice_recognition')}</Link>
+        <Link to="/Live_Recognition" className={isActive("/Live_Recognition")}>{t('header.live_recognition')}</Link>
         <Link to="/Clonage" className={isActive("/Clonage")}>{t('header.voice_cloning')}</Link>
         <Link to="/Statistics" className={isActive("/Statistics")}>{t('header.statistics')}</Link>
       </nav>

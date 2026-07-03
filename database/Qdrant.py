@@ -64,8 +64,8 @@ def search_similarity(query_vector, client=CLIENT, collection_name=BASE, top_k=1
     print(search_result)
     return search_result.points
 
-def search_similarity_attributes(query_vector, client=CLIENT, collection_name=BASE, top_k=1): # Get attribute of the search result
-    response = search_similarity(query_vector, client, collection_name, top_k)
+def search_similarity_attributes(query_vector, client=CLIENT, collection_name=BASE, top_k=1, exact=True): # Get attribute of the search result
+    response = search_similarity(query_vector, client, collection_name, top_k, exact=exact)
     list_clients = []
     for point in response:
         list_clients.append({"id":point.id, 
@@ -73,7 +73,7 @@ def search_similarity_attributes(query_vector, client=CLIENT, collection_name=BA
                              "name":point.payload.get("name"), 
                              "email":point.payload.get("email"),
                              "audio_name":point.payload.get("audio_name"),
-                             "issue":""
+                             "issue":None
                              })
     return list_clients
 
@@ -93,7 +93,7 @@ def search_multi_similarity(query_vectors, client=CLIENT, collection_name=BASE):
                                 "name":point.payload.get("name"), 
                                 "email":point.payload.get("email"),
                                 "audio_name":point.payload.get("audio_name"),
-                                "issue":""
+                                "issue":None
                                 })
     return list_clients
 
