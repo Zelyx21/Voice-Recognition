@@ -290,6 +290,54 @@ async def clonage(
     })
 
 
+@app.post("/identify_live")
+async def identify_live(file: UploadFile = File(...)):
+
+    audio_bytes = await file.read()
+
+    if len(audio_bytes) == 0:
+        raise HTTPException(status_code=422, detail="Audio file is empty")
+
+    if not file.filename.lower().endswith(ALLOWED_EXTENSIONS):
+        raise HTTPException(status_code=400, detail="Unsupported audio format")
+
+    try:
+        # Même pipeline que /identify : conversion + resample, SANS denoise
+        # (le denoise dégrade trop les chunks courts/faible SNR du live)
+        audio_conv = conversion(audio_bytes)
+        audio, sr = resample(audio_conv)
+
+        # Chunk trop court = embedding pas fiable, on ignore plutôt que de mal scorer
+        MIN_DURATION_SEC = 1.5
+        if len(audio) / sr < MIN_DURATION_SEC:
+            return JSONResponse(content={"status": "not_speaking"})
+
+        voice_score = voice_similarity(audio, fromDiari=True, exact=False)
+
+        if voice_score.get("issue"):
+            if "No voice detected" in voice_score["issue"]:
+                return JSONResponse(content={"status": "not_speaking"})
+            return JSONResponse(content={"status": "error", "message": voice_score["issue"]})
+
+        if voice_score["name"] == "unknown":
+            return JSONResponse(
+            content={
+            "status": "success",
+            "data": {
+                "name": "unknown",
+                "score": voice_score["score"]
+            }
+        }
+    )
+
+
+        return JSONResponse(content={"status": "success", "data": voice_score})
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=422, detail=str(e))
+
 
 @app.post("/identify_live")
 async def identify_live(file: UploadFile = File(...)):
@@ -338,3 +386,5 @@ async def identify_live(file: UploadFile = File(...)):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=422, detail=str(e))
+
+

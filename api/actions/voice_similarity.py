@@ -7,9 +7,9 @@ import io
 import numpy as np
 import soundfile as sf
 
-SIMILARITY_THRESHOLD = 0.4
+SIMILARITY_THRESHOLD = 0.3
 
-def voice_similarity(audio_bytes:bytes, fromDiari=False):
+def voice_similarity(audio_bytes:bytes, fromDiari=False, exact=True):
     """
     Takes raw audio bytes and returns the most similar speaker
     """
@@ -25,7 +25,7 @@ def voice_similarity(audio_bytes:bytes, fromDiari=False):
     
     emb = embedding(audio)
 
-    results = search_similarity_attributes(query_vector=emb.tolist(), top_k=1)
+    results = search_similarity_attributes(query_vector=emb.tolist(), top_k=1, exact=exact)
     print("results: \n" + str(results))
 
     result = results[0]
@@ -54,7 +54,7 @@ def match_audio(audio_dict_1: dict, audio_dict_2: dict, sr: int = 16000) -> np.n
 
 def multi_similarity(audios:list, sample_rate=16000):
 
-    Score_similarity_match = 0.6
+    Score_similarity_match = 0.3
     OneSpeak=False
 
     """
